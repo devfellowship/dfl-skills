@@ -27,10 +27,10 @@ export function DocsPage() {
         </span>
       </div>
       <h1 className="m-0 mb-[14px] font-heading text-[46px] font-bold uppercase leading-none">
-        Get started with Forge
+        Get started with DFL Skills
       </h1>
       <p className="m-0 mb-9 max-w-[600px] text-base text-[hsl(212_12%_64%)]">
-        Forge is fully compatible with the stock <InlineCode>skills</InlineCode> CLI — just point
+        DFL Skills is fully compatible with the stock <InlineCode>skills</InlineCode> CLI — just point
         it at the DevFellowship registry.
       </p>
 

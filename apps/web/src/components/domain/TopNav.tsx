@@ -36,7 +36,7 @@ export function TopNav() {
           <Zap className="h-4 w-4 fill-black text-black" strokeWidth={2.4} />
         </span>
         <span className="font-heading text-[22px] font-bold uppercase leading-none tracking-[.04em] text-foreground">
-          Forge
+          DFL Skills
         </span>
       </Link>
 
