@@ -1,21 +1,21 @@
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { useCallback, useEffect, useState } from "react";
 import type { Skill } from "@/data/types";
-import { SKILLS } from "@/data/skills";
 import { fetchSkills } from "@/lib/api";
 
 export interface SkillsState {
   skills: Skill[];
   loading: boolean;
   error: string | null;
-  usingFallback: boolean;
+  refetch: () => void;
 }
 
 export function useSkills(): SkillsState {
   const [skills, setSkills] = useState<Skill[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [usingFallback, setUsingFallback] = useState(false);
+  const [nonce, setNonce] = useState(0);
+
+  const refetch = useCallback(() => setNonce((n) => n + 1), []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -27,20 +27,12 @@ export function useSkills(): SkillsState {
     fetchSkills(controller.signal)
       .then((live) => {
         if (!active) return;
-        if (live.length === 0) {
-          setSkills(SKILLS);
-          setUsingFallback(true);
-        } else {
-          setSkills(live);
-          setUsingFallback(false);
-        }
+        setSkills(live);
       })
       .catch((err: unknown) => {
         if (!active || controller.signal.aborted) return;
-        setSkills(SKILLS);
-        setUsingFallback(true);
+        setSkills([]);
         setError(err instanceof Error ? err.message : "Failed to load registry");
-        toast.error("Couldn't reach the registry — showing preview data");
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -50,7 +42,7 @@ export function useSkills(): SkillsState {
       active = false;
       controller.abort();
     };
-  }, []);
+  }, [nonce]);
 
-  return { skills, loading, error, usingFallback };
+  return { skills, loading, error, refetch };
 }

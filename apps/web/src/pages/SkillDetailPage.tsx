@@ -1,21 +1,16 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ChevronLeft, Search } from "lucide-react";
+import { AlertTriangle, ChevronLeft, Search } from "lucide-react";
 import type { Scope } from "@/data/types";
 import { installCommand } from "@/lib/format";
 import { useSkill } from "@/hooks/useSkill";
-import { Tabs, type TabItem } from "@/components/ui/Tabs";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Button } from "@/components/ui/Button";
 import { KindBadge } from "@/components/domain/KindBadge";
 import { MarkdownView } from "@/components/domain/MarkdownView";
-import { FileTree } from "@/components/domain/FileTree";
-import { McpList, ConnectionList } from "@/components/domain/SkillResources";
 import { InstallPanel } from "@/components/domain/InstallPanel";
 import { SkillMetaPanel } from "@/components/domain/SkillMetaPanel";
 import { SkillDetailSkeleton } from "@/components/domain/SkillDetailSkeleton";
-import { readmeFor } from "@/lib/readme";
-
-type DetailTab = "readme" | "files" | "mcps" | "connections";
 
 function BackLink() {
   return (
@@ -30,21 +25,12 @@ function BackLink() {
 }
 
 export function SkillDetailPage() {
-  const { source, slug } = useParams<{ source: string; slug: string }>();
-  const [tab, setTab] = useState<DetailTab>("readme");
+  const { owner, repo, slug } = useParams<{ owner: string; repo: string; slug: string }>();
+  const source = owner && repo ? `${owner}/${repo}` : undefined;
   const [agent, setAgent] = useState("claude-code");
   const [scope, setScope] = useState<Scope>("global");
 
-  const { skill, loading } = useSkill(source, slug);
-
-  const tabs: TabItem[] = skill
-    ? [
-        { id: "readme", label: "README" },
-        { id: "files", label: "Files", count: skill.files.length },
-        { id: "mcps", label: "MCPs", count: skill.mcps.length },
-        { id: "connections", label: "Connections", count: skill.conns.length },
-      ]
-    : [];
+  const { skill, loading, error, notFound, refetch } = useSkill(source, slug);
 
   return (
     <main className="mx-auto max-w-[1200px] px-6 pb-[90px] pt-6">
@@ -52,7 +38,7 @@ export function SkillDetailPage() {
 
       {loading ? (
         <SkillDetailSkeleton />
-      ) : !skill ? (
+      ) : notFound ? (
         <EmptyState
           icon={<Search className="h-6 w-6" strokeWidth={1.8} />}
           title="Skill not found"
@@ -66,6 +52,13 @@ export function SkillDetailPage() {
             </Link>
           }
         />
+      ) : error || !skill ? (
+        <EmptyState
+          icon={<AlertTriangle className="h-6 w-6" strokeWidth={1.8} />}
+          title="Couldn't load this skill"
+          description="The registry didn't respond. Check your connection and try again."
+          action={<Button onClick={refetch}>Retry</Button>}
+        />
       ) : (
         <div>
           <div className="mb-[6px] flex flex-wrap items-start gap-[14px]">
@@ -74,31 +67,36 @@ export function SkillDetailPage() {
               <h1 className="m-0 font-mono text-[30px] font-semibold tracking-[-.01em] text-foreground">
                 {skill.name}
               </h1>
-              <div className="mt-[7px] flex items-center gap-2 text-[13px] text-[hsl(212_11%_58%)]">
-                <span className="font-semibold text-[hsl(33_80%_60%)]">
-                  {skill.source}/{skill.slug}
-                </span>
-                <span>·</span>
-                <span>by {skill.author}</span>
+              <div className="mt-[7px] text-[13px] font-semibold text-[hsl(33_80%_60%)]">
+                {skill.source}/{skill.slug}
               </div>
             </div>
           </div>
-          <p className="m-0 mb-7 mt-[14px] max-w-[640px] text-[15px] leading-[1.6] text-[hsl(212_12%_66%)]">
+          <p className="m-0 mb-4 mt-[14px] max-w-[640px] text-[15px] leading-[1.6] text-[hsl(212_12%_66%)]">
             {skill.description}
           </p>
+          {skill.tags.length > 0 && (
+            <div className="mb-7 flex flex-wrap gap-[6px]">
+              {skill.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full border border-[hsl(215_15%_18%)] bg-[hsl(215_18%_12%)] px-[9px] py-[3px] text-[12px] text-[hsl(212_12%_66%)]"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
 
           <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
             <div>
-              <Tabs
-                items={tabs}
-                active={tab}
-                onChange={(id) => setTab(id as DetailTab)}
-                className="mb-[22px]"
-              />
-              {tab === "readme" && <MarkdownView source={readmeFor(skill)} />}
-              {tab === "files" && <FileTree files={skill.files} />}
-              {tab === "mcps" && <McpList mcps={skill.mcps} />}
-              {tab === "connections" && <ConnectionList conns={skill.conns} />}
+              {skill.readme ? (
+                <MarkdownView source={skill.readme} />
+              ) : (
+                <div className="animate-fadeUp rounded-[11px] border border-dashed border-[hsl(215_15%_18%)] px-5 py-12 text-center text-[13.5px] text-[hsl(212_10%_52%)]">
+                  No README indexed yet — install the skill to read its SKILL.md.
+                </div>
+              )}
             </div>
 
             <aside className="flex flex-col gap-[14px] lg:sticky lg:top-20">

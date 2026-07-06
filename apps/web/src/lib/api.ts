@@ -1,62 +1,19 @@
-import type {
-  AuditVerdict,
-  ConnectionRef,
-  Kind,
-  McpTool,
-  SearchMode,
-  Skill,
-  SkillFile,
-} from "@/data/types";
+import type { Kind, Skill } from "@/data/types";
 
 const API_BASE: string =
   (import.meta.env.VITE_API_BASE as string | undefined) ?? "https://skills.devfellowship.com";
 
 export interface ApiSkill {
-  id?: string;
   name?: string;
-  slug?: string;
-  owner?: string;
-  repo?: string;
   source?: string;
+  skill?: string;
+  slug?: string;
   kind?: string;
-  type?: string;
   description?: string;
-  summary?: string;
-  topics?: string[];
   tags?: string[];
-  installs?: number;
-  install_count?: number;
-  installCount?: number;
+  visibility?: string;
   updated_at?: string;
-  updatedAt?: string;
-  author?: string;
-  hash?: string;
-  audit?: ApiAudit;
-  trend?: number[];
-  mcps?: ApiNamed[];
-  mcp_tools?: ApiNamed[];
-  connections?: ApiNamed[];
-  conns?: ApiNamed[];
-  files?: ApiFile[];
-  tree?: ApiFile[];
-}
-
-interface ApiAudit {
-  score?: number;
-  verdict?: string;
-}
-
-interface ApiNamed {
-  name?: string;
-  desc?: string;
-  description?: string;
-}
-
-interface ApiFile {
-  path?: string;
-  name?: string;
-  contents?: string;
-  content?: string;
+  readme?: string;
 }
 
 interface ListResponse {
@@ -64,9 +21,8 @@ interface ListResponse {
   scope?: string;
 }
 
-interface SearchResponse {
-  skills?: ApiSkill[];
-  searchType?: string;
+interface SingleResponse {
+  skill?: ApiSkill;
   scope?: string;
 }
 
@@ -91,63 +47,26 @@ async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
 }
 
 const KINDS: ReadonlySet<string> = new Set<Kind>(["skill", "mcp", "connection"]);
-const VERDICTS: ReadonlySet<string> = new Set<AuditVerdict>(["trust", "caution", "warning"]);
 
 function toKind(raw: string | undefined): Kind {
   const value = (raw ?? "").toLowerCase();
   return KINDS.has(value) ? (value as Kind) : "skill";
 }
 
-function toVerdict(raw: string | undefined, score: number): AuditVerdict {
-  const value = (raw ?? "").toLowerCase();
-  if (VERDICTS.has(value)) return value as AuditVerdict;
-  if (score >= 90) return "trust";
-  if (score >= 75) return "caution";
-  return "warning";
-}
-
-function toNamedList(items: ApiNamed[] | undefined): McpTool[] {
-  if (!items) return [];
-  return items.map((it) => ({
-    name: it.name ?? "",
-    desc: it.desc ?? it.description ?? "",
-  }));
-}
-
-function toConnList(items: ApiNamed[] | undefined): ConnectionRef[] {
-  return toNamedList(items);
-}
-
-function toFiles(items: ApiFile[] | undefined): SkillFile[] {
-  if (!items) return [];
-  return items.map((f) => ({
-    path: f.path ?? f.name ?? "",
-    contents: f.contents ?? f.content ?? "",
-  }));
-}
-
 export function adaptSkill(raw: ApiSkill): Skill {
-  const slug = raw.slug ?? raw.repo ?? raw.name ?? "unknown";
-  const source = raw.source ?? raw.owner ?? "devfellowship";
-  const score = raw.audit?.score ?? 0;
-  const mcps = toNamedList(raw.mcps ?? raw.mcp_tools);
-  const conns = toConnList(raw.connections ?? raw.conns);
+  const slug = raw.skill ?? raw.slug ?? raw.name ?? "unknown";
+  const source = raw.source ?? "devfellowship";
   return {
-    id: raw.id ?? `${source}/${slug}`,
+    id: `${source}/${slug}`,
     name: raw.name ?? slug,
     slug,
     source,
-    kind: toKind(raw.kind ?? raw.type),
-    description: raw.description ?? raw.summary ?? "",
-    topics: raw.topics ?? raw.tags ?? [],
-    installs: raw.installs ?? raw.install_count ?? raw.installCount ?? 0,
-    updatedAt: raw.updatedAt ?? raw.updated_at ?? "recently",
-    author: raw.author ?? source,
-    audit: { score, verdict: toVerdict(raw.audit?.verdict, score) },
-    trend: raw.trend ?? [],
-    mcps,
-    conns,
-    files: toFiles(raw.files ?? raw.tree),
+    kind: toKind(raw.kind),
+    description: raw.description ?? "",
+    tags: raw.tags ?? [],
+    updatedAt: raw.updated_at ?? "",
+    visibility: raw.visibility ?? "public",
+    readme: raw.readme,
   };
 }
 
@@ -161,22 +80,10 @@ export async function fetchSkill(
   slug: string,
   signal?: AbortSignal,
 ): Promise<Skill> {
-  const data = await getJson<ApiSkill>(
-    `/api/v1/skills/${encodeURIComponent(source)}/${encodeURIComponent(slug)}/${encodeURIComponent(slug)}`,
-    signal,
-  );
-  return adaptSkill(data);
-}
-
-export async function searchSkills(
-  query: string,
-  mode: SearchMode,
-  signal?: AbortSignal,
-): Promise<Skill[]> {
-  const params = new URLSearchParams({ q: query, mode });
-  const data = await getJson<SearchResponse>(
-    `/api/v1/skills/search?${params.toString()}`,
-    signal,
-  );
-  return (data.skills ?? []).map(adaptSkill);
+  const [owner, repo] = source.split("/");
+  const path = `/api/v1/skills/${encodeURIComponent(owner ?? source)}/${encodeURIComponent(
+    repo ?? "",
+  )}/${encodeURIComponent(slug)}`;
+  const data = await getJson<SingleResponse>(path, signal);
+  return adaptSkill(data.skill ?? (data as unknown as ApiSkill));
 }

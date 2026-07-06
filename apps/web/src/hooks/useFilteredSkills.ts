@@ -17,25 +17,14 @@ export function useFilteredSkills({ skills, query, tab, topics, kind }: Filters)
 
     if (q) {
       list = list.filter((s) =>
-        `${s.name} ${s.description} ${s.topics.join(" ")} ${s.author}`
-          .toLowerCase()
-          .includes(q),
+        `${s.name} ${s.description} ${s.tags.join(" ")} ${s.source}`.toLowerCase().includes(q),
       );
     }
     if (kind !== "all") list = list.filter((s) => s.kind === kind);
-    if (topics.length) list = list.filter((s) => topics.some((t) => s.topics.includes(t)));
-    if (tab === "official") list = list.filter((s) => s.source === "devfellowship");
+    if (topics.length) list = list.filter((s) => topics.some((t) => s.tags.includes(t)));
+    if (tab === "official") list = list.filter((s) => s.source.startsWith("devfellowship/"));
 
-    if (tab === "hot") {
-      list.sort((a, b) => b.installs - a.installs);
-    } else if (tab === "trending") {
-      list.sort(
-        (a, b) =>
-          (b.trend[9] ?? 0) - (b.trend[6] ?? 0) - ((a.trend[9] ?? 0) - (a.trend[6] ?? 0)),
-      );
-    } else if (tab === "all") {
-      list.sort((a, b) => a.name.localeCompare(b.name));
-    }
+    list.sort((a, b) => a.name.localeCompare(b.name));
 
     return list;
   }, [skills, query, tab, topics, kind]);

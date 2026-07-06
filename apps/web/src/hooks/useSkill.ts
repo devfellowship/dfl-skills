@@ -1,54 +1,52 @@
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { useCallback, useEffect, useState } from "react";
 import type { Skill } from "@/data/types";
-import { SKILLS } from "@/data/skills";
 import { ApiError, fetchSkill } from "@/lib/api";
 
 export interface SkillState {
   skill: Skill | null;
   loading: boolean;
   error: string | null;
-  usingFallback: boolean;
+  notFound: boolean;
+  refetch: () => void;
 }
 
 export function useSkill(source: string | undefined, slug: string | undefined): SkillState {
   const [skill, setSkill] = useState<Skill | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [usingFallback, setUsingFallback] = useState(false);
+  const [notFound, setNotFound] = useState(false);
+  const [nonce, setNonce] = useState(0);
+
+  const refetch = useCallback(() => setNonce((n) => n + 1), []);
 
   useEffect(() => {
     if (!source || !slug) {
       setSkill(null);
+      setNotFound(true);
       setLoading(false);
       return;
     }
 
     const controller = new AbortController();
     let active = true;
-    const mockMatch = SKILLS.find((s) => s.slug === slug && s.source === source) ?? null;
 
     setLoading(true);
     setError(null);
+    setNotFound(false);
 
     fetchSkill(source, slug, controller.signal)
       .then((live) => {
         if (!active) return;
         setSkill(live);
-        setUsingFallback(false);
       })
       .catch((err: unknown) => {
         if (!active || controller.signal.aborted) return;
-        if (mockMatch) {
-          setSkill(mockMatch);
-          setUsingFallback(true);
+        setSkill(null);
+        if (err instanceof ApiError && err.status === 404) {
+          setNotFound(true);
         } else {
-          setSkill(null);
-          if (!(err instanceof ApiError) || err.status !== 404) {
-            toast.error("Couldn't load this skill");
-          }
+          setError(err instanceof Error ? err.message : "Failed to load skill");
         }
-        setError(err instanceof Error ? err.message : "Failed to load skill");
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -58,7 +56,7 @@ export function useSkill(source: string | undefined, slug: string | undefined): 
       active = false;
       controller.abort();
     };
-  }, [source, slug]);
+  }, [source, slug, nonce]);
 
-  return { skill, loading, error, usingFallback };
+  return { skill, loading, error, notFound, refetch };
 }
