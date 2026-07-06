@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/Button";
 import { CodeBlock } from "@/components/ui/CodeBlock";
+
+const REPO_URL = "https://github.com/devfellowship/skills";
 
 function SectionTitle({ children }: { children: string }) {
   return (
@@ -56,16 +56,19 @@ export function DocsPage() {
       <SectionTitle>Publish a skill</SectionTitle>
       <p className="m-0 mb-[18px] text-[15px] leading-[1.7] text-[hsl(212_13%_68%)]">
         Open a pull request adding <InlineCode>skills/&lt;name&gt;/SKILL.md</InlineCode> to{" "}
-        <InlineCode>devfellowship/skills</InlineCode>. The audit bot reviews it automatically and
-        assigns a trust score on merge.
+        <InlineCode>devfellowship/skills</InlineCode>. Once merged, the registry indexes it and it
+        appears here.
       </p>
       <div className="flex flex-wrap gap-3">
-        <Button
-          icon={<Plus className="h-[15px] w-[15px]" strokeWidth={2.2} />}
-          onClick={() => toast.success("Opening devfellowship/skills on GitHub…")}
+        <a
+          href={REPO_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex h-[38px] items-center justify-center gap-2 rounded-lg bg-primary px-4 text-[13.5px] font-bold text-primary-foreground transition-colors hover:bg-[hsl(33_92%_60%)]"
         >
+          <Plus className="h-[15px] w-[15px]" strokeWidth={2.2} />
           Open a PR
-        </Button>
+        </a>
         <Link
           to="/ds"
           className="inline-flex h-[38px] items-center justify-center rounded-lg border border-[hsl(215_15%_19%)] px-4 text-[13.5px] font-semibold text-foreground/85 transition-colors hover:border-[hsl(215_15%_28%)] hover:bg-[hsl(215_18%_13%)]"

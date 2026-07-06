@@ -15,7 +15,7 @@ export function App() {
       <TopNav />
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/s/:source/:slug" element={<SkillDetailPage />} />
+        <Route path="/s/:owner/:repo/:slug" element={<SkillDetailPage />} />
         <Route path="/docs" element={<DocsPage />} />
         <Route path="/ds" element={<DesignSystemPage />} />
         <Route path="*" element={<HomePage />} />

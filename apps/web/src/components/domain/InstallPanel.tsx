@@ -1,12 +1,11 @@
 import { Download } from "lucide-react";
 import { toast } from "sonner";
-import { AGENTS } from "@/data/skills";
 import type { Scope } from "@/data/types";
 import { Card } from "@/components/ui/Card";
 import { CodeBlock } from "@/components/ui/CodeBlock";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
-import { AgentSelector } from "./AgentSelector";
+import { AgentSelector, AGENTS } from "./AgentSelector";
 
 interface InstallPanelProps {
   command: string;

@@ -1,5 +1,13 @@
-import { AGENTS } from "@/data/skills";
+import type { AgentTarget } from "@/data/types";
 import { cn } from "@/lib/cn";
+
+export const AGENTS: AgentTarget[] = [
+  { id: "claude-code", label: "Claude Code" },
+  { id: "cursor", label: "Cursor" },
+  { id: "codex", label: "Codex" },
+  { id: "opencode", label: "opencode" },
+  { id: "windsurf", label: "Windsurf" },
+];
 
 interface AgentSelectorProps {
   value: string;

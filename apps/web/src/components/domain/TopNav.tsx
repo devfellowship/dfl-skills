@@ -1,9 +1,10 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Github, Zap } from "lucide-react";
-import { toast } from "sonner";
 import { cn } from "@/lib/cn";
 import { useSearchState } from "@/hooks/useSearchState";
 import { SearchBar } from "./SearchBar";
+
+const REPO_URL = "https://github.com/devfellowship/skills";
 
 function NavLink({ to, label, active }: { to: string; label: string; active: boolean }) {
   return (
@@ -20,7 +21,7 @@ function NavLink({ to, label, active }: { to: string; label: string; active: boo
 }
 
 export function TopNav() {
-  const { query, setQuery, mode, setMode } = useSearchState();
+  const { query, setQuery } = useSearchState();
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
@@ -40,31 +41,22 @@ export function TopNav() {
         </span>
       </Link>
 
-      <SearchBar value={query} onChange={onSearch} mode={mode} onModeChange={setMode} />
+      <SearchBar value={query} onChange={onSearch} />
 
       <div className="ml-auto flex items-center gap-1">
         <NavLink to="/" label="Browse" active={pathname === "/"} />
         <NavLink to="/docs" label="Docs" active={pathname === "/docs"} />
-        <button
-          type="button"
-          onClick={() => {
-            navigate("/docs");
-            setTimeout(() => toast.success("Submit a skill via PR — see Publish below"), 50);
-          }}
-          className="rounded-[7px] px-3 py-2 text-[13.5px] font-medium text-[hsl(212_11%_60%)] transition-colors hover:text-foreground/80"
-        >
-          Submit
-        </button>
       </div>
 
-      <button
-        type="button"
-        onClick={() => toast.success("Redirecting to GitHub…")}
+      <a
+        href={REPO_URL}
+        target="_blank"
+        rel="noopener noreferrer"
         className="flex items-center gap-2 rounded-lg border border-[hsl(215_15%_19%)] px-[13px] py-2 text-[13px] font-medium text-foreground/85 transition-colors hover:border-[hsl(215_15%_28%)] hover:bg-[hsl(215_18%_13%)]"
       >
         <Github className="h-[15px] w-[15px]" />
-        Sign in
-      </button>
+        GitHub
+      </a>
     </nav>
   );
 }

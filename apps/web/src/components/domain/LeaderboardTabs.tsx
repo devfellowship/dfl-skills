@@ -2,10 +2,8 @@ import type { LeaderboardTab } from "@/data/types";
 import { Tabs, type TabItem } from "@/components/ui/Tabs";
 
 const TABS: TabItem[] = [
-  { id: "trending", label: "Trending" },
-  { id: "hot", label: "Hot" },
-  { id: "official", label: "Official" },
   { id: "all", label: "All" },
+  { id: "official", label: "Official" },
 ];
 
 interface LeaderboardTabsProps {

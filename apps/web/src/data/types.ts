@@ -1,22 +1,5 @@
 export type Kind = "skill" | "mcp" | "connection";
 
-export type AuditVerdict = "trust" | "caution" | "warning";
-
-export interface SkillFile {
-  path: string;
-  contents: string;
-}
-
-export interface McpTool {
-  name: string;
-  desc: string;
-}
-
-export interface ConnectionRef {
-  name: string;
-  desc: string;
-}
-
 export interface Skill {
   id: string;
   name: string;
@@ -24,15 +7,10 @@ export interface Skill {
   source: string;
   kind: Kind;
   description: string;
-  topics: string[];
-  installs: number;
+  tags: string[];
   updatedAt: string;
-  author: string;
-  audit: { score: number; verdict: AuditVerdict };
-  trend: number[];
-  mcps: McpTool[];
-  conns: ConnectionRef[];
-  files: SkillFile[];
+  visibility: string;
+  readme?: string;
 }
 
 export interface AgentTarget {
@@ -42,6 +20,4 @@ export interface AgentTarget {
 
 export type Scope = "global" | "project";
 
-export type LeaderboardTab = "trending" | "hot" | "official" | "all";
-
-export type SearchMode = "fuzzy" | "semantic";
+export type LeaderboardTab = "official" | "all";
