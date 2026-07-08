@@ -16,3 +16,11 @@ export function skillMdGithubUrl(source: string, slug: string): string | null {
 export function stripFrontmatter(md: string): string {
   return md.replace(FRONTMATTER, "").trimStart();
 }
+
+const AUTHOR_LINE = /^author:\s*["']?([a-z0-9][a-z0-9-]*)["']?\s*$/im;
+
+export function parseAuthor(md: string): string | undefined {
+  const block = FRONTMATTER.exec(md)?.[0];
+  if (!block) return undefined;
+  return AUTHOR_LINE.exec(block)?.[1];
+}

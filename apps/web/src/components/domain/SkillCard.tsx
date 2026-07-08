@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
 import type { Skill } from "@/data/types";
-import { authorAvatarUrl, authorOf, formatDate, installCommand } from "@/lib/format";
+import { authorOf, formatDate, githubAvatarUrl, installCommand } from "@/lib/format";
 import { KindBadge } from "./KindBadge";
 
 interface SkillCardProps {
@@ -13,6 +13,7 @@ export function SkillCard({ skill }: SkillCardProps) {
   const navigate = useNavigate();
 
   const href = `/s/${skill.source}/${skill.slug}`;
+  const author = skill.author ?? authorOf(skill.source);
 
   const onCopy = (e: React.MouseEvent): void => {
     e.stopPropagation();
@@ -41,7 +42,7 @@ export function SkillCard({ skill }: SkillCardProps) {
         </Link>
         <div className="mt-[5px] flex items-center gap-[6px]">
           <img
-            src={authorAvatarUrl(skill.source)}
+            src={githubAvatarUrl(author)}
             alt=""
             loading="lazy"
             className="h-[16px] w-[16px] shrink-0 rounded-full border border-[hsl(215_15%_18%)] bg-[hsl(215_18%_12%)]"
@@ -50,8 +51,8 @@ export function SkillCard({ skill }: SkillCardProps) {
             }}
           />
           <span className="text-xs text-[hsl(212_12%_64%)]">
-            {authorOf(skill.source)}
-            <span className="text-[hsl(212_10%_42%)]">/{skill.source.split("/")[1] ?? ""}</span>
+            {author}
+            <span className="text-[hsl(212_10%_42%)]"> · {skill.source}</span>
           </span>
         </div>
       </div>

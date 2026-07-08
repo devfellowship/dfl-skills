@@ -13,6 +13,7 @@ export interface ApiSkill {
   tags?: string[];
   visibility?: string;
   updated_at?: string;
+  author?: string;
   readme?: string;
 }
 
@@ -66,6 +67,7 @@ export function adaptSkill(raw: ApiSkill): Skill {
     tags: raw.tags ?? [],
     updatedAt: raw.updated_at ?? "",
     visibility: raw.visibility ?? "public",
+    author: raw.author,
     readme: raw.readme,
   };
 }

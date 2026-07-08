@@ -10,6 +10,7 @@ export interface Skill {
   tags: string[];
   updatedAt: string;
   visibility: string;
+  author?: string;
   readme?: string;
 }
 

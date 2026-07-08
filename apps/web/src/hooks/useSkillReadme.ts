@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
-import { readmeRawUrl, stripFrontmatter } from "@/lib/readme";
+import { parseAuthor, readmeRawUrl, stripFrontmatter } from "@/lib/readme";
 
 const MAX_BYTES = 512 * 1024;
 
 export interface ReadmeState {
   body: string | null;
+  author: string | undefined;
   loading: boolean;
   notFound: boolean;
 }
 
 export function useSkillReadme(source: string | undefined, slug: string | undefined): ReadmeState {
   const [body, setBody] = useState<string | null>(null);
+  const [author, setAuthor] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
@@ -18,6 +20,7 @@ export function useSkillReadme(source: string | undefined, slug: string | undefi
     const url = source && slug ? readmeRawUrl(source, slug) : null;
     if (!url) {
       setBody(null);
+      setAuthor(undefined);
       setNotFound(true);
       setLoading(false);
       return;
@@ -39,7 +42,10 @@ export function useSkillReadme(source: string | undefined, slug: string | undefi
         }
         if (!res.ok) throw new Error(String(res.status));
         const text = (await res.text()).slice(0, MAX_BYTES);
-        if (active) setBody(stripFrontmatter(text));
+        if (active) {
+          setBody(stripFrontmatter(text));
+          setAuthor(parseAuthor(text));
+        }
       })
       .catch(() => {
         if (active && !controller.signal.aborted) setBody(null);
@@ -54,5 +60,5 @@ export function useSkillReadme(source: string | undefined, slug: string | undefi
     };
   }, [source, slug]);
 
-  return { body, loading, notFound };
+  return { body, author, loading, notFound };
 }
