@@ -1,6 +1,7 @@
-import { Clock, Eye, Github, ArrowUpRight } from "lucide-react";
+import { Clock, Eye, Github, ArrowUpRight, FileText } from "lucide-react";
 import type { Skill } from "@/data/types";
 import { formatDate } from "@/lib/format";
+import { skillMdGithubUrl } from "@/lib/readme";
 import { Card } from "@/components/ui/Card";
 
 interface SkillMetaPanelProps {
@@ -30,6 +31,7 @@ function Row({
 }
 
 export function SkillMetaPanel({ skill }: SkillMetaPanelProps) {
+  const skillMdUrl = skillMdGithubUrl(skill.source, skill.slug);
   return (
     <Card className="flex flex-col gap-[14px] p-[18px]">
       <Row
@@ -67,6 +69,23 @@ export function SkillMetaPanel({ skill }: SkillMetaPanelProps) {
           </span>
         }
       />
+      {skillMdUrl && (
+        <>
+          <Divider />
+          <a
+            href={skillMdUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between text-[13px] text-[hsl(212_11%_58%)] transition-colors hover:text-foreground/80"
+          >
+            <span className="flex items-center gap-2">
+              <FileText className="h-[15px] w-[15px]" />
+              SKILL.md
+            </span>
+            <ArrowUpRight className="h-3 w-3" />
+          </a>
+        </>
+      )}
     </Card>
   );
 }
