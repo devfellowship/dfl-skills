@@ -1,60 +1,21 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { AlertTriangle, Package, Search } from "lucide-react";
 import type { LeaderboardTab } from "@/data/types";
 import { useSearchState } from "@/hooks/useSearchState";
 import { useFilteredSkills } from "@/hooks/useFilteredSkills";
+import { useFilterFacets } from "@/hooks/useFilterFacets";
 import { useSkills } from "@/hooks/useSkills";
 import { Button } from "@/components/ui/Button";
-import { CodeBlock } from "@/components/ui/CodeBlock";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LeaderboardTabs } from "@/components/domain/LeaderboardTabs";
 import { TopicFilterChips } from "@/components/domain/TopicFilterChips";
 import { KindFilter, type KindFilterValue } from "@/components/domain/KindFilter";
 import { SkillCard } from "@/components/domain/SkillCard";
 import { SkillCardSkeleton } from "@/components/domain/SkillCardSkeleton";
+import { Hero } from "@/components/domain/Hero";
 
-const GRID = "grid grid-cols-[repeat(auto-fill,minmax(330px,1fr))] gap-4";
-
-function Hero({ count }: { count: number }) {
-  return (
-    <section className="animate-fadeUp py-[54px_40px] pb-10 pt-[54px]">
-      <div className="mb-5 inline-flex items-center gap-[7px] rounded-full border border-[hsl(33_90%_55%/.22)] bg-[hsl(33_90%_55%/.1)] px-[11px] py-[5px]">
-        <span className="h-[6px] w-[6px] rounded-full bg-primary shadow-[0_0_8px_hsl(33_90%_55%)]" />
-        <span className="text-[11px] font-bold uppercase tracking-[.08em] text-[hsl(33_85%_64%)]">
-          DevFellowship Registry
-        </span>
-      </div>
-      <h1 className="m-0 mb-4 max-w-[680px] font-heading text-[54px] font-bold uppercase leading-[.98] tracking-[.005em]">
-        The DevFellowship
-        <br />
-        agent skills registry
-      </h1>
-      <p className="m-0 mb-[26px] max-w-[600px] text-[16.5px] leading-[1.6] text-[hsl(212_12%_64%)]">
-        Discover and install agent skills, MCP servers and connections — straight into Claude Code,
-        Cursor, Codex and the rest of your toolkit.
-      </p>
-      <div className="flex max-w-[560px] flex-wrap items-center gap-4">
-        <CodeBlock
-          command="npx skills add devfellowship/skills"
-          className="min-w-[320px] flex-1 rounded-[11px] px-[15px] py-[13px]"
-        />
-        <Stat value={String(count)} label="Skills" />
-      </div>
-    </section>
-  );
-}
-
-function Stat({ value, label }: { value: string; label: string }) {
-  return (
-    <div>
-      <div className="font-heading text-[26px] font-bold leading-none text-foreground">{value}</div>
-      <div className="mt-[3px] text-[11px] uppercase tracking-[.05em] text-[hsl(212_10%_52%)]">
-        {label}
-      </div>
-    </div>
-  );
-}
+const GRID = "grid grid-cols-[repeat(auto-fill,minmax(min(330px,100%),1fr))] gap-4";
 
 export function HomePage() {
   const { query, setQuery } = useSearchState();
@@ -64,11 +25,7 @@ export function HomePage() {
 
   const { skills, loading, error, refetch } = useSkills();
   const results = useFilteredSkills({ skills, query, tab, topics, kind });
-
-  const allTopics = useMemo(
-    () => [...new Set(skills.flatMap((s) => s.tags))].sort((a, b) => a.localeCompare(b)),
-    [skills],
-  );
+  const facets = useFilterFacets(skills);
 
   const toggleTopic = (t: string): void => {
     setTopics((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
@@ -82,6 +39,9 @@ export function HomePage() {
   };
 
   const hasSkills = skills.length > 0;
+  const hasActiveFilters = Boolean(query) || topics.length > 0 || kind !== "all" || tab !== "all";
+  const showKindFilter = facets.kinds.length > 1;
+  const showTabs = facets.owners.length > 1;
 
   return (
     <main className="mx-auto max-w-[1200px] px-6 pb-[90px]">
@@ -89,10 +49,22 @@ export function HomePage() {
 
       {hasSkills && (
         <>
-          <LeaderboardTabs active={tab} onChange={setTab} />
-          <div className="mb-[26px] flex flex-wrap items-center justify-between gap-[14px]">
-            <TopicFilterChips topics={allTopics} selected={topics} onToggle={toggleTopic} />
-            <KindFilter value={kind} onChange={setKind} />
+          {showTabs && <LeaderboardTabs active={tab} onChange={setTab} />}
+          <div className="mb-[18px] flex flex-wrap items-center justify-between gap-[14px]">
+            <TopicFilterChips topics={facets.topics} selected={topics} onToggle={toggleTopic} />
+            {showKindFilter && <KindFilter value={kind} onChange={setKind} available={facets.kinds} />}
+          </div>
+          <div className="mb-[26px] flex items-center gap-3 text-[13px] text-[hsl(212_11%_58%)]">
+            <span>
+              {results.length === skills.length
+                ? `${skills.length} skills`
+                : `${results.length} of ${skills.length} skills`}
+            </span>
+            {hasActiveFilters && (
+              <Button variant="ghost" size="sm" onClick={clearFilters}>
+                Clear filters
+              </Button>
+            )}
           </div>
         </>
       )}
