@@ -4,6 +4,7 @@ import { AlertTriangle, ChevronLeft, Search } from "lucide-react";
 import type { Scope } from "@/data/types";
 import { installCommand } from "@/lib/format";
 import { useSkill } from "@/hooks/useSkill";
+import { useSkillReadme } from "@/hooks/useSkillReadme";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
 import { KindBadge } from "@/components/domain/KindBadge";
@@ -11,6 +12,7 @@ import { MarkdownView } from "@/components/domain/MarkdownView";
 import { InstallPanel } from "@/components/domain/InstallPanel";
 import { SkillMetaPanel } from "@/components/domain/SkillMetaPanel";
 import { SkillDetailSkeleton } from "@/components/domain/SkillDetailSkeleton";
+import { SkillReadmeSkeleton } from "@/components/domain/SkillReadmeSkeleton";
 
 function BackLink() {
   return (
@@ -31,6 +33,7 @@ export function SkillDetailPage() {
   const [scope, setScope] = useState<Scope>("global");
 
   const { skill, loading, error, notFound, refetch } = useSkill(source, slug);
+  const { body: readme, loading: readmeLoading } = useSkillReadme(skill?.source, skill?.slug);
 
   return (
     <main className="mx-auto max-w-[1200px] px-6 pb-[90px] pt-6">
@@ -90,11 +93,13 @@ export function SkillDetailPage() {
 
           <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
             <div>
-              {skill.readme ? (
-                <MarkdownView source={skill.readme} />
+              {readmeLoading ? (
+                <SkillReadmeSkeleton />
+              ) : readme ? (
+                <MarkdownView source={readme} />
               ) : (
                 <div className="animate-fadeUp rounded-[11px] border border-dashed border-[hsl(215_15%_18%)] px-5 py-12 text-center text-[13.5px] text-[hsl(212_10%_52%)]">
-                  No README indexed yet — install the skill to read its SKILL.md.
+                  Couldn't load this skill's SKILL.md. Install the skill to read it locally.
                 </div>
               )}
             </div>
