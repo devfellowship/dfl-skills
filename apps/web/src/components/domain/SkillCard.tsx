@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
 import type { Skill } from "@/data/types";
@@ -12,6 +12,8 @@ interface SkillCardProps {
 export function SkillCard({ skill }: SkillCardProps) {
   const navigate = useNavigate();
 
+  const href = `/s/${skill.source}/${skill.slug}`;
+
   const onCopy = (e: React.MouseEvent): void => {
     e.stopPropagation();
     const cmd = installCommand(skill.source, skill.slug);
@@ -21,7 +23,7 @@ export function SkillCard({ skill }: SkillCardProps) {
 
   return (
     <div
-      onClick={() => navigate(`/s/${skill.source}/${skill.slug}`)}
+      onClick={() => navigate(href)}
       className="group flex min-h-[178px] cursor-pointer animate-fadeUp flex-col gap-[11px] rounded-[13px] border border-border bg-card p-[18px] transition-all hover:-translate-y-[3px] hover:border-[hsl(215_15%_26%)] hover:shadow-[0_10px_30px_hsl(216_40%_3%/.5)]"
     >
       <div className="flex items-center justify-between gap-2">
@@ -30,9 +32,13 @@ export function SkillCard({ skill }: SkillCardProps) {
       </div>
 
       <div>
-        <div className="font-mono text-[15.5px] font-semibold tracking-[-.01em] text-foreground">
+        <Link
+          to={href}
+          onClick={(e) => e.stopPropagation()}
+          className="font-mono text-[15.5px] font-semibold tracking-[-.01em] text-foreground outline-none hover:text-[hsl(33_82%_66%)] focus-visible:underline"
+        >
           {skill.name}
-        </div>
+        </Link>
         <div className="mt-[5px] flex items-center gap-[6px]">
           <img
             src={authorAvatarUrl(skill.source)}
