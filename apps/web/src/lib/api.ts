@@ -55,7 +55,7 @@ function toKind(raw: string | undefined): Kind {
 
 export function adaptSkill(raw: ApiSkill): Skill {
   const slug = raw.skill ?? raw.slug ?? raw.name ?? "unknown";
-  const source = raw.source ?? "devfellowship";
+  const source = raw.source ?? "devfellowship/skills";
   return {
     id: `${source}/${slug}`,
     name: raw.name ?? slug,
@@ -81,8 +81,11 @@ export async function fetchSkill(
   signal?: AbortSignal,
 ): Promise<Skill> {
   const [owner, repo] = source.split("/");
-  const path = `/api/v1/skills/${encodeURIComponent(owner ?? source)}/${encodeURIComponent(
-    repo ?? "",
+  if (!owner || !repo) {
+    throw new ApiError(`Invalid skill source "${source}"`, 404);
+  }
+  const path = `/api/v1/skills/${encodeURIComponent(owner)}/${encodeURIComponent(
+    repo,
   )}/${encodeURIComponent(slug)}`;
   const data = await getJson<SingleResponse>(path, signal);
   return adaptSkill(data.skill ?? (data as unknown as ApiSkill));

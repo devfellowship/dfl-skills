@@ -41,6 +41,7 @@ export function CodeBlock({
       <Tooltip label="Copy">
         <button
           type="button"
+          aria-label="Copy command"
           onClick={() => {
             void copyText(command);
             toast.success(copyMessage);
