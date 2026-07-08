@@ -8,3 +8,11 @@ export function formatDate(value: string): string {
 export function installCommand(source: string, slug: string): string {
   return `npx skills add ${source}/${slug}`;
 }
+
+export function authorOf(source: string): string {
+  return source.split("/")[0] || source;
+}
+
+export function authorAvatarUrl(source: string): string {
+  return `https://github.com/${authorOf(source)}.png?size=48`;
+}

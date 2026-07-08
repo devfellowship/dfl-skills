@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
 import type { Skill } from "@/data/types";
-import { formatDate, installCommand } from "@/lib/format";
+import { authorAvatarUrl, authorOf, formatDate, installCommand } from "@/lib/format";
 import { KindBadge } from "./KindBadge";
 
 interface SkillCardProps {
@@ -33,7 +33,21 @@ export function SkillCard({ skill }: SkillCardProps) {
         <div className="font-mono text-[15.5px] font-semibold tracking-[-.01em] text-foreground">
           {skill.name}
         </div>
-        <div className="mt-[3px] text-xs text-[hsl(33_80%_60%)]">{skill.source}</div>
+        <div className="mt-[5px] flex items-center gap-[6px]">
+          <img
+            src={authorAvatarUrl(skill.source)}
+            alt=""
+            loading="lazy"
+            className="h-[16px] w-[16px] shrink-0 rounded-full border border-[hsl(215_15%_18%)] bg-[hsl(215_18%_12%)]"
+            onError={(e) => {
+              e.currentTarget.style.visibility = "hidden";
+            }}
+          />
+          <span className="text-xs text-[hsl(212_12%_64%)]">
+            {authorOf(skill.source)}
+            <span className="text-[hsl(212_10%_42%)]">/{skill.source.split("/")[1] ?? ""}</span>
+          </span>
+        </div>
       </div>
 
       <p className="clamp2 m-0 text-[13px] leading-[1.5] text-[hsl(212_12%_64%)]">
