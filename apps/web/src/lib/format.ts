@@ -13,6 +13,6 @@ export function authorOf(source: string): string {
   return source.split("/")[0] || source;
 }
 
-export function authorAvatarUrl(source: string): string {
-  return `https://github.com/${authorOf(source)}.png?size=48`;
+export function githubAvatarUrl(handle: string): string {
+  return `https://github.com/${encodeURIComponent(handle)}.png?size=48`;
 }

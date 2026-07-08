@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { AlertTriangle, ChevronLeft, Search } from "lucide-react";
 import type { Scope } from "@/data/types";
-import { installCommand } from "@/lib/format";
+import { authorOf, githubAvatarUrl, installCommand } from "@/lib/format";
 import { useSkill } from "@/hooks/useSkill";
 import { useSkillReadme } from "@/hooks/useSkillReadme";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -33,7 +33,10 @@ export function SkillDetailPage() {
   const [scope, setScope] = useState<Scope>("global");
 
   const { skill, loading, error, notFound, refetch } = useSkill(source, slug);
-  const { body: readme, loading: readmeLoading } = useSkillReadme(skill?.source, skill?.slug);
+  const { body: readme, author: readmeAuthor, loading: readmeLoading } = useSkillReadme(
+    skill?.source,
+    skill?.slug,
+  );
 
   return (
     <main className="mx-auto max-w-[1200px] px-6 pb-[90px] pt-6">
@@ -70,8 +73,21 @@ export function SkillDetailPage() {
               <h1 className="m-0 font-mono text-[30px] font-semibold tracking-[-.01em] text-foreground">
                 {skill.name}
               </h1>
-              <div className="mt-[7px] text-[13px] font-semibold text-[hsl(33_80%_60%)]">
-                {skill.source}/{skill.slug}
+              <div className="mt-[7px] flex flex-wrap items-center gap-x-[10px] gap-y-1 text-[13px]">
+                <span className="flex items-center gap-[6px] font-medium text-[hsl(212_13%_70%)]">
+                  <img
+                    src={githubAvatarUrl(skill.author ?? readmeAuthor ?? authorOf(skill.source))}
+                    alt=""
+                    className="h-[17px] w-[17px] rounded-full border border-[hsl(215_15%_18%)] bg-[hsl(215_18%_12%)]"
+                    onError={(e) => {
+                      e.currentTarget.style.visibility = "hidden";
+                    }}
+                  />
+                  {skill.author ?? readmeAuthor ?? authorOf(skill.source)}
+                </span>
+                <span className="font-semibold text-[hsl(33_80%_60%)]">
+                  {skill.source}/{skill.slug}
+                </span>
               </div>
             </div>
           </div>
