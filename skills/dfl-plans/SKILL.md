@@ -383,3 +383,43 @@ Antes de criar questions, analisar o plano procurando:
 | `409 Conflict` ao patch_status | Questions bloqueadoras ainda abertas | Responder ou retirar (`withdraw`) as questions blocking |
 | `create_plan`/`publish_plan` trava sem erro nem retorno | `HttpWebRequest` do .NET engasga no handshake POST (servidor está saudável) | Usar `curl.exe` — ver seção 3.1 |
 | `401` só depois de trocar pra curl (mesmo token válido) | BOM no arquivo de token/session salvo via `Out-File -Encoding utf8` | Salvar token/session via Node.js (`fs.writeFileSync`), nunca `Out-File` |
+
+---
+
+## 11. Conectar via Codex CLI / outros clientes MCP (não Claude Code)
+
+**Codex CLI não aceita o transporte HTTP direto com header customizado** do jeito que o Claude Code
+aceita (`claude mcp add --transport http --header "Authorization: Bearer $TOKEN"` — ver skill
+`dfl-mcp-engineering`, seção 2). Tentar configurar o Codex apontando direto pra
+`https://plans.mcp.devfellowship.com/mcp` com header `Authorization` reproduz este erro:
+
+```
+MCP client for 'dfl-plans' failed to start: MCP startup failed: Environment variable
+DFL_PLANS_ACCESS_TOKEN for MCP server 'dfl-plans' is not set
+```
+
+Isso **não é falta de configurar a env var** — é o Codex esperando um servidor MCP local (stdio),
+não HTTP remoto com header injetado. Confirmado na prática numa sessão de pareamento com o Arthur
+(2026-07-28), depois de descartar a rota HTTP direta.
+
+**Solução que funcionou — MCP local (stdio) fazendo bridge:**
+
+1. Gerar/renovar credenciais (mesmo fluxo do Claude Code — seção 1):
+   ```bash
+   npx @devfellowship/dfl-auth login      # ou: npx @devfellowship/dfl-auth refresh
+   ```
+2. Exportar o `access_token` de `~/.dfl-mcp/credentials.json` como env var, com o nome que o
+   servidor MCP local espera (`DFL_PLANS_ACCESS_TOKEN` no caso do Codex):
+   ```bash
+   export DFL_PLANS_ACCESS_TOKEN=$(node -e "console.log(JSON.parse(require('fs').readFileSync(process.env.HOME + '/.dfl-mcp/credentials.json','utf8')).access_token)")
+   ```
+3. Criar um servidor MCP **stdio** pequeno (sem dependências externas, só `fetch` nativo do Node)
+   que lê `DFL_PLANS_ACCESS_TOKEN` do ambiente e repassa como `Authorization: Bearer` nas chamadas
+   pra `plans.mcp.devfellowship.com/mcp` (mesmo protocolo Streamable HTTP das seções 2–3, só que
+   quem fala HTTP é o bridge local, não o Codex diretamente).
+4. Registrar esse servidor local no config do Codex (aponta `command`/`args` pro script stdio, não
+   uma URL) e reiniciar o Codex — a env var só é lida na inicialização do processo MCP.
+
+**Regra geral:** se um usuário de qualquer cliente MCP que não seja o Claude Code (Codex, outros)
+esbarrar num erro de env var ausente ao tentar conectar num MCP DFL, não insistir configurando
+headers HTTP — ir direto pra essa rota de MCP local stdio fazendo bridge com o Bearer token.
