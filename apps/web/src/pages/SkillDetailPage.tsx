@@ -13,6 +13,7 @@ import { InstallPanel } from "@/components/domain/InstallPanel";
 import { SkillMetaPanel } from "@/components/domain/SkillMetaPanel";
 import { SkillDetailSkeleton } from "@/components/domain/SkillDetailSkeleton";
 import { SkillReadmeSkeleton } from "@/components/domain/SkillReadmeSkeleton";
+import { ReadmeUnavailable } from "@/components/domain/ReadmeUnavailable";
 
 function BackLink() {
   return (
@@ -33,10 +34,12 @@ export function SkillDetailPage() {
   const [scope, setScope] = useState<Scope>("global");
 
   const { skill, loading, error, notFound, refetch } = useSkill(source, slug);
-  const { body: readme, author: readmeAuthor, loading: readmeLoading } = useSkillReadme(
-    skill?.source,
-    skill?.slug,
-  );
+  const {
+    body: readme,
+    author: readmeAuthor,
+    status: readmeStatus,
+    detail: readmeDetail,
+  } = useSkillReadme(skill?.source, skill?.slug, skill?.visibility);
 
   return (
     <main className="mx-auto max-w-[1200px] px-6 pb-[90px] pt-6">
@@ -109,14 +112,17 @@ export function SkillDetailPage() {
 
           <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
             <div>
-              {readmeLoading ? (
+              {readmeStatus === "loading" ? (
                 <SkillReadmeSkeleton />
-              ) : readme ? (
+              ) : readmeStatus === "ok" && readme ? (
                 <MarkdownView source={readme} />
               ) : (
-                <div className="animate-fadeUp rounded-[11px] border border-dashed border-[hsl(215_15%_18%)] px-5 py-12 text-center text-[13.5px] text-[hsl(212_10%_52%)]">
-                  Couldn't load this skill's SKILL.md. Install the skill to read it locally.
-                </div>
+                <ReadmeUnavailable
+                  status={readmeStatus === "ok" ? "missing" : readmeStatus}
+                  source={skill.source}
+                  slug={skill.slug}
+                  detail={readmeDetail}
+                />
               )}
             </div>
 
