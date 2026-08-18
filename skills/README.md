@@ -9,6 +9,7 @@ projeto específico.
 | [`dfl/`](dfl/SKILL.md) | Code standards — componentização, nomenclatura e estrutura de arquivos para qualquer projeto frontend DFL. |
 | [`dfl-plans/`](dfl-plans/SKILL.md) | Uso do DFL Plans MCP — criar/ler planos técnicos, gerar questions de execução. |
 | [`dfl-mcp-engineering/`](dfl-mcp-engineering/SKILL.md) | Uso do pacote `dfl-mcp-engineering` (diagrams, spec-builder, task-assigner, documents) — login, conexão no Claude Code, matriz de capacidades, fluxos completos. |
+| [`dfl-mcp-engineering/spec-builder/`](dfl-mcp-engineering/spec-builder/README.md) | Conduzir um spec run do AI Spec Builder — rodada de comentários, disciplina de pontos, auditoria de cobertura, pacotes de escopo e taxonomia de itens (6 skills). |
 | [`esteira-dfl/`](esteira-dfl/SKILL.md) | Gera a esteira técnica completa (sprints/etapas/tasks/pontuação) a partir de um spec/orçamento aprovado pelo comercial. |
 
 Essas skills não são a fonte de verdade de nada — quando o comportamento real do sistema divergir do que

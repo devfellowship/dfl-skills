@@ -253,6 +253,28 @@ work.projects → business_units.name`.
 
 ---
 
+## 7.5. Spec Builder — como conduzir bem um run
+
+Esta skill cobre **as tools**. Conduzir um spec run bem é outro assunto: o que
+quebra em silêncio, o que exige duas chamadas em vez de uma, e o que faz um
+orçamento mentir sem dar erro.
+
+Isso vive em [`spec-builder/`](spec-builder/README.md) — seis skills:
+
+| Skill | Responde |
+|---|---|
+| [`spec-run-review-playbook`](spec-builder/spec-run-review-playbook/SKILL.md) | Sou eu que reviso. Como comento pro agente conseguir agir? |
+| [`spec-run-comment-round`](spec-builder/spec-run-comment-round/SKILL.md) | Como aplico um batch de comentários sem corromper o run? |
+| [`spec-run-pricing-discipline`](spec-builder/spec-run-pricing-discipline/SKILL.md) | Movi escopo entre itens — quais pontos mudam? |
+| [`spec-run-coverage-audit`](spec-builder/spec-run-coverage-audit/SKILL.md) | O orçamento esqueceu de cobrar o quê? |
+| [`spec-run-scope-packages`](spec-builder/spec-run-scope-packages/SKILL.md) | Como monto MVP vs completo sem que os totais mintam? |
+| [`spec-run-item-taxonomy`](spec-builder/spec-run-item-taxonomy/SKILL.md) | Quanto do orçamento é UI, banco, IA? |
+
+Se você só vai ler uma coisa antes de mexer num run em produção, leia a seção das
+**três armadilhas** no [README da pasta](spec-builder/README.md).
+
+---
+
 ## 8. Referências
 
 - Doc oficial (schemas exatos de cada tool, em inglês): [docs.devfellowship.com](https://docs.devfellowship.com/) —
