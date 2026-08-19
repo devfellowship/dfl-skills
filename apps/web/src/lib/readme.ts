@@ -34,18 +34,34 @@ export function skillMdGithubUrl(source: string, slug: string): string | null {
  */
 export type ReadmeSource =
   | { kind: "raw"; url: string }
+  | { kind: "registry" }
   | { kind: "private"; reason: string }
   | { kind: "invalid"; reason: string };
 
+/**
+ * A signed-in fellow gets a fourth outcome: `registry` — "ask the API for the
+ * body". The API reads the file server-side with a token the browser never
+ * holds, so a private source becomes readable WITHOUT the browser ever being
+ * able to reach the repo itself. Signing out puts it straight back to
+ * `private`; the session is the only thing that changed.
+ *
+ * Malformed input is rejected BEFORE the visibility branch, so a bad slug can
+ * never reach the registry path just because someone happened to be logged in.
+ */
 export function resolveReadmeSource(
   source: string | undefined,
   slug: string | undefined,
   visibility?: string,
+  authenticated = false,
 ): ReadmeSource {
   if (!source || !slug) {
     return { kind: "invalid", reason: "missing source or slug" };
   }
+  if (!SOURCE_RE.test(source) || source.includes("..") || !SLUG_RE.test(slug)) {
+    return { kind: "invalid", reason: `unsafe or malformed source/slug: "${source}/${slug}"` };
+  }
   if (visibility === "internal") {
+    if (authenticated) return { kind: "registry" };
     return {
       kind: "private",
       reason: `${source} is a private registry; raw.githubusercontent.com cannot serve it anonymously`,

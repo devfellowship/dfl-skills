@@ -3,4 +3,5 @@ dist
 .turbo
 .env
 .env.*
+!.env.example
 *.local

@@ -2,14 +2,16 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { AlertTriangle, ChevronLeft, Search } from "lucide-react";
 import type { Scope } from "@/data/types";
-import { authorOf, githubAvatarUrl, installCommand } from "@/lib/format";
+import { installCommand } from "@/lib/format";
+import { useAuth } from "@/hooks/useAuth";
 import { useSkill } from "@/hooks/useSkill";
 import { useSkillReadme } from "@/hooks/useSkillReadme";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
-import { KindBadge } from "@/components/domain/KindBadge";
 import { MarkdownView } from "@/components/domain/MarkdownView";
+import { SkillDetailHeader } from "@/components/domain/SkillDetailHeader";
 import { InstallPanel } from "@/components/domain/InstallPanel";
+import { CopyPromptPanel } from "@/components/domain/CopyPromptPanel";
 import { SkillMetaPanel } from "@/components/domain/SkillMetaPanel";
 import { SkillDetailSkeleton } from "@/components/domain/SkillDetailSkeleton";
 import { SkillReadmeSkeleton } from "@/components/domain/SkillReadmeSkeleton";
@@ -33,13 +35,16 @@ export function SkillDetailPage() {
   const [agent, setAgent] = useState("claude-code");
   const [scope, setScope] = useState<Scope>("global");
 
+  const { session } = useAuth();
+
   const { skill, loading, error, notFound, refetch } = useSkill(source, slug);
   const {
     body: readme,
+    raw: readmeRaw,
     author: readmeAuthor,
     status: readmeStatus,
     detail: readmeDetail,
-  } = useSkillReadme(skill?.source, skill?.slug, skill?.visibility);
+  } = useSkillReadme(skill?.source, skill?.slug, skill?.visibility, session !== null);
 
   return (
     <main className="mx-auto max-w-[1200px] px-6 pb-[90px] pt-6">
@@ -70,45 +75,7 @@ export function SkillDetailPage() {
         />
       ) : (
         <div>
-          <div className="mb-[6px] flex flex-wrap items-start gap-[14px]">
-            <KindBadge kind={skill.kind} className="mt-[9px]" />
-            <div>
-              <h1 className="m-0 font-mono text-[30px] font-semibold tracking-[-.01em] text-foreground">
-                {skill.name}
-              </h1>
-              <div className="mt-[7px] flex flex-wrap items-center gap-x-[10px] gap-y-1 text-[13px]">
-                <span className="flex items-center gap-[6px] font-medium text-[hsl(212_13%_70%)]">
-                  <img
-                    src={githubAvatarUrl(skill.author ?? readmeAuthor ?? authorOf(skill.source))}
-                    alt=""
-                    className="h-[17px] w-[17px] rounded-full border border-[hsl(215_15%_18%)] bg-[hsl(215_18%_12%)]"
-                    onError={(e) => {
-                      e.currentTarget.style.visibility = "hidden";
-                    }}
-                  />
-                  {skill.author ?? readmeAuthor ?? authorOf(skill.source)}
-                </span>
-                <span className="font-semibold text-[hsl(33_80%_60%)]">
-                  {skill.source}/{skill.slug}
-                </span>
-              </div>
-            </div>
-          </div>
-          <p className="m-0 mb-4 mt-[14px] max-w-[640px] text-[15px] leading-[1.6] text-[hsl(212_12%_66%)]">
-            {skill.description}
-          </p>
-          {skill.tags.length > 0 && (
-            <div className="mb-7 flex flex-wrap gap-[6px]">
-              {skill.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-full border border-[hsl(215_15%_18%)] bg-[hsl(215_18%_12%)] px-[9px] py-[3px] text-[12px] text-[hsl(212_12%_66%)]"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
+          <SkillDetailHeader skill={skill} readmeAuthor={readmeAuthor} />
 
           <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
             <div>
@@ -127,13 +94,24 @@ export function SkillDetailPage() {
             </div>
 
             <aside className="flex flex-col gap-[14px] lg:sticky lg:top-20">
-              <InstallPanel
-                command={installCommand(skill.source, skill.slug)}
-                agent={agent}
-                onAgentChange={setAgent}
+              <CopyPromptPanel
+                source={skill.source}
+                slug={skill.slug}
+                markdown={readmeRaw}
                 scope={scope}
                 onScopeChange={setScope}
+                needsSignIn={readmeStatus === "private"}
               />
+              {/* `npx skills add` clones the whole source repo over the network, so
+                  it can only work for a public one. Offering it for the internal
+                  registry would be a command that fails every time. */}
+              {skill.visibility !== "internal" && (
+                <InstallPanel
+                  command={installCommand(skill.source, skill.slug)}
+                  agent={agent}
+                  onAgentChange={setAgent}
+                />
+              )}
               <SkillMetaPanel skill={skill} />
             </aside>
           </div>
