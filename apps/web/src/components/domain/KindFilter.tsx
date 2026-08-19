@@ -1,7 +1,5 @@
-import type { Kind } from "@/data/types";
+import type { Kind, KindFilterValue } from "@/types";
 import { Select, type SelectOption } from "@/components/ui/Select";
-
-export type KindFilterValue = "all" | Kind;
 
 function kindLabel(kind: Kind): string {
   return kind === "skill" ? "Skills" : kind === "mcp" ? "MCPs" : "Connections";

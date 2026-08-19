@@ -1,8 +1,6 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { AlertTriangle, Package, Search } from "lucide-react";
-import type { LeaderboardTab } from "@/data/types";
-import { useSearchState } from "@/hooks/useSearchState";
+import { useSkillFilters } from "@/hooks/useSkillFilters";
 import { useFilteredSkills } from "@/hooks/useFilteredSkills";
 import { useFilterFacets } from "@/hooks/useFilterFacets";
 import { useSkills } from "@/hooks/useSkills";
@@ -10,7 +8,9 @@ import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LeaderboardTabs } from "@/components/domain/LeaderboardTabs";
 import { TopicFilterChips } from "@/components/domain/TopicFilterChips";
-import { KindFilter, type KindFilterValue } from "@/components/domain/KindFilter";
+import { KindFilter } from "@/components/domain/KindFilter";
+import { AuthorFilter } from "@/components/domain/AuthorFilter";
+import { CoreToggle } from "@/components/domain/CoreToggle";
 import { SkillCard } from "@/components/domain/SkillCard";
 import { SkillCardSkeleton } from "@/components/domain/SkillCardSkeleton";
 import { Hero } from "@/components/domain/Hero";
@@ -18,28 +18,12 @@ import { Hero } from "@/components/domain/Hero";
 const GRID = "grid grid-cols-[repeat(auto-fill,minmax(min(330px,100%),1fr))] gap-4";
 
 export function HomePage() {
-  const { query, setQuery } = useSearchState();
-  const [tab, setTab] = useState<LeaderboardTab>("all");
-  const [topics, setTopics] = useState<string[]>([]);
-  const [kind, setKind] = useState<KindFilterValue>("all");
-
+  const f = useSkillFilters();
   const { skills, loading, error, refetch } = useSkills();
-  const results = useFilteredSkills({ skills, query, tab, topics, kind });
+  const results = useFilteredSkills({ skills, ...f });
   const facets = useFilterFacets(skills);
 
-  const toggleTopic = (t: string): void => {
-    setTopics((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
-  };
-
-  const clearFilters = (): void => {
-    setQuery("");
-    setTopics([]);
-    setKind("all");
-    setTab("all");
-  };
-
   const hasSkills = skills.length > 0;
-  const hasActiveFilters = Boolean(query) || topics.length > 0 || kind !== "all" || tab !== "all";
   const showKindFilter = facets.kinds.length > 1;
   const showTabs = facets.owners.length > 1;
 
@@ -49,10 +33,20 @@ export function HomePage() {
 
       {hasSkills && (
         <>
-          {showTabs && <LeaderboardTabs active={tab} onChange={setTab} />}
+          {showTabs && <LeaderboardTabs active={f.tab} onChange={f.setTab} />}
           <div className="mb-[18px] flex flex-wrap items-center justify-between gap-[14px]">
-            <TopicFilterChips topics={facets.topics} selected={topics} onToggle={toggleTopic} />
-            {showKindFilter && <KindFilter value={kind} onChange={setKind} available={facets.kinds} />}
+            <TopicFilterChips topics={facets.topics} selected={f.topics} onToggle={f.toggleTopic} />
+            <div className="flex flex-wrap items-center gap-2">
+              {facets.coreCount > 0 && (
+                <CoreToggle value={f.coreOnly} onChange={f.setCoreOnly} count={facets.coreCount} />
+              )}
+              {facets.authors.length > 1 && (
+                <AuthorFilter value={f.author} onChange={f.setAuthor} authors={facets.authors} />
+              )}
+              {showKindFilter && (
+                <KindFilter value={f.kind} onChange={f.setKind} available={facets.kinds} />
+              )}
+            </div>
           </div>
           <div className="mb-[26px] flex items-center gap-3 text-[13px] text-[hsl(212_11%_58%)]">
             <span>
@@ -60,8 +54,8 @@ export function HomePage() {
                 ? `${skills.length} skills`
                 : `${results.length} of ${skills.length} skills`}
             </span>
-            {hasActiveFilters && (
-              <Button variant="ghost" size="sm" onClick={clearFilters}>
+            {f.active && (
+              <Button variant="ghost" size="sm" onClick={f.clear}>
                 Clear filters
               </Button>
             )}
@@ -107,7 +101,7 @@ export function HomePage() {
           icon={<Search className="h-6 w-6" strokeWidth={1.8} />}
           title="No matches found"
           description="Nothing in the registry matches your search and filters. Try broadening your query."
-          action={<Button onClick={clearFilters}>Clear all filters</Button>}
+          action={<Button onClick={f.clear}>Clear all filters</Button>}
         />
       )}
     </main>

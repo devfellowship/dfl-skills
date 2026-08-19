@@ -62,7 +62,9 @@ export function resolveReadmeSource(
   if (!SOURCE_RE.test(source) || source.includes("..") || !SLUG_RE.test(slug)) {
     return { kind: "invalid", reason: `unsafe or malformed source/slug: "${source}/${slug}"` };
   }
-  if (visibility === "internal") {
+  // Every non-public tier lives in the private source repo, so the test is
+  // "not public" rather than a list of tiers a new one could be added outside.
+  if (visibility && visibility !== "public") {
     if (authenticated) return { kind: "registry" };
     return {
       kind: "private",

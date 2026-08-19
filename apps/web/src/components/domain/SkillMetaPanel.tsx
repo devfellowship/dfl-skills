@@ -1,11 +1,13 @@
 import { Clock, Eye, Github, ArrowUpRight, FileText } from "lucide-react";
-import type { Skill } from "@/data/types";
+import type { Skill } from "@/types";
 import { formatDate } from "@/lib/format";
 import { skillMdGithubUrl } from "@/lib/readme";
 import { Card } from "@/components/ui/Card";
+import { VisibilitySelect } from "./VisibilitySelect";
 
 interface SkillMetaPanelProps {
   skill: Skill;
+  onVisibilityChanged: (visibility: string) => void;
 }
 
 const Divider = () => <div className="h-px bg-[hsl(215_15%_14%)]" />;
@@ -30,7 +32,7 @@ function Row({
   );
 }
 
-export function SkillMetaPanel({ skill }: SkillMetaPanelProps) {
+export function SkillMetaPanel({ skill, onVisibilityChanged }: SkillMetaPanelProps) {
   const skillMdUrl = skillMdGithubUrl(skill.source, skill.slug);
   return (
     <Card className="flex flex-col gap-[14px] p-[18px]">
@@ -64,9 +66,12 @@ export function SkillMetaPanel({ skill }: SkillMetaPanelProps) {
         icon={<Eye className="h-[15px] w-[15px]" />}
         label="Visibility"
         value={
-          <span className="rounded-md bg-[hsl(215_15%_15%)] px-2 py-[3px] text-[11.5px] font-semibold uppercase tracking-[.04em] text-[hsl(212_13%_68%)]">
-            {skill.visibility}
-          </span>
+          <VisibilitySelect
+            source={skill.source}
+            slug={skill.slug}
+            visibility={skill.visibility}
+            onChanged={onVisibilityChanged}
+          />
         }
       />
       {skillMdUrl && (

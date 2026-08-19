@@ -1,5 +1,5 @@
 import { ClipboardCopy, Lock } from "lucide-react";
-import type { Scope } from "@/data/types";
+import type { Scope } from "@/types";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";

@@ -1,4 +1,4 @@
-import type { Scope } from "@/data/types";
+import type { Scope } from "@/types";
 import { isValidSlug, isValidSource } from "./identifiers";
 
 const BAR = "=====";

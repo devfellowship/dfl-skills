@@ -1,4 +1,4 @@
-import type { LeaderboardTab } from "@/data/types";
+import type { LeaderboardTab } from "@/types";
 import { Tabs, type TabItem } from "@/components/ui/Tabs";
 
 const TABS: TabItem[] = [
