@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import type { Skill } from "@/data/types";
+import type { Skill } from "@/types";
 import { ApiError, fetchSkill } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -9,6 +9,8 @@ export interface SkillState {
   error: string | null;
   notFound: boolean;
   refetch: () => void;
+  /** Applies a tier the API already confirmed, without flashing the skeleton. */
+  applyVisibility: (visibility: string) => void;
 }
 
 export function useSkill(source: string | undefined, slug: string | undefined): SkillState {
@@ -20,6 +22,10 @@ export function useSkill(source: string | undefined, slug: string | undefined): 
   const { token, loading: authLoading } = useAuth();
 
   const refetch = useCallback(() => setNonce((n) => n + 1), []);
+
+  const applyVisibility = useCallback((visibility: string) => {
+    setSkill((prev) => (prev ? { ...prev, visibility } : prev));
+  }, []);
 
   useEffect(() => {
     // An internal skill is a 404 to an anonymous caller, so fetching before the
@@ -64,5 +70,5 @@ export function useSkill(source: string | undefined, slug: string | undefined): 
     };
   }, [source, slug, nonce, token, authLoading]);
 
-  return { skill, loading, error, notFound, refetch };
+  return { skill, loading, error, notFound, refetch, applyVisibility };
 }

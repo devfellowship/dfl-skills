@@ -1,4 +1,4 @@
-import type { AgentTarget } from "@/data/types";
+import type { AgentTarget } from "@/types";
 import { cn } from "@/lib/cn";
 
 export const AGENTS: AgentTarget[] = [

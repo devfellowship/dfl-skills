@@ -34,6 +34,19 @@ test("`private` is driven by visibility, not by a hardcoded repo name", () => {
   assert.equal(other.kind, "private");
 });
 
+// The narrow tiers live in the SAME private repo as `internal`, so treating
+// only `internal` as unfetchable would send the browser to raw.githubusercontent
+// for a repo it cannot read — a guaranteed 404 rendered as "no README".
+test("every non-public tier is unfetchable anonymously, not just `internal`", () => {
+  for (const tier of ["internal", "leaders", "private"]) {
+    assert.equal(resolveReadmeSource("devfellowship/internal-skills", "x", tier).kind, "private");
+    assert.equal(
+      resolveReadmeSource("devfellowship/internal-skills", "x", tier, true).kind,
+      "registry",
+    );
+  }
+});
+
 // ---------------------------------------------------------------------------
 // Signing in is what unlocks the internal registry. The browser still cannot
 // reach the private repo — the API reads it server-side — so the authenticated

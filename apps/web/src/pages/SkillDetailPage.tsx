@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { AlertTriangle, ChevronLeft, Search } from "lucide-react";
-import type { Scope } from "@/data/types";
+import type { Scope } from "@/types";
 import { installCommand } from "@/lib/format";
 import { useSkill } from "@/hooks/useSkill";
 import { useSkillReadme } from "@/hooks/useSkillReadme";
@@ -34,7 +34,7 @@ export function SkillDetailPage() {
   const [agent, setAgent] = useState("claude-code");
   const [scope, setScope] = useState<Scope>("global");
 
-  const { skill, loading, error, notFound, refetch } = useSkill(source, slug);
+  const { skill, loading, error, notFound, refetch, applyVisibility } = useSkill(source, slug);
   const {
     body: readme,
     raw: readmeRaw,
@@ -102,14 +102,14 @@ export function SkillDetailPage() {
               {/* `npx skills add` clones the whole source repo over the network, so
                   it can only work for a public one. Offering it for the internal
                   registry would be a command that fails every time. */}
-              {skill.visibility !== "internal" && installCommand(skill.source, skill.slug) && (
+              {skill.visibility === "public" && installCommand(skill.source, skill.slug) && (
                 <InstallPanel
                   command={installCommand(skill.source, skill.slug) ?? ""}
                   agent={agent}
                   onAgentChange={setAgent}
                 />
               )}
-              <SkillMetaPanel skill={skill} />
+              <SkillMetaPanel skill={skill} onVisibilityChanged={applyVisibility} />
             </aside>
           </div>
         </div>

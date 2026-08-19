@@ -1,9 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
-import type { Skill } from "@/data/types";
+import type { Skill } from "@/types";
 import { authorOf, formatDate, githubAvatarUrl, installCommand } from "@/lib/format";
 import { KindBadge } from "./KindBadge";
+import { VisibilityBadge } from "./VisibilityBadge";
 
 interface SkillCardProps {
   skill: Skill;
@@ -14,6 +15,9 @@ export function SkillCard({ skill }: SkillCardProps) {
 
   const href = `/s/${skill.source}/${skill.slug}`;
   const author = skill.author ?? authorOf(skill.source);
+  // Categories, not tags: they are what the topic chips filter on, so a chip on
+  // a card is always something the catalogue can actually narrow by.
+  const chips = skill.categories;
 
   const onCopy = (e: React.MouseEvent): void => {
     e.stopPropagation();
@@ -32,7 +36,15 @@ export function SkillCard({ skill }: SkillCardProps) {
       className="group flex min-h-[178px] cursor-pointer animate-fadeUp flex-col gap-[11px] rounded-[13px] border border-border bg-card p-[18px] transition-all hover:-translate-y-[3px] hover:border-[hsl(215_15%_26%)] hover:shadow-[0_10px_30px_hsl(216_40%_3%/.5)]"
     >
       <div className="flex items-center justify-between gap-2">
-        <KindBadge kind={skill.kind} />
+        <div className="flex items-center gap-[6px]">
+          <KindBadge kind={skill.kind} />
+          {skill.tags.includes("core") && (
+            <span className="rounded-md border border-[hsl(33_90%_55%/.4)] bg-[hsl(33_90%_55%/.14)] px-2 py-[2px] text-[11px] font-semibold uppercase tracking-[.04em] text-[hsl(33_85%_66%)]">
+              Core
+            </span>
+          )}
+          {skill.visibility !== "public" && <VisibilityBadge visibility={skill.visibility} />}
+        </div>
         <span className="text-[11px] text-[hsl(212_10%_52%)]">{formatDate(skill.updatedAt)}</span>
       </div>
 
@@ -67,7 +79,7 @@ export function SkillCard({ skill }: SkillCardProps) {
 
       <div className="mt-auto flex items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-[6px]">
-          {skill.tags.slice(0, 3).map((tag) => (
+          {chips.slice(0, 3).map((tag) => (
             <span
               key={tag}
               className="rounded-full border border-[hsl(215_15%_18%)] bg-[hsl(215_18%_12%)] px-[8px] py-[2px] text-[11px] text-[hsl(212_12%_64%)]"

@@ -1,4 +1,4 @@
-import type { Kind } from "@/data/types";
+import type { Kind } from "@/types";
 import { kindMeta } from "@/lib/meta";
 import { Badge, type BadgeTone } from "@/components/ui/Badge";
 

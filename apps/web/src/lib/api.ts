@@ -1,4 +1,4 @@
-import type { Kind, Skill } from "@/data/types";
+import type { Kind, Skill, Visibility } from "@/types";
 import { ApiError } from "./api-error";
 
 const API_BASE: string =
@@ -12,6 +12,7 @@ export interface ApiSkill {
   kind?: string;
   description?: string;
   tags?: string[];
+  categories?: string[];
   visibility?: string;
   updated_at?: string;
   author?: string;
@@ -88,6 +89,7 @@ export function adaptSkill(raw: ApiSkill): Skill {
     kind: toKind(raw.kind),
     description: raw.description ?? "",
     tags: raw.tags ?? [],
+    categories: raw.categories ?? [],
     updatedAt: raw.updated_at ?? "",
     visibility: raw.visibility ?? "public",
     author: raw.author,
@@ -127,4 +129,36 @@ export async function fetchSkillContent(
     throw new ApiError("Registry returned no content for this skill", 502);
   }
   return data.content;
+}
+
+/**
+ * Retier a skill. Nothing here checks whether the caller is a leader: the API
+ * runs the UPDATE carrying this very token and lets the RLS policy decide, so a
+ * non-leader comes back 403. Hiding the control would be cosmetic, not a gate.
+ */
+export async function updateSkillVisibility(
+  source: string,
+  slug: string,
+  visibility: Visibility,
+  token: string,
+): Promise<string> {
+  const res = await fetch(`${API_BASE}${skillPath(source, slug, "/visibility")}`, {
+    method: "PATCH",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    // No owner is sent: the API reads "private" with no owner as "private to
+    // me", which is the only owner this UI could mean.
+    body: JSON.stringify({ visibility }),
+  });
+  // The reply carries only the four columns the UPDATE returned, so it is a
+  // partial row — never feed it through adaptSkill().
+  const body = (await res.json().catch(() => ({}))) as {
+    skill?: { visibility?: string };
+    error?: string;
+  };
+  if (!res.ok) throw new ApiError(body.error ?? "Could not change visibility", res.status);
+  return body.skill?.visibility ?? visibility;
 }

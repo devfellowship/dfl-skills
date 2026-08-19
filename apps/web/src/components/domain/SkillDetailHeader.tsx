@@ -1,4 +1,4 @@
-import type { Skill } from "@/data/types";
+import type { Skill } from "@/types";
 import { authorOf, githubAvatarUrl } from "@/lib/format";
 import { KindBadge } from "./KindBadge";
 

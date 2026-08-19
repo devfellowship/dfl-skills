@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import type { Skill } from "@/data/types";
+import type { Skill } from "@/types";
 import { fetchSkills } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 
