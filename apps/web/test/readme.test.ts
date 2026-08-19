@@ -34,6 +34,27 @@ test("`private` is driven by visibility, not by a hardcoded repo name", () => {
   assert.equal(other.kind, "private");
 });
 
+// ---------------------------------------------------------------------------
+// Signing in is what unlocks the internal registry. The browser still cannot
+// reach the private repo — the API reads it server-side — so the authenticated
+// outcome is `registry`, never `raw`.
+// ---------------------------------------------------------------------------
+
+test("authenticated + internal resolves to the registry, not raw GitHub", () => {
+  const r = resolveReadmeSource("devfellowship/internal-skills", "dfl-code-style", "internal", true);
+  assert.equal(r.kind, "registry");
+});
+
+test("signing in does not redirect public skills through the registry", () => {
+  const r = resolveReadmeSource("devfellowship/skills", "squad-review", "public", true);
+  assert.equal(r.kind, "raw");
+});
+
+test("a session cannot rescue a malformed ref", () => {
+  assert.equal(resolveReadmeSource("../evil", "x", "internal", true).kind, "invalid");
+  assert.equal(resolveReadmeSource("a/b", "bad slug", "internal", true).kind, "invalid");
+});
+
 test("public source still resolves to the raw URL", () => {
   const r = resolveReadmeSource("devfellowship/skills", "squad-review", "public");
   assert.equal(r.kind, "raw");

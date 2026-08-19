@@ -3,6 +3,7 @@ import { Github, Zap } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { useSearchState } from "@/hooks/useSearchState";
 import { SearchBar } from "./SearchBar";
+import { AuthMenu } from "./AuthMenu";
 
 const REPO_URL = "https://github.com/devfellowship/skills";
 
@@ -57,6 +58,8 @@ export function TopNav() {
         <Github className="h-[15px] w-[15px]" />
         GitHub
       </a>
+
+      <AuthMenu />
     </nav>
   );
 }
