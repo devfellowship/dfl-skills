@@ -13,7 +13,8 @@ export interface AuthState {
   /** True until the initial session lookup settles, so the nav doesn't flash. */
   loading: boolean;
   configured: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: string | null }>;
+  /** Leaves the page: there is no password form here, DFL is the only issuer. */
+  signInWithDfl: (next: string) => void;
   signOut: () => Promise<void>;
 }
 
