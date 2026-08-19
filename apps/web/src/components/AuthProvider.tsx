@@ -1,55 +1,62 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import type { Session } from "@supabase/supabase-js";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { authConfigured, supabase } from "@/lib/supabase";
 import { startDflSignIn } from "@/lib/dfl-federation";
-import { adoptSharedSession, clearSharedSession } from "@/lib/shared-session";
+import { clearDflToken, emailOf, readDflToken, storeDflToken } from "@/lib/dfl-token";
+import { adoptSharedSession, clearSharedSession, sharedAccessToken } from "@/lib/shared-session";
 import { AuthContext, type AuthState } from "@/hooks/authContext";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(authConfigured);
   const mounted = useRef(true);
 
   useEffect(() => {
     mounted.current = true;
-    if (!supabase) return;
 
     void (async () => {
-      const { data } = await supabase.auth.getSession();
-      // Being signed in to any other DFL app is enough: the shared cookie turns
-      // that into a session here, with no redirect and no click.
-      const restored = data.session ?? (await adoptSharedSession());
+      const stored = readDflToken();
+      const session = (await supabase?.auth.getSession())?.data.session ?? (await adoptSharedSession());
+      // Being signed in to any other DFL app is enough. The cookie's access
+      // token is the last resort: it still opens the registry even when the
+      // refresh token beside it has been revoked.
+      const next = session?.access_token ?? stored ?? sharedAccessToken();
       if (!mounted.current) return;
-      setSession(restored);
+      if (next) storeDflToken(next);
+      setToken(readDflToken());
       setLoading(false);
     })();
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
-      if (mounted.current) setSession(next);
+    const sub = supabase?.auth.onAuthStateChange((_event, session) => {
+      if (!mounted.current || !session) return;
+      storeDflToken(session.access_token);
+      setToken(session.access_token);
     });
 
     return () => {
       mounted.current = false;
-      sub.subscription.unsubscribe();
+      sub?.data.subscription.unsubscribe();
     };
+  }, []);
+
+  const signOut = useCallback(async () => {
+    // Without dropping the shared cookie the next load would adopt it right
+    // back, and signing out would look broken.
+    clearSharedSession();
+    clearDflToken();
+    setToken(null);
+    await supabase?.auth.signOut();
   }, []);
 
   const value = useMemo<AuthState>(
     () => ({
-      session,
-      token: session?.access_token ?? null,
-      email: session?.user.email ?? null,
+      token,
+      email: token ? emailOf(token) : null,
       loading,
       configured: authConfigured,
       signInWithDfl: startDflSignIn,
-      signOut: async () => {
-        // Without dropping the shared cookie the next load would adopt it right
-        // back, and signing out would look broken.
-        clearSharedSession();
-        await supabase?.auth.signOut();
-      },
+      signOut,
     }),
-    [session, loading],
+    [token, loading, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
