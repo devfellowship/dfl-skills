@@ -1,4 +1,5 @@
 import type { Kind, Skill } from "@/data/types";
+import { ApiError } from "./api-error";
 
 const API_BASE: string =
   (import.meta.env.VITE_API_BASE as string | undefined) ?? "https://skills.devfellowship.com";
@@ -33,35 +34,23 @@ interface ContentResponse {
   scope?: string;
 }
 
-export class ApiError extends Error {
-  readonly status: number;
-  constructor(message: string, status: number) {
-    super(message);
-    this.name = "ApiError";
-    this.status = status;
-  }
-}
+export { ApiError };
 
 /**
- * The dfl-iam access token, in memory only. `AuthProvider` is the sole writer,
- * deriving it from the session, and nothing else reads it — so signing out
- * cannot leave a live token behind in some component's state.
+ * 🚨 The dfl-iam token is passed in per call and attached ONLY to registry
+ * requests. Never forward it to `raw.githubusercontent.com` or any other
+ * origin: it opens every DFL app, and a bearer header on a third-party request
+ * is exactly how it leaks.
  *
- * 🚨 It is attached ONLY to registry requests. Never send it to
- * `raw.githubusercontent.com` or any other origin: this token opens every DFL
- * app, and a bearer header on a third-party request is exactly how it leaks.
+ * It is an argument rather than module state because module state is written by
+ * an effect, and React runs child effects before parent ones — the token would
+ * be missing on the very first fetch after a sign-in.
  */
-let accessToken: string | null = null;
-
-export function setAccessToken(token: string | null): void {
-  accessToken = token;
-}
-
-async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
+async function getJson<T>(path: string, signal?: AbortSignal, token?: string | null): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     headers: {
       Accept: "application/json",
-      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     signal,
   });
@@ -106,8 +95,8 @@ export function adaptSkill(raw: ApiSkill): Skill {
   };
 }
 
-export async function fetchSkills(signal?: AbortSignal): Promise<Skill[]> {
-  const data = await getJson<ListResponse>("/api/v1/skills", signal);
+export async function fetchSkills(signal?: AbortSignal, token?: string | null): Promise<Skill[]> {
+  const data = await getJson<ListResponse>("/api/v1/skills", signal, token);
   return (data.skills ?? []).map(adaptSkill);
 }
 
@@ -115,8 +104,9 @@ export async function fetchSkill(
   source: string,
   slug: string,
   signal?: AbortSignal,
+  token?: string | null,
 ): Promise<Skill> {
-  const data = await getJson<SingleResponse>(skillPath(source, slug), signal);
+  const data = await getJson<SingleResponse>(skillPath(source, slug), signal, token);
   return adaptSkill(data.skill ?? (data as unknown as ApiSkill));
 }
 
@@ -130,8 +120,9 @@ export async function fetchSkillContent(
   source: string,
   slug: string,
   signal?: AbortSignal,
+  token?: string | null,
 ): Promise<string> {
-  const data = await getJson<ContentResponse>(skillPath(source, slug, "/content"), signal);
+  const data = await getJson<ContentResponse>(skillPath(source, slug, "/content"), signal, token);
   if (typeof data.content !== "string") {
     throw new ApiError("Registry returned no content for this skill", 502);
   }

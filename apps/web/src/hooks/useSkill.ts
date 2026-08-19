@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Skill } from "@/data/types";
 import { ApiError, fetchSkill } from "@/lib/api";
+import { useAuth } from "@/hooks/useAuth";
 
 export interface SkillState {
   skill: Skill | null;
@@ -16,10 +17,15 @@ export function useSkill(source: string | undefined, slug: string | undefined): 
   const [error, setError] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [nonce, setNonce] = useState(0);
+  const { token, loading: authLoading } = useAuth();
 
   const refetch = useCallback(() => setNonce((n) => n + 1), []);
 
   useEffect(() => {
+    // An internal skill is a 404 to an anonymous caller, so fetching before the
+    // session settles would render "not found" for a page the user can read.
+    if (authLoading) return;
+
     if (!source || !slug) {
       setSkill(null);
       setNotFound(true);
@@ -34,7 +40,7 @@ export function useSkill(source: string | undefined, slug: string | undefined): 
     setError(null);
     setNotFound(false);
 
-    fetchSkill(source, slug, controller.signal)
+    fetchSkill(source, slug, controller.signal, token)
       .then((live) => {
         if (!active) return;
         setSkill(live);
@@ -56,7 +62,7 @@ export function useSkill(source: string | undefined, slug: string | undefined): 
       active = false;
       controller.abort();
     };
-  }, [source, slug, nonce]);
+  }, [source, slug, nonce, token, authLoading]);
 
   return { skill, loading, error, notFound, refetch };
 }

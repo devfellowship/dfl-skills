@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { authConfigured, supabase } from "@/lib/supabase";
-import { setAccessToken } from "@/lib/api";
 import { AuthContext, type AuthState } from "@/hooks/authContext";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -29,16 +28,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  // The session is the single source of truth; the API layer's copy of the token
-  // is derived from it here and nowhere else, so signing out cannot leave a
-  // stale token behind in a code path somebody forgot about.
-  useEffect(() => {
-    setAccessToken(session?.access_token ?? null);
-  }, [session]);
-
   const value = useMemo<AuthState>(
     () => ({
       session,
+      token: session?.access_token ?? null,
       email: session?.user.email ?? null,
       loading,
       configured: authConfigured,
