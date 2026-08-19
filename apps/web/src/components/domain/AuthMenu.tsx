@@ -1,10 +1,8 @@
 import { useState } from "react";
-import { LogIn, LogOut } from "lucide-react";
+import { LogIn } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { AccountMenu } from "./AccountMenu";
 import { SignInDialog } from "./SignInDialog";
-
-const BUTTON_CLASS =
-  "flex items-center gap-2 rounded-lg border border-[hsl(215_15%_19%)] px-[13px] py-2 text-[13px] font-medium text-foreground/85 transition-colors hover:border-[hsl(215_15%_28%)] hover:bg-[hsl(215_18%_13%)]";
 
 export function AuthMenu() {
   const { email, loading, configured, signOut } = useAuth();
@@ -16,17 +14,16 @@ export function AuthMenu() {
   if (!configured || loading) return null;
 
   if (email) {
-    return (
-      <button type="button" onClick={() => void signOut()} className={BUTTON_CLASS} title={email}>
-        <LogOut className="h-[15px] w-[15px]" />
-        <span className="max-w-[140px] truncate">{email}</span>
-      </button>
-    );
+    return <AccountMenu email={email} onSignOut={() => void signOut()} />;
   }
 
   return (
     <>
-      <button type="button" onClick={() => setDialogOpen(true)} className={BUTTON_CLASS}>
+      <button
+        type="button"
+        onClick={() => setDialogOpen(true)}
+        className="flex items-center gap-2 rounded-lg bg-primary px-[14px] py-2 text-[13px] font-bold text-primary-foreground transition-colors hover:bg-[hsl(33_92%_60%)]"
+      >
         <LogIn className="h-[15px] w-[15px]" />
         Sign in
       </button>
