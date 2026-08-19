@@ -1,6 +1,5 @@
 import { ArrowUpRight, FileWarning, Lock, Unplug } from "lucide-react";
-import type { ReadmeStatus } from "@/hooks/useSkillReadme";
-import { skillMdGithubUrl } from "@/lib/readme";
+import { skillMdGithubUrl, type ReadmeStatus } from "@/lib/readme";
 
 interface ReadmeUnavailableProps {
   status: Exclude<ReadmeStatus, "loading" | "ok">;

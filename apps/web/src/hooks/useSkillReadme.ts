@@ -1,24 +1,16 @@
 import { useEffect, useRef, useState } from "react";
-import { ApiError, fetchSkillContent } from "@/lib/api";
-import { parseAuthor, resolveReadmeSource, stripFrontmatter } from "@/lib/readme";
+import { fetchSkillContent } from "@/lib/api";
+import {
+  classifyReadmeFailure,
+  fetchRawReadme,
+  parseAuthor,
+  resolveReadmeSource,
+  stripFrontmatter,
+  type ReadmeStatus,
+} from "@/lib/readme";
+import { useAuth } from "@/hooks/useAuth";
 
 const MAX_BYTES = 512 * 1024;
-
-/**
- * Terminal outcomes of a SKILL.md resolution. Every non-`ok` value MUST reach
- * the user as a distinguishable UI state and the console as a log line — a
- * failed resolution rendered as an empty panel is indistinguishable from "this
- * skill genuinely has no README", which is the bug this hook previously had.
- *
- *  - `ok`         body loaded and rendered
- *  - `private`    source repo is private and nobody is signed in
- *  - `restricted` signed in and allowed to SEE the skill, but its body is not
- *                 distributable (the registry's `core` gate). Visible-but-not-
- *                 readable is a real, permanent state, not an error or a 404.
- *  - `missing`    resolved, but there is no SKILL.md at that path (real 404)
- *  - `error`      network/HTTP failure, or an unbuildable URL — worth retrying
- */
-export type ReadmeStatus = "loading" | "ok" | "private" | "restricted" | "missing" | "error";
 
 export interface ReadmeState {
   /** Body with the frontmatter stripped — what the page renders. */
@@ -69,14 +61,18 @@ export function useSkillReadme(
   source: string | undefined,
   slug: string | undefined,
   visibility?: string,
-  authenticated = false,
 ): ReadmeState {
   const [state, setState] = useState<ReadmeState>(IDLE);
   const active = useRef(true);
+  const { token, loading: authLoading } = useAuth();
 
   useEffect(() => {
+    // Resolving before the session settles would classify a readable internal
+    // skill as `private` and leave that verdict on screen.
+    if (authLoading) return;
+
     active.current = true;
-    const resolved = resolveReadmeSource(source, slug, visibility, authenticated);
+    const resolved = resolveReadmeSource(source, slug, visibility, token !== null);
     const ref = `${source ?? "?"}/${slug ?? "?"}`;
 
     if (resolved.kind === "private") {
@@ -97,8 +93,8 @@ export function useSkillReadme(
 
     const request =
       resolved.kind === "registry"
-        ? fetchSkillContent(source as string, slug as string, controller.signal)
-        : fetchRaw(resolved.url, controller.signal);
+        ? fetchSkillContent(source as string, slug as string, controller.signal, token)
+        : fetchRawReadme(resolved.url, controller.signal);
 
     request
       .then((text) => {
@@ -107,7 +103,7 @@ export function useSkillReadme(
       .catch((err: unknown) => {
         if (!active.current || controller.signal.aborted) return;
         const url = resolved.kind === "raw" ? resolved.url : null;
-        const { status, detail } = classify(err, url);
+        const { status, detail } = classifyReadmeFailure(err, url);
         const log = status === "restricted" ? console.warn : console.error;
         log(`[readme] ${ref}: ${detail}`);
         setState(failed(status, detail, url));
@@ -117,32 +113,7 @@ export function useSkillReadme(
       active.current = false;
       controller.abort();
     };
-  }, [source, slug, visibility, authenticated]);
+  }, [source, slug, visibility, token, authLoading]);
 
   return state;
-}
-
-async function fetchRaw(url: string, signal: AbortSignal): Promise<string> {
-  const res = await fetch(url, { signal });
-  if (!res.ok) throw new ApiError(`HTTP ${res.status}`, res.status);
-  return res.text();
-}
-
-function classify(
-  err: unknown,
-  url: string | null,
-): { status: Exclude<ReadmeStatus, "loading" | "ok">; detail: string } {
-  const where = url ? ` at ${url}` : " from the registry";
-  if (err instanceof ApiError) {
-    if (err.status === 403) {
-      return {
-        status: "restricted",
-        detail: "this skill is visible to you but its contents are not distributable",
-      };
-    }
-    if (err.status === 404) return { status: "missing", detail: `no SKILL.md${where} (HTTP 404)` };
-    return { status: "error", detail: `fetch${where} failed — HTTP ${err.status}` };
-  }
-  const reason = err instanceof Error ? err.message : String(err);
-  return { status: "error", detail: `fetch${where} failed — ${reason}` };
 }

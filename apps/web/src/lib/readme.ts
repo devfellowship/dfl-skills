@@ -1,3 +1,5 @@
+import { ApiError } from "./api-error";
+
 const SOURCE_RE = /^[a-z0-9][a-z0-9._-]*\/[a-z0-9][a-z0-9._-]*$/i;
 const SLUG_RE = /^[a-z0-9][a-z0-9-]*$/i;
 const FRONTMATTER = /^﻿?---\r?\n[\s\S]*?\r?\n---\r?\n?/;
@@ -84,4 +86,45 @@ export function parseAuthor(md: string): string | undefined {
   const block = FRONTMATTER.exec(md)?.[0];
   if (!block) return undefined;
   return AUTHOR_LINE.exec(block)?.[1];
+}
+
+/**
+ * Terminal outcomes of a SKILL.md resolution. Every non-`ok` value MUST reach
+ * the user as a distinguishable UI state and the console as a log line — a
+ * failed resolution rendered as an empty panel is indistinguishable from "this
+ * skill genuinely has no README", which is the bug this flow previously had.
+ *
+ *  - `ok`         body loaded and rendered
+ *  - `private`    source repo is private and nobody is signed in
+ *  - `restricted` signed in and allowed to SEE the skill, but its body is not
+ *                 distributable (the registry's `core` gate). Visible-but-not-
+ *                 readable is a real, permanent state, not an error or a 404.
+ *  - `missing`    resolved, but there is no SKILL.md at that path (real 404)
+ *  - `error`      network/HTTP failure, or an unbuildable URL — worth retrying
+ */
+export type ReadmeStatus = "loading" | "ok" | "private" | "restricted" | "missing" | "error";
+
+export async function fetchRawReadme(url: string, signal: AbortSignal): Promise<string> {
+  const res = await fetch(url, { signal });
+  if (!res.ok) throw new ApiError(`HTTP ${res.status}`, res.status);
+  return res.text();
+}
+
+export function classifyReadmeFailure(
+  err: unknown,
+  url: string | null,
+): { status: Exclude<ReadmeStatus, "loading" | "ok">; detail: string } {
+  const where = url ? ` at ${url}` : " from the registry";
+  if (err instanceof ApiError) {
+    if (err.status === 403) {
+      return {
+        status: "restricted",
+        detail: "this skill is visible to you but its contents are not distributable",
+      };
+    }
+    if (err.status === 404) return { status: "missing", detail: `no SKILL.md${where} (HTTP 404)` };
+    return { status: "error", detail: `fetch${where} failed — HTTP ${err.status}` };
+  }
+  const reason = err instanceof Error ? err.message : String(err);
+  return { status: "error", detail: `fetch${where} failed — ${reason}` };
 }

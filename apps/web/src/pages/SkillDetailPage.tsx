@@ -3,7 +3,6 @@ import { Link, useParams } from "react-router-dom";
 import { AlertTriangle, ChevronLeft, Search } from "lucide-react";
 import type { Scope } from "@/data/types";
 import { installCommand } from "@/lib/format";
-import { useAuth } from "@/hooks/useAuth";
 import { useSkill } from "@/hooks/useSkill";
 import { useSkillReadme } from "@/hooks/useSkillReadme";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -35,8 +34,6 @@ export function SkillDetailPage() {
   const [agent, setAgent] = useState("claude-code");
   const [scope, setScope] = useState<Scope>("global");
 
-  const { session } = useAuth();
-
   const { skill, loading, error, notFound, refetch } = useSkill(source, slug);
   const {
     body: readme,
@@ -44,7 +41,7 @@ export function SkillDetailPage() {
     author: readmeAuthor,
     status: readmeStatus,
     detail: readmeDetail,
-  } = useSkillReadme(skill?.source, skill?.slug, skill?.visibility, session !== null);
+  } = useSkillReadme(skill?.source, skill?.slug, skill?.visibility);
 
   return (
     <main className="mx-auto max-w-[1200px] px-6 pb-[90px] pt-6">
