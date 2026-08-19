@@ -8,9 +8,17 @@ export const DFL_CALLBACK_PATH = "/auth/dfl/callback";
  */
 const FEDERATE_URL = "https://learn.devfellowship.com/auth/federate";
 
-/** Only same-site paths survive, so the handoff can't be aimed at another site. */
+/**
+ * Only same-site paths survive, so the handoff can't be aimed at another site.
+ *
+ * 🚨 `startsWith("/")` alone is not enough: browsers normalise a backslash to a
+ * slash in the authority position, so `/\evil.example` and `\/evil.example`
+ * navigate off-site while passing a naive prefix check.
+ */
+const SAME_SITE_PATH = /^\/(?![/\\])/;
+
 export function safeNext(raw: string | null): string {
-  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return "/";
+  if (!raw || !SAME_SITE_PATH.test(raw)) return "/";
   return raw;
 }
 

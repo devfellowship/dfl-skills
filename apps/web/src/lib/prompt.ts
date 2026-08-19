@@ -1,7 +1,5 @@
 import type { Scope } from "@/data/types";
-
-const SOURCE_RE = /^[a-z0-9][a-z0-9._-]*\/[a-z0-9][a-z0-9._-]*$/i;
-const SLUG_RE = /^[a-z0-9][a-z0-9-]*$/i;
+import { isValidSlug, isValidSource } from "./identifiers";
 
 const BAR = "=====";
 
@@ -51,7 +49,7 @@ export function skillDirectory(slug: string, scope: Scope): string {
  * malformed source or slug cannot be smuggled into the instruction text.
  */
 export function buildSkillPrompt({ source, slug, scope, markdown }: SkillPromptInput): string | null {
-  if (!SOURCE_RE.test(source) || source.includes("..") || !SLUG_RE.test(slug)) return null;
+  if (!isValidSource(source) || !isValidSlug(slug)) return null;
   if (!markdown.trim()) return null;
 
   const dir = skillDirectory(slug, scope);

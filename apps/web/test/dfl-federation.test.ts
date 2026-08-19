@@ -10,6 +10,9 @@ test("safeNext keeps same-site paths", () => {
 
 test("safeNext refuses anything that could leave the site", () => {
   assert.equal(safeNext("//evil.example"), "/");
+  assert.equal(safeNext("/\\evil.example"), "/");
+  assert.equal(safeNext("\\/evil.example"), "/");
+  assert.equal(safeNext("\\\\evil.example"), "/");
   assert.equal(safeNext("https://evil.example"), "/");
   assert.equal(safeNext("javascript:alert(1)"), "/");
   assert.equal(safeNext(null), "/");

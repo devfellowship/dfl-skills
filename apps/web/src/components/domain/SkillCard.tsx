@@ -18,6 +18,10 @@ export function SkillCard({ skill }: SkillCardProps) {
   const onCopy = (e: React.MouseEvent): void => {
     e.stopPropagation();
     const cmd = installCommand(skill.source, skill.slug);
+    if (!cmd) {
+      toast.error("Couldn't build the install command");
+      return;
+    }
     void navigator.clipboard?.writeText(cmd).catch(() => undefined);
     toast.success("Copied install command");
   };

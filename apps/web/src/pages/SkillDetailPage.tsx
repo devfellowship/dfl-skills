@@ -102,9 +102,9 @@ export function SkillDetailPage() {
               {/* `npx skills add` clones the whole source repo over the network, so
                   it can only work for a public one. Offering it for the internal
                   registry would be a command that fails every time. */}
-              {skill.visibility !== "internal" && (
+              {skill.visibility !== "internal" && installCommand(skill.source, skill.slug) && (
                 <InstallPanel
-                  command={installCommand(skill.source, skill.slug)}
+                  command={installCommand(skill.source, skill.slug) ?? ""}
                   agent={agent}
                   onAgentChange={setAgent}
                 />
