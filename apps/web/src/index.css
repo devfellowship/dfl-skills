@@ -14,7 +14,7 @@
 
   --primary: 33 90% 55%;
   --primary-foreground: 0 0% 0%;
-  --ring: 270 90% 71%;
+  --ring: 33 90% 55%;
   --secondary: 215 18% 15%;
 
   --success: 142 55% 45%;
@@ -27,6 +27,11 @@
 
 * {
   border-color: hsl(var(--border));
+}
+
+:focus-visible {
+  outline: 2px solid hsl(var(--ring) / 0.6);
+  outline-offset: 2px;
 }
 
 html {
