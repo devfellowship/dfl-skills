@@ -1,12 +1,11 @@
-import { useState } from "react";
-import { LogIn } from "lucide-react";
+import { useLocation } from "react-router-dom";
+import { Zap } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { AccountMenu } from "./AccountMenu";
-import { SignInDialog } from "./SignInDialog";
 
 export function AuthMenu() {
-  const { email, loading, configured, signOut } = useAuth();
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const { email, loading, configured, signInWithDfl, signOut } = useAuth();
+  const location = useLocation();
 
   // Login is a deployment feature, not a promise. Without the Supabase env this
   // deployment simply has no internal tier, and offering a button that cannot
@@ -18,16 +17,13 @@ export function AuthMenu() {
   }
 
   return (
-    <>
-      <button
-        type="button"
-        onClick={() => setDialogOpen(true)}
-        className="flex items-center gap-2 rounded-lg bg-primary px-[14px] py-2 text-[13px] font-bold text-primary-foreground transition-colors hover:bg-[hsl(33_92%_60%)]"
-      >
-        <LogIn className="h-[15px] w-[15px]" />
-        Sign in
-      </button>
-      {dialogOpen && <SignInDialog onClose={() => setDialogOpen(false)} />}
-    </>
+    <button
+      type="button"
+      onClick={() => signInWithDfl(`${location.pathname}${location.search}`)}
+      className="flex items-center gap-[9px] rounded-lg bg-primary px-[15px] py-2 text-[13px] font-bold text-primary-foreground transition-colors hover:bg-[hsl(33_92%_60%)]"
+    >
+      <Zap className="h-[15px] w-[15px]" />
+      Sign in with DFL
+    </button>
   );
 }

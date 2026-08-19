@@ -8,6 +8,8 @@ import { HomePage } from "@/pages/HomePage";
 import { SkillDetailPage } from "@/pages/SkillDetailPage";
 import { DocsPage } from "@/pages/DocsPage";
 import { DesignSystemPage } from "@/pages/DesignSystemPage";
+import { AuthCallbackPage } from "@/pages/AuthCallbackPage";
+import { DFL_CALLBACK_PATH } from "@/lib/dfl-federation";
 
 export function App() {
   return (
@@ -20,6 +22,7 @@ export function App() {
           <Route path="/s/:owner/:repo/:slug" element={<SkillDetailPage />} />
           <Route path="/docs" element={<DocsPage />} />
           <Route path="/ds" element={<DesignSystemPage />} />
+          <Route path={DFL_CALLBACK_PATH} element={<AuthCallbackPage />} />
           <Route path="*" element={<HomePage />} />
         </Routes>
         <Toaster />

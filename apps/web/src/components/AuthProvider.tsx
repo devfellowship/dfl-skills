@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { authConfigured, supabase } from "@/lib/supabase";
+import { startDflSignIn } from "@/lib/dfl-federation";
+import { adoptSharedSession, clearSharedSession } from "@/lib/shared-session";
 import { AuthContext, type AuthState } from "@/hooks/authContext";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -12,11 +14,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     mounted.current = true;
     if (!supabase) return;
 
-    void supabase.auth.getSession().then(({ data }) => {
+    void (async () => {
+      const { data } = await supabase.auth.getSession();
+      // Being signed in to any other DFL app is enough: the shared cookie turns
+      // that into a session here, with no redirect and no click.
+      const restored = data.session ?? (await adoptSharedSession());
       if (!mounted.current) return;
-      setSession(data.session);
+      setSession(restored);
       setLoading(false);
-    });
+    })();
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
       if (mounted.current) setSession(next);
@@ -35,12 +41,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: session?.user.email ?? null,
       loading,
       configured: authConfigured,
-      signIn: async (email, password) => {
-        if (!supabase) return { error: "Login is not configured on this deployment." };
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        return { error: error?.message ?? null };
-      },
+      signInWithDfl: startDflSignIn,
       signOut: async () => {
+        // Without dropping the shared cookie the next load would adopt it right
+        // back, and signing out would look broken.
+        clearSharedSession();
         await supabase?.auth.signOut();
       },
     }),

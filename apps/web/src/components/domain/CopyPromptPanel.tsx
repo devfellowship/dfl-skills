@@ -6,6 +6,7 @@ import { Select } from "@/components/ui/Select";
 import { PanelLabel } from "@/components/ui/PanelLabel";
 import { copyToClipboard } from "@/lib/clipboard";
 import { buildSkillPrompt, skillDirectory } from "@/lib/prompt";
+import { DownloadSkillButton } from "./DownloadSkillButton";
 
 interface CopyPromptPanelProps {
   source: string;
@@ -45,14 +46,17 @@ export function CopyPromptPanel({
           Sign in with your DevFellowship account to copy this one.
         </div>
       ) : (
-        <Button
-          onClick={() => copyToClipboard(prompt, "Prompt copied — paste it into your agent")}
-          disabled={!prompt}
-          icon={<ClipboardCopy className="h-[15px] w-[15px]" strokeWidth={2.2} />}
-          className="mb-[18px] w-full"
-        >
-          Copy prompt
-        </Button>
+        <div className="mb-[18px] flex flex-col gap-2">
+          <Button
+            onClick={() => copyToClipboard(prompt, "Prompt copied — paste it into your agent")}
+            disabled={!prompt}
+            icon={<ClipboardCopy className="h-[15px] w-[15px]" strokeWidth={2.2} />}
+            className="w-full"
+          >
+            Copy prompt
+          </Button>
+          <DownloadSkillButton slug={slug} markdown={markdown} />
+        </div>
       )}
 
       <PanelLabel>Scope</PanelLabel>
