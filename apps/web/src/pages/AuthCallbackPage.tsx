@@ -3,13 +3,21 @@ import { useNavigate } from "react-router-dom";
 import { Loader2, AlertCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { DFL_CALLBACK_PATH, safeNext, startDflSignIn } from "@/lib/dfl-federation";
+import { storeDflToken } from "@/lib/dfl-token";
 
 export function AuthCallbackPage() {
   const navigate = useNavigate();
   const { token, loading } = useAuth();
   // Read during render, not in an effect: the effect below erases the fragment,
-  // and under StrictMode a second effect pass would then find nothing left.
-  const [next] = useState(() => safeNext(new URLSearchParams(window.location.hash.slice(1)).get("next")));
+  // and under StrictMode a second effect pass would then find nothing left. The
+  // token is banked here so the provider's own boot effect — which runs after
+  // this render — already finds it.
+  const [next] = useState(() => {
+    const fragment = new URLSearchParams(window.location.hash.slice(1));
+    const handoff = fragment.get("dfl_token");
+    if (handoff) storeDflToken(handoff);
+    return safeNext(fragment.get("next"));
+  });
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {

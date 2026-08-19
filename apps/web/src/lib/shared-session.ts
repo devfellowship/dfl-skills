@@ -32,18 +32,25 @@ export function clearSharedSession(): void {
   document.cookie = `${COOKIE}=; Path=/; Max-Age=0${cookieDomain()}`;
 }
 
+export function sharedAccessToken(): string | null {
+  return readSharedCookie()?.access_token ?? null;
+}
+
 /**
- * Signs the user in from a session another DFL app already established, so the
- * common case costs no redirect and no click.
+ * Upgrades the shared cookie into a real Supabase session, which is what buys
+ * automatic token refresh.
+ *
+ * 🚨 Failure here is NOT "signed out". `setSession` calls `/auth/v1/user`, which
+ * 403s once the refresh token in the cookie has been revoked — while the access
+ * token stored beside it is still signed, unexpired, and still accepted by the
+ * registry. Treating that 403 as a failed sign-in is what dropped a valid member
+ * back onto the public catalogue; the caller falls back to the raw token.
  */
 export async function adoptSharedSession(): Promise<Session | null> {
   const shared = readSharedCookie();
   if (!shared || !supabase) return null;
 
   const { data, error } = await supabase.auth.setSession(shared);
-  if (error || !data.session) {
-    clearSharedSession();
-    return null;
-  }
+  if (error || !data.session) return null;
   return data.session;
 }
