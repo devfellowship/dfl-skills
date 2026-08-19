@@ -88,7 +88,36 @@ driver, ou que ganha uma segunda responsabilidade, vale mais do que valia — e 
 
 ---
 
-## 4. Quando NÃO re-pontuar
+## 4. 🚨 Re-pontuar para baixo é TAMBÉM aparar os critérios de aceite
+
+Quando escopo sai de um item, dois números precisam descer: os **pontos** e a
+**promessa**.
+
+Baixar só os pontos produz um item que custa 8 e promete 16. Seis semanas depois,
+quem for construir lê os critérios de aceite — não o histórico de versão — e
+constrói o escopo inteiro pelo preço da metade. O erro não aparece no orçamento;
+aparece na entrega.
+
+```
+antes:   SR-A  16 pts · 6 critérios
+
+durante: o envio automático sai para um item novo
+
+depois:  SR-A   8 pts · 3 critérios   ← pontos E critérios
+         novo   8 pts · 3 critérios   ← os que saíram
+```
+
+**A pergunta de conferência é literal:** *"algum critério deste item descreve
+trabalho que agora pertence a outro item?"* Se sim, ele mudou de dono junto com os
+pontos.
+
+Vale para o título também. Um item que se chamava *"Envio automático de
+follow-up"* e ficou só com a redação precisa passar a se chamar *"Redator de
+follow-up"* — senão o pacote 1 anuncia uma capacidade que ele não entrega.
+
+---
+
+## 5. Quando NÃO re-pontuar
 
 - **O mecanismo ficou.** Se o item perdeu um gatilho ou uma delegação mas manteve
   o mecanismo que os outros reusam, ele mantém o ponto. Diga isso na descrição.
@@ -99,7 +128,7 @@ driver, ou que ganha uma segunda responsabilidade, vale mais do que valia — e 
 
 ---
 
-## 5. 🧾 A regra de negócio: contagem de capacidade ≠ esforço de build
+## 6. 🧾 A regra de negócio: contagem de capacidade ≠ esforço de build
 
 Um run costuma carregar **dois** números para o mesmo escopo:
 
@@ -137,7 +166,59 @@ ter tela.
 
 ---
 
-## 6. Checklist antes de fechar uma rodada de preço
+## 7. 🧾 Quando um pacote encolhe, o compartilhado encolhe À MÃO
+
+Parte do trabalho de um run não pertence a feature nenhuma: design system,
+arquitetura de serviços, o banco, a suíte de testes, o handover, o UAT. Esses
+itens **dimensionam com a superfície** — menos telas é menos design system, menos
+serviços é menos arquitetura, menos escopo é menos handover.
+
+**A decisão registrada é: eles NÃO encolhem sozinhos.** Não existe curva, não
+existe decomposição por grupo, não existe fórmula. Um humano ajusta o número antes
+de cotar.
+
+A razão é honesta: decompor um item compartilhado em "base + delta por grupo" é
+uma estimativa dentro de uma estimativa, e o custo de manter isso vivo num run que
+muda toda semana é maior que o erro que ele corrige.
+
+### O que isso cobra de você
+
+> **No momento em que um pacote perde escopo, os compartilhados dele viram uma
+> pendência aberta — não um número que continua valendo.**
+
+Sem esse ajuste o pacote interno cobra fundação de um produto que ele não vai
+entregar. É a **mesma armadilha do §3, na direção contrária**: em vez de o mesmo
+trabalho ser cobrado duas vezes, é trabalho que não existe sendo cobrado uma.
+
+Ordem de trabalho, e ela importa:
+
+```
+1) mover as features para o pacote de fora
+2) re-estimar os compartilhados à mão      ← o passo que somem
+3) cortar versão
+4) fixar o pacote
+```
+
+O passo 4 congela `points_total` numa versão. Fazer o passo 2 **depois** do 4
+significa que o número que o cliente viu não é o número que você corrigiu.
+
+### Escala do problema
+
+Num run real, o pacote interno perdeu **50 pontos** de feature numa rodada — e
+continuou carregando **99 pontos** de fundação sem revisão. Enquanto ninguém mexe
+nesses 99, o total daquele pacote é um **teto**, não um preço.
+
+Diga "teto" quando for o caso. Um número apresentado como preço, que na verdade é
+um limite superior não revisado, é a forma mais barata de perder confiança na
+tabela inteira.
+
+---
+
+## 8. Checklist antes de fechar uma rodada de preço
+
+- [ ] Todo pai que perdeu escopo desceu de pontos **e** de critérios de aceite (§4)
+- [ ] Nenhum título promete capacidade que saiu do item (§4)
+- [ ] Se algum pacote perdeu escopo, os compartilhados dele foram re-estimados **antes** do pin (§7)
 
 - [ ] Todo pai que perdeu critério foi re-pontuado para baixo
 - [ ] Todo item que absorveu escopo foi re-pontuado para cima, com o motivo no commit

@@ -31,6 +31,22 @@ completo.
 
 ---
 
+### Zero pacotes gravados é UM pacote, não nenhum
+
+Um run sem nenhuma linha de pacote **não está sem pacote** — ele é **um** pacote
+que ninguém dividiu ainda: o run inteiro.
+
+Parece filosofia e não é. Uma leitura que trata "zero linhas" como "esta feature
+não se aplica" some com o controle da tela justamente nos runs que mais precisam
+dele, e o recurso parece **ausente** em vez de **vazio**. O paralelo exato é a
+linha "conteúdo vivo" do painel de versões: ela também não tem linha no banco, e
+ninguém acha estranho.
+
+**Regra:** trate "sem pacotes" como o pacote raiz, e ofereça a divisão a partir
+dele.
+
+---
+
 ## 2. 🚨 `package_id` nulo NÃO é camada 1
 
 Item sem pacote está **fora de todos os pacotes**, não dentro do primeiro.
@@ -81,6 +97,31 @@ Duas coisas boas saem dessa regra:
 
 A regra generaliza: **qualquer superfície sobre um driver segue o driver.**
 
+### A regra inversa, que é mais fácil de violar
+
+**Um item do pacote N não pode depender de uma superfície do pacote N+1.**
+
+A primeira regra é intuitiva porque a falha é visível: um botão sem back-end
+quebra na cara do usuário. Esta é traiçoeira porque a falha é **de leitura**: o
+item do pacote interno existe, funciona, e o seu critério de aceite aponta para
+uma tela que aquele pacote não contém.
+
+O caso que aparece sempre: um item que **gera** algo fica no MVP, e a **fila onde
+o resultado aparece** vai para o pacote de fora. O gerador funciona. O resultado
+não tem onde pousar.
+
+Quando você mover um item para fora, faça a pergunta nos dois sentidos:
+
+- *de que este item depende?* — a regra de cima;
+- *quem depende deste item, e ficou para trás?* — esta.
+
+Se a resposta da segunda for "um item do pacote interno", você tem três saídas
+legítimas: mover o dependente junto, criar uma superfície mínima no pacote
+interno, ou **decidir conscientemente que o pacote interno entrega o resultado por
+outro caminho** — e escrever isso no critério de aceite, para ninguém "consertar"
+depois.
+
+
 ---
 
 ## 5. O que o total de um pacote NÃO diz
@@ -96,10 +137,17 @@ O efeito no orçamento é real: o pacote interno costuma carregar **100% do cust
 compartilhado**, e o pacote externo parece mais barato do que é para construir
 sozinho.
 
-**Isto é uma questão em aberto, não um problema resolvido.** Não prometa
-proporcionalidade que o modelo não entrega. O estudo está em
-[`20260818-spec-run-capability-groups`](https://plans.devfellowship.com/20260818-spec-run-capability-groups),
-e o modelo de camadas em
+**A decisão sobre isso já foi tomada: o compartilhado encolhe À MÃO.** Não existe
+curva, não existe decomposição por grupo, não existe fórmula — um humano
+re-estima o número antes de cotar, no momento em que o pacote perde escopo. O
+procedimento e a ordem das quatro etapas estão em
+[`spec-run-pricing-discipline`](../spec-run-pricing-discipline/SKILL.md) §7.
+
+O que **continua** verdadeiro é que o modelo não entrega proporcionalidade
+sozinho. Enquanto ninguém re-estimou, o total do pacote interno é um **teto**, não
+um preço — e vale dizer a palavra "teto" em vez de deixar o leitor supor.
+
+O modelo de camadas está em
 [`20260818-spec-builder-scope-packages-tiers`](https://plans.devfellowship.com/20260818-spec-builder-scope-packages-tiers).
 
 O que dá para dizer com segurança hoje:
@@ -117,6 +165,8 @@ O que dá para dizer com segurança hoje:
 - [ ] Todo item novo da rodada foi atribuído
 - [ ] `unassigned_items` está vazio, verificado no servidor
 - [ ] Toda tela está no mesmo pacote do back-end dela
+- [ ] Nenhum item do pacote interno depende de superfície do pacote de fora (§4)
+- [ ] Se o pacote perdeu escopo, os compartilhados foram re-estimados antes do pin
 - [ ] O total foi relido do servidor depois da atribuição, não somado de cabeça
 - [ ] Ninguém está apresentando o total de um pacote como custo isolado dele
 
