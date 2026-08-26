@@ -98,13 +98,10 @@ export function parseAuthor(md: string): string | undefined {
  *
  *  - `ok`         body loaded and rendered
  *  - `private`    source repo is private and nobody is signed in
- *  - `restricted` signed in and allowed to SEE the skill, but its body is not
- *                 distributable (the registry's `core` gate). Visible-but-not-
- *                 readable is a real, permanent state, not an error or a 404.
  *  - `missing`    resolved, but there is no SKILL.md at that path (real 404)
  *  - `error`      network/HTTP failure, or an unbuildable URL — worth retrying
  */
-export type ReadmeStatus = "loading" | "ok" | "private" | "restricted" | "missing" | "error";
+export type ReadmeStatus = "loading" | "ok" | "private" | "missing" | "error";
 
 export async function fetchRawReadme(url: string, signal: AbortSignal): Promise<string> {
   const res = await fetch(url, { signal });
@@ -118,12 +115,6 @@ export function classifyReadmeFailure(
 ): { status: Exclude<ReadmeStatus, "loading" | "ok">; detail: string } {
   const where = url ? ` at ${url}` : " from the registry";
   if (err instanceof ApiError) {
-    if (err.status === 403) {
-      return {
-        status: "restricted",
-        detail: "this skill is visible to you but its contents are not distributable",
-      };
-    }
     if (err.status === 404) return { status: "missing", detail: `no SKILL.md${where} (HTTP 404)` };
     return { status: "error", detail: `fetch${where} failed — HTTP ${err.status}` };
   }
