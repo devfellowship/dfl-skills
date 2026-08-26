@@ -61,12 +61,12 @@ export function DocsPage() {
         DevFellowship account is all it takes to browse them — no GitHub access required.
       </p>
       <p className="m-0 mb-[14px] text-[15px] leading-[1.7] text-[hsl(212_13%_68%)]">
-        Reading a skill and taking it with you are two different permissions. Internal skills
-        tagged <InlineCode>core</InlineCode> hand you the full text through{" "}
-        <strong className="font-semibold text-foreground/90">Copy prompt</strong> or{" "}
-        <strong className="font-semibold text-foreground/90">Download SKILL.md</strong>. The rest
-        document how DFL infrastructure is reached, so the registry describes them but will not
-        serve the body.
+        If a skill is listed for you, you can read it. Every internal skill hands you its full
+        text through <strong className="font-semibold text-foreground/90">Copy prompt</strong> or{" "}
+        <strong className="font-semibold text-foreground/90">Download SKILL.md</strong> — the
+        registry reads the file server-side, so your browser never touches the repository. Skills
+        that shouldn't be shared this widely are moved to a narrower tier instead, and then they
+        don't show up at all.
       </p>
       <p className="m-0 mb-[34px] text-[15px] leading-[1.7] text-[hsl(212_13%_68%)]">
         The CLI clones the source repository instead, so installing an internal skill through{" "}
