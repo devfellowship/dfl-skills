@@ -58,9 +58,15 @@ export function DocsPage() {
         Skills marked <InlineCode>internal</InlineCode> live in the private repository{" "}
         <InlineCode>devfellowship/internal-skills</InlineCode> and stay hidden until you use{" "}
         <strong className="font-semibold text-foreground/90">Sign in with DFL</strong>. A
-        DevFellowship account is all it takes — open the skill and use{" "}
+        DevFellowship account is all it takes to browse them — no GitHub access required.
+      </p>
+      <p className="m-0 mb-[14px] text-[15px] leading-[1.7] text-[hsl(212_13%_68%)]">
+        Reading a skill and taking it with you are two different permissions. Internal skills
+        tagged <InlineCode>core</InlineCode> hand you the full text through{" "}
         <strong className="font-semibold text-foreground/90">Copy prompt</strong> or{" "}
-        <strong className="font-semibold text-foreground/90">Download SKILL.md</strong>.
+        <strong className="font-semibold text-foreground/90">Download SKILL.md</strong>. The rest
+        document how DFL infrastructure is reached, so the registry describes them but will not
+        serve the body.
       </p>
       <p className="m-0 mb-[34px] text-[15px] leading-[1.7] text-[hsl(212_13%_68%)]">
         The CLI clones the source repository instead, so installing an internal skill through{" "}
