@@ -62,11 +62,19 @@ export function DocsPage() {
       </p>
       <p className="m-0 mb-[14px] text-[15px] leading-[1.7] text-[hsl(212_13%_68%)]">
         If a skill is listed for you, you can read it. Every internal skill hands you its full
-        text through <strong className="font-semibold text-foreground/90">Copy prompt</strong> or{" "}
+        text through{" "}
+        <strong className="font-semibold text-foreground/90">Copy install prompt</strong> or{" "}
         <strong className="font-semibold text-foreground/90">Download SKILL.md</strong> — the
         registry reads the file server-side, so your browser never touches the repository. Skills
         that shouldn't be shared this widely are moved to a narrower tier instead, and then they
         don't show up at all.
+      </p>
+      <p className="m-0 mb-[14px] text-[15px] leading-[1.7] text-[hsl(212_13%_68%)]">
+        <strong className="font-semibold text-foreground/90">Copy install prompt</strong> asks your
+        agent to call <InlineCode>install_skill</InlineCode> on the DFL Forge MCP server at{" "}
+        <InlineCode>https://skills.mcp.devfellowship.com/mcp</InlineCode>, which returns the file
+        and the path to write it to. It authenticates with your DevFellowship account, so an
+        internal skill installs without GitHub access.
       </p>
       <p className="m-0 mb-[34px] text-[15px] leading-[1.7] text-[hsl(212_13%_68%)]">
         The CLI clones the source repository instead, so installing an internal skill through{" "}
