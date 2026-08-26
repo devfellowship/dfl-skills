@@ -23,12 +23,6 @@ export function ReadmeUnavailable({ status, source, slug, detail }: ReadmeUnavai
       body: `${source} is a private DFL registry. Sign in with your DevFellowship account and the SKILL.md will be rendered here — the site reads it through the registry API, so your browser never needs access to the repo.`,
       tone: "text-[hsl(33_82%_62%)]",
     },
-    restricted: {
-      icon: <Lock className="h-[18px] w-[18px]" strokeWidth={1.9} />,
-      title: "Not distributable",
-      body: `You can see this skill in the catalogue, but its contents aren't handed out — it isn't tagged \`core\`. Most skills in ${source} are ops runbooks that describe DFL infrastructure, so sharing the body is opt-in rather than automatic.`,
-      tone: "text-[hsl(33_82%_62%)]",
-    },
     missing: {
       icon: <FileWarning className="h-[18px] w-[18px]" strokeWidth={1.9} />,
       title: "SKILL.md not found",

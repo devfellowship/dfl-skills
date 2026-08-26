@@ -114,9 +114,8 @@ export async function fetchSkill(
 
 /**
  * The verbatim SKILL.md. The registry index stores no body, so this is a
- * separate round trip — and it is gated twice on the server: the caller must be
- * able to see the row at all, AND the skill must be tagged `core`. A 403 here
- * means "visible but not distributable", which is a different thing from 404.
+ * separate round trip — gated on the server by `visibility` alone: whoever can
+ * resolve the row may read it.
  */
 export async function fetchSkillContent(
   source: string,

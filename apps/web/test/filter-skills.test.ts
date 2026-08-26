@@ -59,7 +59,7 @@ test("several topics are a union, so a team can widen its own view", () => {
   assert.deepEqual(run({ topics: ["frontend", "database"] }), ["db-simplicity", "web-design"]);
 });
 
-test("core narrows to the curated set — the answer to 'which ones do I hand over?'", () => {
+test("core narrows to the curated set — a highlight facet, not a permission", () => {
   assert.deepEqual(run({ coreOnly: true }), ["app-security", "db-simplicity"]);
 });
 

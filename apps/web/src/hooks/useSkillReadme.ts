@@ -104,8 +104,7 @@ export function useSkillReadme(
         if (!active.current || controller.signal.aborted) return;
         const url = resolved.kind === "raw" ? resolved.url : null;
         const { status, detail } = classifyReadmeFailure(err, url);
-        const log = status === "restricted" ? console.warn : console.error;
-        log(`[readme] ${ref}: ${detail}`);
+        console.error(`[readme] ${ref}: ${detail}`);
         setState(failed(status, detail, url));
       });
 
