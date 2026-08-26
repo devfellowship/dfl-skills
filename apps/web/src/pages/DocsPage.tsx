@@ -36,7 +36,7 @@ export function DocsPage() {
 
       <SectionTitle>Install a skill</SectionTitle>
       <div className="mb-[34px] flex flex-col gap-2">
-        <CodeBlock command="npx skills add devfellowship/skills/dfl-code-style" size="sm" copyMessage="Copied" />
+        <CodeBlock command="npx skills add devfellowship/skills/squad-review" size="sm" copyMessage="Copied" />
         <CodeBlock command={'npx skills find "review my PR"'} size="sm" copyMessage="Copied" />
         <CodeBlock command="npx skills update --all" size="sm" copyMessage="Copied" />
       </div>
@@ -52,6 +52,20 @@ export function DocsPage() {
         copyMessage="Copied"
         className="mb-[34px]"
       />
+
+      <SectionTitle>Internal skills</SectionTitle>
+      <p className="m-0 mb-[14px] text-[15px] leading-[1.7] text-[hsl(212_13%_68%)]">
+        Skills marked <InlineCode>internal</InlineCode> live in the private repository{" "}
+        <InlineCode>devfellowship/internal-skills</InlineCode> and stay hidden until you use{" "}
+        <strong className="font-semibold text-foreground/90">Sign in with DFL</strong>. A
+        DevFellowship account is all it takes — open the skill and use{" "}
+        <strong className="font-semibold text-foreground/90">Copy prompt</strong> or{" "}
+        <strong className="font-semibold text-foreground/90">Download SKILL.md</strong>.
+      </p>
+      <p className="m-0 mb-[34px] text-[15px] leading-[1.7] text-[hsl(212_13%_68%)]">
+        The CLI clones the source repository instead, so installing an internal skill through{" "}
+        <InlineCode>npx skills add</InlineCode> also requires GitHub access to that repository.
+      </p>
 
       <SectionTitle>Publish a skill</SectionTitle>
       <p className="m-0 mb-[18px] text-[15px] leading-[1.7] text-[hsl(212_13%_68%)]">
