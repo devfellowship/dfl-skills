@@ -27,13 +27,14 @@ export function CopyPromptPanel({
   onScopeChange,
   needsSignIn,
 }: CopyPromptPanelProps) {
-  const prompt = markdown ? buildSkillPrompt({ source, slug, scope, markdown }) : null;
+  const prompt = buildSkillPrompt({ source, slug, scope });
 
   return (
     <Card className="p-[18px]">
       <PanelLabel>Add to your agent</PanelLabel>
       <p className="m-0 mb-4 text-[12.5px] leading-[1.6] text-[hsl(212_11%_58%)]">
-        Copy a prompt and paste it into your own AI. It writes{" "}
+        Copy a prompt and paste it into your own AI. It fetches this skill from the DFL
+        Forge MCP and writes{" "}
         <code className="font-mono text-[11.5px] text-[hsl(208_28%_80%)]">
           {skillDirectory(slug, scope)}SKILL.md
         </code>{" "}
@@ -53,7 +54,7 @@ export function CopyPromptPanel({
             icon={<ClipboardCopy className="h-[15px] w-[15px]" strokeWidth={2.2} />}
             className="w-full"
           >
-            Copy prompt
+            Copy install prompt
           </Button>
           <DownloadSkillButton slug={slug} markdown={markdown} />
         </div>
