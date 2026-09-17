@@ -1,11 +1,11 @@
 import type { Kind } from "@/types";
 import { kindMeta } from "@/lib/meta";
-import { Badge, type BadgeTone } from "@/components/ui/Badge";
+import { Badge, type BadgeProps } from "@devfellowship/components";
 
-const TONE: Record<Kind, BadgeTone> = {
-  skill: "kind-skill",
-  mcp: "kind-mcp",
-  connection: "kind-connection",
+const VARIANT: Record<Kind, BadgeProps["variant"]> = {
+  skill: "info",
+  mcp: "default",
+  connection: "success",
 };
 
 interface KindBadgeProps {
@@ -15,7 +15,7 @@ interface KindBadgeProps {
 
 export function KindBadge({ kind, className }: KindBadgeProps) {
   return (
-    <Badge tone={TONE[kind]} className={className}>
+    <Badge variant={VARIANT[kind]} shape="square" className={className}>
       {kindMeta(kind).label}
     </Badge>
   );

@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
+import { Button, Card } from "@devfellowship/components";
 import type { Skill } from "@/types";
 import { authorOf, formatDate, githubAvatarUrl, installCommand } from "@/lib/format";
 import { KindBadge } from "./KindBadge";
@@ -31,7 +32,7 @@ export function SkillCard({ skill }: SkillCardProps) {
   };
 
   return (
-    <div
+    <Card
       onClick={() => navigate(href)}
       className="group flex min-h-[178px] cursor-pointer animate-fadeUp flex-col gap-[11px] rounded-[13px] border border-border bg-card p-[18px] transition-all hover:-translate-y-[3px] hover:border-[hsl(215_15%_26%)] hover:shadow-[0_10px_30px_hsl(216_40%_3%/.5)]"
     >
@@ -88,15 +89,17 @@ export function SkillCard({ skill }: SkillCardProps) {
             </span>
           ))}
         </div>
-        <button
+        <Button
           type="button"
           onClick={onCopy}
-          className="flex shrink-0 items-center gap-[6px] rounded-[7px] border border-[hsl(215_15%_20%)] bg-secondary px-[10px] py-[5px] text-[11.5px] font-semibold text-[hsl(212_13%_68%)] transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
+          variant="outline"
+          size="sm"
+          className="shrink-0"
         >
           <Copy className="h-3 w-3" />
           Install
-        </button>
+        </Button>
       </div>
-    </div>
+    </Card>
   );
 }

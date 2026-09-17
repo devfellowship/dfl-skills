@@ -1,9 +1,9 @@
 import { Route, Routes } from "react-router-dom";
 import { SearchProvider } from "@/hooks/useSearchState";
 import { AuthProvider } from "@/components/AuthProvider";
-import { TopNav } from "@/components/domain/TopNav";
+import { SonnerToaster } from "@devfellowship/components";
+import { AppShell } from "@/components/domain/AppShell";
 import { ScrollToTop } from "@/components/ScrollToTop";
-import { Toaster } from "@/components/ui/Toaster";
 import { HomePage } from "@/pages/HomePage";
 import { SkillDetailPage } from "@/pages/SkillDetailPage";
 import { DocsPage } from "@/pages/DocsPage";
@@ -16,16 +16,17 @@ export function App() {
     <AuthProvider>
       <SearchProvider>
         <ScrollToTop />
-        <TopNav />
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/s/:owner/:repo/:slug" element={<SkillDetailPage />} />
-          <Route path="/docs" element={<DocsPage />} />
-          <Route path="/ds" element={<DesignSystemPage />} />
-          <Route path={DFL_CALLBACK_PATH} element={<AuthCallbackPage />} />
-          <Route path="*" element={<HomePage />} />
-        </Routes>
-        <Toaster />
+        <AppShell>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/s/:owner/:repo/:slug" element={<SkillDetailPage />} />
+            <Route path="/docs" element={<DocsPage />} />
+            <Route path="/ds" element={<DesignSystemPage />} />
+            <Route path={DFL_CALLBACK_PATH} element={<AuthCallbackPage />} />
+            <Route path="*" element={<HomePage />} />
+          </Routes>
+        </AppShell>
+        <SonnerToaster position="bottom-right" richColors />
       </SearchProvider>
     </AuthProvider>
   );

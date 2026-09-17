@@ -1,10 +1,10 @@
 import type { LeaderboardTab } from "@/types";
-import { Tabs, type TabItem } from "@/components/ui/Tabs";
+import { Tabs, TabsList, TabsTrigger } from "@devfellowship/components";
 
-const TABS: TabItem[] = [
+const TABS = [
   { id: "all", label: "All" },
   { id: "official", label: "Official" },
-];
+] as const;
 
 interface LeaderboardTabsProps {
   active: LeaderboardTab;
@@ -13,11 +13,14 @@ interface LeaderboardTabsProps {
 
 export function LeaderboardTabs({ active, onChange }: LeaderboardTabsProps) {
   return (
-    <Tabs
-      items={TABS}
-      active={active}
-      onChange={(id) => onChange(id as LeaderboardTab)}
-      className="mb-[22px]"
-    />
+    <Tabs value={active} onValueChange={(id) => onChange(id as LeaderboardTab)} className="mb-[22px]">
+      <TabsList>
+        {TABS.map((tab) => (
+          <TabsTrigger key={tab.id} value={tab.id}>
+            {tab.label}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
   );
 }

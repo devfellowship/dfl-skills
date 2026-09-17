@@ -1,4 +1,11 @@
 import type { Visibility } from "@/types";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@devfellowship/components";
 import { RETIERABLE, VISIBILITY_LABEL } from "@/consts/visibility-tone";
 import { useVisibilityChange } from "@/hooks/useVisibilityChange";
 import { VisibilityBadge } from "./VisibilityBadge";
@@ -16,18 +23,21 @@ export function VisibilitySelect({ source, slug, visibility, onChanged }: Visibi
   if (!canTry || visibility === "public") return <VisibilityBadge visibility={visibility} />;
 
   return (
-    <select
-      aria-label="Change visibility"
-      disabled={saving}
+    <Select
       value={visibility}
-      onChange={(e) => void change(e.target.value as Visibility)}
-      className="rounded-md border border-border bg-[hsl(215_18%_11%)] px-2 py-[3px] text-[11.5px] font-semibold uppercase tracking-[.04em] text-[hsl(212_13%_68%)] transition-colors hover:border-[hsl(215_15%_28%)] focus:border-primary focus:outline-none disabled:opacity-50"
+      onValueChange={(next) => void change(next as Visibility)}
+      disabled={saving}
     >
-      {RETIERABLE.map((v) => (
-        <option key={v} value={v}>
-          {VISIBILITY_LABEL[v]}
-        </option>
-      ))}
-    </select>
+      <SelectTrigger className="h-8 min-w-[112px]" aria-label="Change visibility">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {RETIERABLE.map((nextVisibility) => (
+          <SelectItem key={nextVisibility} value={nextVisibility}>
+            {VISIBILITY_LABEL[nextVisibility]}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }

@@ -1,4 +1,4 @@
-import { cn } from "@/lib/cn";
+import { cn } from "@devfellowship/components";
 import { VISIBILITY_LABEL, VISIBILITY_TONE } from "@/consts/visibility-tone";
 
 interface VisibilityBadgeProps {

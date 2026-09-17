@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2, AlertCircle } from "lucide-react";
+import { Button } from "@devfellowship/components";
 import { useAuth } from "@/hooks/useAuth";
 import { DFL_CALLBACK_PATH, safeNext, startDflSignIn } from "@/lib/dfl-federation";
 import { storeDflToken } from "@/lib/dfl-token";
@@ -35,19 +36,18 @@ export function AuthCallbackPage() {
   if (failed) {
     return (
       <main className="mx-auto flex max-w-[420px] flex-col items-center gap-4 px-6 py-24 text-center">
-        <AlertCircle className="h-7 w-7 text-[hsl(var(--danger))]" />
+        <AlertCircle className="h-7 w-7 text-[var(--s-danger-fg)]" />
         <h1 className="font-heading text-[22px] uppercase">Sign-in didn't complete</h1>
         <p className="text-[13.5px] leading-[1.6] text-muted-foreground">
           DevFellowship sent you back without a session this app could use. Trying again usually
           settles it.
         </p>
-        <button
+        <Button
           type="button"
           onClick={() => startDflSignIn("/")}
-          className="rounded-lg bg-primary px-[15px] py-2 text-[13px] font-bold text-primary-foreground transition-colors hover:bg-[hsl(33_92%_60%)]"
         >
           Try again
-        </button>
+        </Button>
       </main>
     );
   }

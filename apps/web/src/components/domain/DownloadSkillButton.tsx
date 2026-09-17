@@ -1,5 +1,5 @@
 import { Download } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@devfellowship/components";
 import { downloadSkillFile } from "@/lib/download";
 
 interface DownloadSkillButtonProps {
@@ -14,9 +14,9 @@ export function DownloadSkillButton({ slug, markdown }: DownloadSkillButtonProps
       variant="secondary"
       onClick={() => downloadSkillFile(slug, markdown)}
       disabled={!markdown}
-      icon={<Download className="h-[15px] w-[15px]" strokeWidth={2.2} />}
       className="w-full"
     >
+      <Download className="h-[15px] w-[15px]" strokeWidth={2.2} />
       Download SKILL.md
     </Button>
   );
