@@ -90,12 +90,19 @@ export interface SkillFacets {
   coreCount: number;
 }
 
-export interface SkillFilters {
-  skills: Skill[];
-  query: string;
+/**
+ * The facet filters: tab, topic, kind, author, core. They apply to the
+ * catalogue AND to the server search results. The free-text query is NOT a
+ * facet — it is a server query (plan ADR-4), see lib/search.ts.
+ */
+export interface CatalogueFacets {
   tab: LeaderboardTab;
   topics: string[];
   kind: KindFilterValue;
   author: string | null;
   coreOnly: boolean;
+}
+
+export interface SkillFilters extends CatalogueFacets {
+  skills: Skill[];
 }

@@ -82,18 +82,17 @@ test("the counter reports skills and packs separately and never counts a pack as
   assert.equal(catalogueCount({ skills: 104, packs: 0, shownSkills: 7, shownPacks: 0 }), "7 of 104 skills");
 });
 
-const BASE = { query: "", tab: "all", topics: [], kind: "all", author: null, coreOnly: false } as const;
+const BASE = { tab: "all", topics: [], kind: "all", author: null, coreOnly: false } as const;
 
 function run(packs: Pack[], over: Partial<Parameters<typeof filterPacks>[0]> = {}): string[] {
   return filterPacks({ packs, ...BASE, ...over }).map((p) => p.slug);
 }
 
-test("filterPacks matches the query on the pack and on its member slugs", () => {
+test("filterPacks is the browse state only — no free-text match (ADR-4)", () => {
   const packs = [adaptPack(RAW)];
   assert.deepEqual(run(packs), ["short-form-visual"]);
-  assert.deepEqual(run(packs, { query: "reels" }), ["short-form-visual"]);
-  assert.deepEqual(run(packs, { query: "BRANDED-render" }), ["short-form-visual"]);
-  assert.deepEqual(run(packs, { query: "kubernetes" }), []);
+  const withQuery = { query: "kubernetes" } as unknown as Partial<Parameters<typeof filterPacks>[0]>;
+  assert.deepEqual(run(packs, withQuery), ["short-form-visual"]);
 });
 
 test("filterPacks hides packs under filters a pack cannot satisfy", () => {

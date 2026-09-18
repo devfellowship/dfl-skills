@@ -139,12 +139,13 @@ test("the Part of panel shows at most three packs, never an index", () => {
 
 const NO_FILTERS = { tab: "all", topics: [], kind: "all", author: null, coreOnly: false } as const;
 
-test("a query that names the pack topic, or one of its members, finds the pack", () => {
+// Which packs a query finds is decided by the SERVER now (plan ADR-4,
+// dfl-services `pack-search.ts`). The client only renders the pack rows the
+// server returns — see test/search.test.ts.
+test("the browse filter keeps a pack under the facets it can satisfy", () => {
   const packs = [pack()];
-  for (const q of ["reels", "SHORT-FORM", "branded-render"]) {
-    assert.deepEqual(filterPacks({ packs, query: q, ...NO_FILTERS, topics: [] }).map((x) => x.slug), ["short-form-visual"], q);
-  }
-  assert.deepEqual(filterPacks({ packs, query: "kubernetes", ...NO_FILTERS, topics: [] }), []);
+  assert.deepEqual(filterPacks({ packs, ...NO_FILTERS, topics: [] }).map((x) => x.slug), ["short-form-visual"]);
+  assert.deepEqual(filterPacks({ packs, ...NO_FILTERS, topics: [], coreOnly: true }), []);
 });
 
 // ---------------------------------------------------------------------------

@@ -7,8 +7,15 @@ interface SearchState {
 
 const SearchContext = createContext<SearchState | null>(null);
 
+function initialQuery(): string {
+  if (typeof window === "undefined") return "";
+  return new URLSearchParams(window.location.search).get("q") ?? "";
+}
+
 export function SearchProvider({ children }: { children: ReactNode }) {
-  const [query, setQuery] = useState("");
+  // A shared link like `/?q=reels` opens with that search (HomePage keeps
+  // the URL in step while the reader types).
+  const [query, setQuery] = useState(initialQuery);
 
   const value = useMemo<SearchState>(() => ({ query, setQuery }), [query]);
 

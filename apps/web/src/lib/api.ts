@@ -1,24 +1,11 @@
-import type { Kind, Pack, Skill, Visibility } from "@/types";
+import type { Pack, Skill, Visibility } from "@/types";
+import { adaptSkill, type ApiSkill } from "./skill-adapter";
+import { searchApiPath, splitSearchRows, type SearchResults } from "./search";
 import { ApiError } from "./api-error";
 import { adaptPack, adaptPackRefs, packApiPath, type ApiPack, type ApiPackMember } from "./packs";
 
 const API_BASE: string =
   (import.meta.env.VITE_API_BASE as string | undefined) ?? "https://skills.devfellowship.com";
-
-export interface ApiSkill {
-  name?: string;
-  source?: string;
-  skill?: string;
-  slug?: string;
-  kind?: string;
-  description?: string;
-  tags?: string[];
-  categories?: string[];
-  visibility?: string;
-  updated_at?: string;
-  author?: string;
-  readme?: string;
-}
 
 interface ListResponse {
   skills?: ApiSkill[];
@@ -44,7 +31,8 @@ interface ContentResponse {
   scope?: string;
 }
 
-export { ApiError };
+export { ApiError, adaptSkill };
+export type { ApiSkill };
 
 /**
  * 🚨 The dfl-iam token is passed in per call and attached ONLY to registry
@@ -80,32 +68,6 @@ function skillPath(source: string, slug: string, suffix = ""): string {
   )}/${encodeURIComponent(slug)}${suffix}`;
 }
 
-const KINDS: ReadonlySet<string> = new Set<Kind>(["skill", "mcp", "connection"]);
-
-function toKind(raw: string | undefined): Kind {
-  const value = (raw ?? "").toLowerCase();
-  return KINDS.has(value) ? (value as Kind) : "skill";
-}
-
-export function adaptSkill(raw: ApiSkill): Skill {
-  const slug = raw.skill ?? raw.slug ?? raw.name ?? "unknown";
-  const source = raw.source ?? "devfellowship/skills";
-  return {
-    id: `${source}/${slug}`,
-    name: raw.name ?? slug,
-    slug,
-    source,
-    kind: toKind(raw.kind),
-    description: raw.description ?? "",
-    tags: raw.tags ?? [],
-    categories: raw.categories ?? [],
-    updatedAt: raw.updated_at ?? "",
-    visibility: raw.visibility ?? "public",
-    author: raw.author,
-    readme: raw.readme,
-  };
-}
-
 export async function fetchSkills(signal?: AbortSignal, token?: string | null): Promise<Skill[]> {
   const data = await getJson<ListResponse>("/api/v1/skills", signal, token);
   return (data.skills ?? []).map(adaptSkill);
@@ -122,6 +84,20 @@ export async function fetchSkill(
     ...adaptSkill(data.skill ?? (data as unknown as ApiSkill)),
     partOf: adaptPackRefs(data.part_of),
   };
+}
+
+/**
+ * The catalogue search (plan ADR-4): the server's hybrid search, packs
+ * included, under the caller's token. Pack rows come back separated from the
+ * skill rows — see `splitSearchRows()` for why they must never mix.
+ */
+export async function searchCatalogue(
+  query: string,
+  signal?: AbortSignal,
+  token?: string | null,
+): Promise<SearchResults> {
+  const data = await getJson<{ skills?: unknown }>(searchApiPath(query), signal, token);
+  return splitSearchRows(data.skills);
 }
 
 /**

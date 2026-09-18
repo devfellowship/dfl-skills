@@ -31,7 +31,6 @@ const CATALOGUE: Skill[] = [
 function run(over: Partial<SkillFilters> = {}): string[] {
   return filterSkills({
     skills: CATALOGUE,
-    query: "",
     tab: "all",
     topics: [],
     kind: "all",
@@ -75,8 +74,10 @@ test("filters compose instead of replacing each other", () => {
   assert.deepEqual(run({ topics: ["security"], coreOnly: true }), ["app-security"]);
 });
 
-test("search reaches the categories too, so a topic word finds the skill", () => {
-  assert.deepEqual(run({ query: "DATABASE" }), ["db-simplicity"]);
+test("ADR-4: the browse filter takes no free-text query — search is a server call", () => {
+  // A query key is not even part of the facet type any more; an extra one is ignored.
+  const withQuery = { query: "DATABASE" } as unknown as Partial<SkillFilters>;
+  assert.equal(run(withQuery).length, CATALOGUE.length);
 });
 
 test("facets are ordered by count so the busiest topic leads the chip row", () => {
@@ -92,10 +93,9 @@ test("a skill with no frontmatter author falls back to the repo owner", () => {
 });
 
 // ---------------------------------------------------------------------------
-// GROUPING (plan ADR-7, task T10). A query that matches a pack AND two or more
-// of its members renders ONE pack card that absorbs those members, for that
-// query only. Without it, "reels" renders the pack plus its members as a row
-// of near-duplicate cards.
+// BROWSE STATE (no query). Grouping for a query moved to the server search
+// (T11, test/search.test.ts). With no query, nothing is absorbed: members stay
+// on the home list, because people look skills up by name (ADR-7).
 // ---------------------------------------------------------------------------
 
 import type { Pack } from "../src/types/index.ts";
@@ -112,26 +112,20 @@ const REELS_PACK: Pack = adaptPack({
   visibility: "internal",
   members: [
     { slug: "short-form-visual-director", role: "root", ordinal: 0, status: "in_catalogue" },
-    { slug: "lesson-studio-content", role: "required", ordinal: 1, status: "in_catalogue" },
-    { slug: "branded-render", role: "required", ordinal: 2, status: "in_catalogue" },
-    { slug: "brand-voice", role: "optional", ordinal: 3, status: "in_catalogue" },
+    { slug: "brand-voice", role: "optional", ordinal: 1, status: "in_catalogue" },
   ],
 });
 
 const REELS_CATALOGUE: Skill[] = [
-  skill({ slug: "short-form-visual-director", description: "Make Reels and TikTok videos." }),
-  skill({ slug: "lesson-studio-content", description: "Slides. Reels use the director." }),
-  skill({ slug: "branded-render", description: "On-brand PNGs." }),
-  skill({ slug: "brand-voice", description: "Brand voice before Reels or a post." }),
-  // Matches "reels" but is NOT a member: it must stay a loose card.
-  skill({ slug: "dfl-reel-engajado", description: "Reels de alto engajamento." }),
+  skill({ slug: "short-form-visual-director" }),
+  skill({ slug: "brand-voice" }),
+  skill({ slug: "dfl-reel-engajado" }),
 ];
 
-function catalogue(query: string, over: Partial<SkillFilters> = {}, packs: Pack[] = [REELS_PACK]) {
+function catalogue(over: Partial<SkillFilters> = {}, packs: Pack[] = [REELS_PACK]) {
   return filterCatalogue({
     skills: REELS_CATALOGUE,
     packs,
-    query,
     tab: "all",
     topics: [],
     kind: "all",
@@ -141,80 +135,14 @@ function catalogue(query: string, over: Partial<SkillFilters> = {}, packs: Pack[
   });
 }
 
-test("reels renders ONE pack group that absorbs its matching members", () => {
-  const r = catalogue("reels");
-  assert.equal(r.groups.length, 1);
-  assert.equal(r.groups[0]?.pack.slug, "short-form-visual");
-  // Absorbed in MANIFEST order, not alphabetical: the pack is a reading order.
-  assert.deepEqual(r.groups[0]?.absorbed.map((s) => s.slug), [
-    "short-form-visual-director",
-    "lesson-studio-content",
-    "brand-voice",
-  ]);
-  // No top-level card for a slug the pack absorbed; the non-member stays.
-  assert.deepEqual(r.skills.map((s) => s.slug), ["dfl-reel-engajado"]);
-});
-
-test("a pack that matches with only ONE member matching absorbs nothing", () => {
-  // "branded-render" reaches the pack through its member slug, and matches one skill.
-  const r = catalogue("branded-render");
-  assert.equal(r.groups.length, 1);
-  assert.deepEqual(r.groups[0]?.absorbed, []);
-  assert.deepEqual(r.skills.map((s) => s.slug), ["branded-render"]);
-});
-
-test("a member that matches while its pack does not still renders its own card", () => {
-  const r = catalogue("on-brand");
-  assert.equal(r.groups.length, 0);
-  assert.deepEqual(r.skills.map((s) => s.slug), ["branded-render"]);
-});
-
-test("with no query nothing is absorbed — grouping is for one query only", () => {
-  const r = catalogue("");
+test("with no query nothing is absorbed, and every member keeps its own card", () => {
+  const r = catalogue();
   assert.deepEqual(r.groups.map((g) => g.absorbed.length), [0]);
   assert.equal(r.skills.length, REELS_CATALOGUE.length);
 });
 
-test("a filter that hides the pack leaves every member as its own card", () => {
-  const r = catalogue("reels", { kind: "mcp" });
+test("a facet a pack cannot satisfy hides the pack in the browse state", () => {
+  const r = catalogue({ kind: "mcp" });
   assert.equal(r.groups.length, 0);
   assert.deepEqual(r.skills, []);
-});
-
-test("a member in two matching packs is absorbed once from the top level, and listed in both", () => {
-  const twin = adaptPack({
-    source: SRC,
-    pack: "reels-lite",
-    name: "Reels lite",
-    description: "A smaller reels set.",
-    members: [
-      { slug: "short-form-visual-director", role: "root", ordinal: 0, status: "in_catalogue" },
-      { slug: "brand-voice", role: "required", ordinal: 1, status: "in_catalogue" },
-    ],
-  });
-  const r = catalogue("reels", {}, [REELS_PACK, twin]);
-  assert.equal(r.groups.length, 2);
-  assert.deepEqual(r.groups.find((g) => g.pack.slug === "reels-lite")?.absorbed.map((s) => s.slug), [
-    "short-form-visual-director",
-    "brand-voice",
-  ]);
-  assert.deepEqual(r.skills.map((s) => s.slug), ["dfl-reel-engajado"]);
-});
-
-test("a member from another source with the same slug is not absorbed", () => {
-  const r = filterCatalogue({
-    skills: [
-      skill({ slug: "brand-voice", source: "acme/skills", description: "reels" }),
-      skill({ slug: "lesson-studio-content", source: "acme/skills", description: "reels" }),
-    ],
-    packs: [REELS_PACK],
-    query: "reels",
-    tab: "all",
-    topics: [],
-    kind: "all",
-    author: null,
-    coreOnly: false,
-  });
-  assert.deepEqual(r.groups[0]?.absorbed, []);
-  assert.equal(r.skills.length, 2);
 });

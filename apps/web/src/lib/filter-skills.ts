@@ -1,31 +1,29 @@
-import type { Pack, Skill, SkillFilters } from "@/types";
+import type { CatalogueFacets, Pack, Skill, SkillFilters } from "@/types";
 import { authorOf } from "@/lib/format";
 import { filterPacks } from "@/lib/packs";
 
-function haystack(s: Skill): string {
-  return `${s.name} ${s.description} ${s.tags.join(" ")} ${s.categories.join(" ")} ${s.source}`.toLowerCase();
+/**
+ * The facet filters for one skill. There is no free-text match here: the
+ * query is a SERVER search (plan ADR-4, lib/search.ts), so the offline
+ * substring filter is gone.
+ */
+export function skillPassesFacets(
+  s: Skill,
+  { tab, topics, kind, author, coreOnly }: CatalogueFacets,
+): boolean {
+  if (kind !== "all" && s.kind !== kind) return false;
+  if (topics.length && !topics.some((t) => s.categories.includes(t))) return false;
+  if (author && (s.author ?? authorOf(s.source)) !== author) return false;
+  if (coreOnly && !s.tags.includes("core")) return false;
+  if (tab === "official" && !s.source.startsWith("devfellowship/")) return false;
+  return true;
 }
 
-export function filterSkills({
-  skills,
-  query,
-  tab,
-  topics,
-  kind,
-  author,
-  coreOnly,
-}: SkillFilters): Skill[] {
-  const q = query.trim().toLowerCase();
-  let list = skills.slice();
-
-  if (q) list = list.filter((s) => haystack(s).includes(q));
-  if (kind !== "all") list = list.filter((s) => s.kind === kind);
-  if (topics.length) list = list.filter((s) => topics.some((t) => s.categories.includes(t)));
-  if (author) list = list.filter((s) => (s.author ?? authorOf(s.source)) === author);
-  if (coreOnly) list = list.filter((s) => s.tags.includes("core"));
-  if (tab === "official") list = list.filter((s) => s.source.startsWith("devfellowship/"));
-
-  return list.sort((a, b) => a.name.localeCompare(b.name));
+/** The browse catalogue (no query): the facets, sorted by name. */
+export function filterSkills({ skills, ...facets }: SkillFilters): Skill[] {
+  return skills
+    .filter((s) => skillPassesFacets(s, facets))
+    .sort((a, b) => a.name.localeCompare(b.name));
 }
 
 /** A pack card and the matching members it absorbed for the current query. */
@@ -45,41 +43,20 @@ export interface CatalogueResults {
 /**
  * One matching member is not a near-duplicate problem, and folding it away
  * would hide the exact skill the reader typed. From two up, the pack absorbs.
+ * The server uses the same threshold (`MEMBER_MATCH_MIN` in dfl-services).
  */
 export const ABSORB_MIN = 2;
 
 /**
- * The home catalogue for one set of filters, grouped (plan ADR-7).
- *
- * When a query matches a pack AND two or more of its members, the pack card
- * absorbs those members and they leave the top level — for that query only.
- * A member that matches while its pack does not keeps its own card. With no
- * query, nothing is absorbed: members stay on the home list, because people
- * look skills up by name.
+ * The home catalogue with NO query — the browse state. Nothing is absorbed:
+ * members stay on the home list, because people look skills up by name.
+ * With a query, the grid comes from `groupSearchResults()` in lib/search.ts.
  */
 export function filterCatalogue(filters: SkillFilters & { packs: Pack[] }): CatalogueResults {
   const { packs, ...skillFilters } = filters;
-  const skills = filterSkills(skillFilters);
-  const matchedPacks = filterPacks({ ...skillFilters, packs });
-
-  if (!filters.query.trim()) {
-    return { groups: matchedPacks.map((pack) => ({ pack, absorbed: [] })), skills };
-  }
-
-  const key = (s: { source: string; slug: string }): string => `${s.source}/${s.slug}`;
-  const byId = new Map(skills.map((s) => [key(s), s]));
-  const taken = new Set<string>();
-
-  const groups = matchedPacks.map((pack) => {
-    // pack.members is already in manifest order.
-    const matched = pack.members.flatMap((m) => {
-      const hit = byId.get(key(m));
-      return hit ? [hit] : [];
-    });
-    if (matched.length < ABSORB_MIN) return { pack, absorbed: [] };
-    for (const s of matched) taken.add(key(s));
-    return { pack, absorbed: matched };
-  });
-
-  return { groups, skills: skills.filter((s) => !taken.has(key(s))) };
+  const { skills: _skills, ...facets } = skillFilters;
+  return {
+    groups: filterPacks({ ...facets, packs }).map((pack) => ({ pack, absorbed: [] })),
+    skills: filterSkills(skillFilters),
+  };
 }
