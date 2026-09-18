@@ -1,0 +1,82 @@
+name: deploy
+
+# Trigger the Dokploy build of the `dfl-skills` app (skills.devfellowship.com).
+#
+# The Dokploy app builds from `devfellowship/dfl-services`, and its Dockerfile
+# clones this repo. Dokploy watches only `dfl-services`, so a merge here does
+# not start a build by itself. This job calls the app's per-app deploy webhook
+# (`POST /api/deploy/<refreshToken>`) after each push to `main`.
+#
+# Secret: DOKPLOY_DEPLOY_WEBHOOK (source of truth: Infisical
+# /apps/dokploy/DOKPLOY_DEPLOY_WEBHOOK_DFL_SKILLS). The URL holds the token.
+# It can queue a build of this one app and do nothing else.
+#
+# Only `push` to main and `workflow_dispatch` run this job. A fork pull request
+# cannot read the secret, and this workflow has no pull_request trigger.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: dokploy-deploy-dfl-skills
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    # Public repo: self-hosted dfl-runner blocked (allows_public=false). Authorized Tainan TG 2026-06-06.
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Trigger Dokploy deploy webhook
+        env:
+          WEBHOOK_URL: ${{ secrets.DOKPLOY_DEPLOY_WEBHOOK }}
+          SHA: ${{ github.sha }}
+          REF_NAME: ${{ github.ref_name }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+        run: |
+          set -euo pipefail
+          if [ -z "${WEBHOOK_URL}" ]; then
+            echo "::error::Secret DOKPLOY_DEPLOY_WEBHOOK is not set."
+            exit 1
+          fi
+          echo "::add-mask::${WEBHOOK_URL}"
+
+          # Dokploy (v0.29) accepts the webhook when:
+          #   - header x-github-event is "push";
+          #   - ref is refs/heads/<app branch>. The app branch is `main` of
+          #     dfl-services, not the branch of this repo;
+          #   - the "modified" files match the app watchPaths. The watchPaths
+          #     are null today (match all). The file below is in the Docker
+          #     context, so the call also passes if somebody narrows them to
+          #     services/dfl-skills/**.
+          # head_commit sets the deployment title and "Hash: <sha>" in Dokploy.
+          first_line="$(printf '%s' "${COMMIT_MSG:-manual dispatch}" | head -n1)"
+          payload="$(jq -n \
+            --arg sha "${SHA}" \
+            --arg msg "dfl-skills@${SHA:0:7} (${REF_NAME}): ${first_line}" \
+            '{ref: "refs/heads/main", after: $sha,
+              head_commit: {id: $sha, message: $msg},
+              commits: [{id: $sha, modified: ["services/dfl-skills/Dockerfile"]}]}')"
+
+          # The URL goes to curl through a config on stdin, not through argv.
+          code="$(printf 'url = "%s"\n' "${WEBHOOK_URL}" | curl -sS -K - \
+            -X POST \
+            -H 'Content-Type: application/json' \
+            -H 'x-github-event: push' \
+            --data "${payload}" \
+            --max-time 30 \
+            -o response.json -w '%{http_code}')"
+
+          # Dokploy sends 301 (not 4xx) for "Branch Not Match" and
+          # "Watch Paths Not Match". Only 200 means the build is in the queue.
+          msg="$(jq -r '.message // "no message"' response.json 2>/dev/null || echo 'unreadable response')"
+          rm -f response.json
+          echo "Dokploy answered HTTP ${code}: ${msg}"
+          if [ "${code}" != "200" ]; then
+            echo "::error::Dokploy did not queue the deploy (HTTP ${code}: ${msg})."
+            exit 1
+          fi
