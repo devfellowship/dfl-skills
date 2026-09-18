@@ -46,6 +46,8 @@ export interface PackMember {
   /** Present only on the detail endpoint, for a member the caller may read. */
   name?: string | null;
   description?: string | null;
+  /** GitHub handle of whoever wrote the member. Detail endpoint only, null when unknown. */
+  author?: string | null;
 }
 
 export interface Pack {
@@ -62,6 +64,31 @@ export interface Pack {
   memberCount: number;
   unpublishedCount: number;
   members: PackMember[];
+}
+
+/** The pack page's member graph: one node per member, laid out in SVG units. */
+export interface GraphNode {
+  slug: string;
+  label: string;
+  role: PackRole;
+  author: string | null;
+  published: boolean;
+  x: number;
+  y: number;
+  r: number;
+}
+
+export interface GraphEdge {
+  from: string;
+  to: string;
+  role: PackRole;
+}
+
+export interface PackGraph {
+  width: number;
+  height: number;
+  nodes: GraphNode[];
+  edges: GraphEdge[];
 }
 
 /** The reverse edge a member page shows: "Part of <pack>". */

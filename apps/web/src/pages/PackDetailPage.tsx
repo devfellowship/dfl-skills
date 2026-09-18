@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { SkillDetailSkeleton } from "@/components/domain/SkillDetailSkeleton";
 import { PackMemberTable } from "@/components/domain/PackMemberTable";
 import { InstallPackPanel } from "@/components/domain/InstallPackPanel";
+import { PackGraph } from "@/components/domain/PackGraph";
 import { VisibilityBadge } from "@/components/domain/VisibilityBadge";
 
 function BackLink() {
@@ -90,6 +91,7 @@ export function PackDetailPage() {
             </section>
 
             <aside className="flex flex-col gap-[14px] lg:sticky lg:top-20">
+              <PackGraph pack={pack} />
               <InstallPackPanel pack={pack} scope={scope} onScopeChange={setScope} />
             </aside>
           </div>
