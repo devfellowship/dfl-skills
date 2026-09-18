@@ -93,7 +93,6 @@ bun run test
 │       └── test/     #   unit tests
 ├── packages/
 │   └── cli/          # @devfellowship/skills companion CLI (see its README)
-├── skills/           # DFL team skills (Portuguese), copy into ~/.claude/skills/
 └── .github/workflows # CI: typecheck, build, test
 ```
 
@@ -106,3 +105,7 @@ bun run test
 - **Report a bug:** open an [issue](https://github.com/devfellowship/dfl-skills/issues).
 
 Do not put secrets in this repository. Every `VITE_*` value goes into the public browser bundle.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE). Copyright (c) 2026 DevFellowship.

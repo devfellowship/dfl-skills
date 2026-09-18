@@ -1,6 +1,7 @@
 {
   "name": "dfl-skills",
   "private": true,
+  "license": "MIT",
   "workspaces": ["apps/*", "packages/*"],
   "packageManager": "bun@1.3.14",
   "scripts": {
