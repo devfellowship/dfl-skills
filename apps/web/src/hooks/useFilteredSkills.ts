@@ -1,11 +1,15 @@
 import { useMemo } from "react";
-import type { Skill, SkillFilters } from "@/types";
-import { filterSkills } from "@/lib/filter-skills";
+import type { Pack, SkillFilters } from "@/types";
+import { filterCatalogue, type CatalogueResults } from "@/lib/filter-skills";
 
-export function useFilteredSkills(filters: SkillFilters): Skill[] {
-  const { skills, query, tab, topics, kind, author, coreOnly } = filters;
+/**
+ * The home grid for the current filters, GROUPED: pack cards (with the members
+ * they absorbed for this query) and the loose skill cards. See ADR-7.
+ */
+export function useFilteredSkills(filters: SkillFilters & { packs: Pack[] }): CatalogueResults {
+  const { skills, packs, query, tab, topics, kind, author, coreOnly } = filters;
   return useMemo(
-    () => filterSkills({ skills, query, tab, topics, kind, author, coreOnly }),
-    [skills, query, tab, topics, kind, author, coreOnly],
+    () => filterCatalogue({ skills, packs, query, tab, topics, kind, author, coreOnly }),
+    [skills, packs, query, tab, topics, kind, author, coreOnly],
   );
 }

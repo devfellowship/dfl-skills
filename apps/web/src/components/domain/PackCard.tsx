@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Layers } from "lucide-react";
+import { ChevronDown, Layers } from "lucide-react";
 import { Badge, Button, Card } from "@devfellowship/components";
-import type { Pack } from "@/types";
-import { formatDate } from "@/lib/format";
+import type { Pack, Skill } from "@/types";
+import { formatDate, skillHref } from "@/lib/format";
 import { packHref } from "@/lib/packs";
 import { VisibilityBadge } from "./VisibilityBadge";
 
@@ -10,6 +11,12 @@ const SHOWN_MEMBERS = 4;
 
 interface PackCardProps {
   pack: Pack;
+  /**
+   * Members that ALSO match the current query and that this card absorbed
+   * (plan ADR-7). They left the top level for this query, so they must stay
+   * reachable from here without leaving the page.
+   */
+  absorbed?: Skill[];
 }
 
 /**
@@ -24,8 +31,9 @@ interface PackCardProps {
  * shows how many skills the pack installs, and which are not published yet,
  * before the install button. A bare install on the card would skip that.
  */
-export function PackCard({ pack }: PackCardProps) {
+export function PackCard({ pack, absorbed = [] }: PackCardProps) {
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
   const href = packHref(pack);
   const shown = pack.members.slice(0, SHOWN_MEMBERS);
   const more = pack.memberCount - shown.length;
@@ -86,6 +94,44 @@ export function PackCard({ pack }: PackCardProps) {
           <li className="px-[2px] py-[2px] text-[11px] text-[hsl(212_10%_52%)]">+{more} more</li>
         )}
       </ul>
+
+      {absorbed.length > 0 && (
+        <div
+          data-testid="pack-absorbed"
+          onClick={(e) => e.stopPropagation()}
+          className="rounded-lg border border-[hsl(215_15%_18%)] bg-[hsl(215_18%_10%)]"
+        >
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            aria-expanded={open}
+            onClick={() => setOpen((v) => !v)}
+            className="w-full justify-between text-[12px] font-medium text-[hsl(208_28%_80%)]"
+            data-testid="pack-absorbed-toggle"
+          >
+            <span>
+              {absorbed.length} of {pack.memberCount} members also match — {open ? "hide" : "show"} them
+            </span>
+            <ChevronDown className={`h-3 w-3 transition-transform ${open ? "rotate-180" : ""}`} />
+          </Button>
+          {open && (
+            <ul className="m-0 flex list-none flex-col gap-[2px] px-3 pb-2 pt-1">
+              {absorbed.map((s) => (
+                <li key={s.id} data-testid="pack-absorbed-member" data-slug={s.slug} className="min-w-0">
+                  <Link
+                    to={skillHref(s)}
+                    className="block truncate py-[3px] text-[12px] text-[hsl(212_12%_64%)] hover:text-[hsl(33_82%_66%)] focus-visible:underline"
+                  >
+                    <span className="font-mono font-semibold text-foreground">{s.slug}</span>
+                    {s.description && <span> — {s.description}</span>}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
 
       <div className="mt-auto flex items-center justify-between gap-2">
         {pack.unpublishedCount > 0 ? (

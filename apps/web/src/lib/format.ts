@@ -25,3 +25,8 @@ export function authorOf(source: string): string {
 export function githubAvatarUrl(handle: string): string {
   return `https://github.com/${encodeURIComponent(handle)}.png?size=48`;
 }
+
+/** The SPA route of a skill. A pack never uses it — packs live at /p/ (see packHref). */
+export function skillHref({ source, slug }: { source: string; slug: string }): string {
+  return `/s/${source}/${slug}`;
+}
