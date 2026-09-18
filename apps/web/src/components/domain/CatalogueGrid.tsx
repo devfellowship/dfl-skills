@@ -25,7 +25,7 @@ interface CatalogueGridProps {
   onClear: () => void;
 }
 
-/** The loose skills only. A pack is never a card here — it lives in the PacksBand. */
+/** The loose skills only. A pack is never a card here — it lives in the hero showcase or the search results. */
 export function CatalogueGrid(p: CatalogueGridProps) {
   if (p.loading) {
     return (
