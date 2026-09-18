@@ -1,6 +1,6 @@
 import { useMemo, type ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { BookOpen, Github, Library, Zap } from "lucide-react";
+import { BookOpen, Github, Layers, Library, Zap } from "lucide-react";
 import {
   AppNavbar,
   AppSidebar,
@@ -18,13 +18,17 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Registry",
     items: [
       { title: "Catalog", url: "/", icon: Library, exact: true },
+      { title: "Packs", url: "/packs", icon: Layers, exact: true },
       { title: "Documentation", url: "/docs", icon: BookOpen, exact: true },
     ],
   },
 ];
 
+/** A pack page belongs to Packs; a skill page (and anything else) to the catalog. */
 function activeUrlFor(pathname: string): string {
-  return pathname === "/docs" ? "/docs" : "/";
+  if (pathname === "/docs") return "/docs";
+  if (pathname === "/packs" || pathname.startsWith("/p/")) return "/packs";
+  return "/";
 }
 
 function accountName(email: string): string {

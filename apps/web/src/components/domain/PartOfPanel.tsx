@@ -15,7 +15,7 @@ import { usePacks } from "@/hooks/usePacks";
 export function PartOfPanel({ packs }: { packs: PackRef[] | undefined }) {
   // `part_of` carries no member count; the pack list does. A failed list read
   // only drops the count, never the link.
-  const visible = usePacks();
+  const { packs: visible } = usePacks();
   const countOf = (ref: PackRef): number | undefined =>
     visible.find((p) => p.source === ref.source && p.slug === ref.slug)?.memberCount;
   // A malformed ref is dropped rather than turned into a crafted path.
