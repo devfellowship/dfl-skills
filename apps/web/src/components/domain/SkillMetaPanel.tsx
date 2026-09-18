@@ -1,8 +1,8 @@
 import { Clock, Eye, Github, ArrowUpRight, FileText } from "lucide-react";
+import { Card } from "@devfellowship/components";
 import type { Skill } from "@/types";
 import { formatDate } from "@/lib/format";
 import { skillMdGithubUrl } from "@/lib/readme";
-import { Card } from "@/components/ui/Card";
 import { VisibilitySelect } from "./VisibilitySelect";
 
 interface SkillMetaPanelProps {

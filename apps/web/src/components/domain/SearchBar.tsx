@@ -1,5 +1,5 @@
-import { SearchInput } from "@/components/ui/Input";
-import { cn } from "@/lib/cn";
+import { Search } from "lucide-react";
+import { Input, cn } from "@devfellowship/components";
 
 interface SearchBarProps {
   value: string;
@@ -9,11 +9,15 @@ interface SearchBarProps {
 
 export function SearchBar({ value, onChange, className }: SearchBarProps) {
   return (
-    <SearchInput
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder="Search skills, MCPs, connections…"
-      className={cn("max-w-[440px] flex-1", className)}
-    />
+    <div className={cn("relative max-w-[440px] flex-1", className)}>
+      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      <Input
+        type="search"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="Search skills, MCPs, connections…"
+        className="w-full pl-9"
+      />
+    </div>
   );
 }

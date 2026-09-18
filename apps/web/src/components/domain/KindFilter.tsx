@@ -1,5 +1,5 @@
 import type { Kind, KindFilterValue } from "@/types";
-import { Select, type SelectOption } from "@/components/ui/Select";
+import { ToggleGroup, ToggleGroupItem } from "@devfellowship/components";
 
 function kindLabel(kind: Kind): string {
   return kind === "skill" ? "Skills" : kind === "mcp" ? "MCPs" : "Connections";
@@ -12,10 +12,25 @@ interface KindFilterProps {
 }
 
 export function KindFilter({ value, onChange, available }: KindFilterProps) {
-  const options: SelectOption[] = [
+  const options = [
     { id: "all", label: "All" },
     ...available.map((kind) => ({ id: kind, label: kindLabel(kind) })),
   ];
 
-  return <Select options={options} value={value} onChange={(id) => onChange(id as KindFilterValue)} />;
+  return (
+    <ToggleGroup
+      type="single"
+      value={value}
+      onValueChange={(id) => {
+        if (id) onChange(id as KindFilterValue);
+      }}
+      aria-label="Filter by item type"
+    >
+      {options.map((option) => (
+        <ToggleGroupItem key={option.id} value={option.id} aria-label={option.label}>
+          {option.label}
+        </ToggleGroupItem>
+      ))}
+    </ToggleGroup>
+  );
 }

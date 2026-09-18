@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom";
 import { AlertTriangle, Package, Search } from "lucide-react";
+import { Button } from "@devfellowship/components";
 import { useSkillFilters } from "@/hooks/useSkillFilters";
 import { useFilteredSkills } from "@/hooks/useFilteredSkills";
 import { useFilterFacets } from "@/hooks/useFilterFacets";
 import { useSkills } from "@/hooks/useSkills";
-import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LeaderboardTabs } from "@/components/domain/LeaderboardTabs";
 import { TopicFilterChips } from "@/components/domain/TopicFilterChips";

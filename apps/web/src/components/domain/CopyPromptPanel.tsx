@@ -1,9 +1,6 @@
 import { ClipboardCopy, Lock } from "lucide-react";
+import { Button, Card, ToggleGroup, ToggleGroupItem } from "@devfellowship/components";
 import type { Scope } from "@/types";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Select } from "@/components/ui/Select";
-import { PanelLabel } from "@/components/ui/PanelLabel";
 import { copyToClipboard } from "@/lib/clipboard";
 import { buildSkillPrompt, skillDirectory } from "@/lib/prompt";
 import { DownloadSkillButton } from "./DownloadSkillButton";
@@ -31,7 +28,9 @@ export function CopyPromptPanel({
 
   return (
     <Card className="p-[18px]">
-      <PanelLabel>Add to your agent</PanelLabel>
+      <h2 className="mb-[9px] text-[11px] font-bold uppercase tracking-[.07em] text-muted-foreground">
+        Add to your agent
+      </h2>
       <p className="m-0 mb-4 text-[12.5px] leading-[1.6] text-[hsl(212_11%_58%)]">
         Copy a prompt and paste it into your own AI. It fetches this skill from the DFL
         Forge MCP and writes{" "}
@@ -51,25 +50,30 @@ export function CopyPromptPanel({
           <Button
             onClick={() => copyToClipboard(prompt, "Prompt copied — paste it into your agent")}
             disabled={!prompt}
-            icon={<ClipboardCopy className="h-[15px] w-[15px]" strokeWidth={2.2} />}
             className="w-full"
           >
+            <ClipboardCopy className="h-[15px] w-[15px]" strokeWidth={2.2} />
             Copy install prompt
           </Button>
           <DownloadSkillButton slug={slug} markdown={markdown} />
         </div>
       )}
 
-      <PanelLabel>Scope</PanelLabel>
-      <Select
-        full
-        options={[
-          { id: "global", label: "Global (~/.claude/skills)" },
-          { id: "project", label: "Project (./.claude/skills)" },
-        ]}
+      <h2 className="mb-[9px] text-[11px] font-bold uppercase tracking-[.07em] text-muted-foreground">
+        Scope
+      </h2>
+      <ToggleGroup
+        type="single"
         value={scope}
-        onChange={(id) => onScopeChange(id as Scope)}
-      />
+        onValueChange={(value) => {
+          if (value) onScopeChange(value as Scope);
+        }}
+        className="grid grid-cols-1 sm:grid-cols-2"
+        aria-label="Installation scope"
+      >
+        <ToggleGroupItem value="global">Global (~/.claude/skills)</ToggleGroupItem>
+        <ToggleGroupItem value="project">Project (./.claude/skills)</ToggleGroupItem>
+      </ToggleGroup>
     </Card>
   );
 }

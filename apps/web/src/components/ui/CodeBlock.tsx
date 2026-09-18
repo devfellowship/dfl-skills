@@ -1,7 +1,13 @@
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
-import { cn } from "@/lib/cn";
-import { Tooltip } from "./Tooltip";
+import {
+  Button,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+  cn,
+} from "@devfellowship/components";
 
 interface CodeBlockProps {
   command: string;
@@ -38,19 +44,26 @@ export function CodeBlock({
       <code className={cn("flex-1 overflow-auto whitespace-nowrap font-mono text-[hsl(208_30%_84%)] lo-scroll", textSize)}>
         {command}
       </code>
-      <Tooltip label="Copy">
-        <button
-          type="button"
-          aria-label="Copy command"
-          onClick={() => {
-            void copyText(command);
-            toast.success(copyMessage);
-          }}
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[7px] border border-[hsl(215_15%_20%)] bg-secondary text-muted-foreground transition-colors hover:border-[hsl(33_90%_55%/.4)] hover:text-[hsl(33_90%_60%)]"
-        >
-          <Copy className="h-[13px] w-[13px]" />
-        </button>
-      </Tooltip>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-sm"
+              aria-label="Copy command"
+              onClick={() => {
+                void copyText(command);
+                toast.success(copyMessage);
+              }}
+              className="shrink-0"
+            >
+              <Copy className="h-[13px] w-[13px]" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Copy</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { cn } from "@/lib/cn";
+import { Button } from "@devfellowship/components";
 
 interface TopicFilterChipsProps {
   topics: string[];
@@ -7,14 +7,6 @@ interface TopicFilterChipsProps {
   onToggle: (topic: string) => void;
   limit?: number;
 }
-
-const chipClass = (on: boolean): string =>
-  cn(
-    "rounded-full border px-3 py-[6px] text-[12.5px] font-medium transition-colors",
-    on
-      ? "border-[hsl(33_90%_55%/.4)] bg-[hsl(33_90%_55%/.14)] font-semibold text-[hsl(33_85%_66%)]"
-      : "border-[hsl(215_15%_18%)] bg-[hsl(215_18%_12%)] text-[hsl(212_12%_66%)] hover:border-[hsl(215_15%_28%)]",
-  );
 
 export function TopicFilterChips({ topics, selected, onToggle, limit = 8 }: TopicFilterChipsProps) {
   const [expanded, setExpanded] = useState(false);
@@ -27,24 +19,28 @@ export function TopicFilterChips({ topics, selected, onToggle, limit = 8 }: Topi
   return (
     <div className="flex flex-wrap items-center gap-2">
       {shown.map((t) => (
-        <button
+        <Button
           key={t}
           type="button"
           aria-pressed={selected.includes(t)}
           onClick={() => onToggle(t)}
-          className={chipClass(selected.includes(t))}
+          variant={selected.includes(t) ? "default" : "outline"}
+          size="sm"
+          rounded="pill"
         >
           {t}
-        </button>
+        </Button>
       ))}
       {topics.length > limit && (
-        <button
+        <Button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="rounded-full px-2 py-[6px] text-[12.5px] font-semibold text-[hsl(33_82%_62%)] transition-colors hover:text-[hsl(33_85%_70%)]"
+          variant="ghost"
+          size="sm"
+          rounded="pill"
         >
           {expanded ? "Show less" : `+${overflow} more`}
-        </button>
+        </Button>
       )}
     </div>
   );

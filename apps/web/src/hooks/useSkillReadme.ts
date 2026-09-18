@@ -71,6 +71,14 @@ export function useSkillReadme(
     // skill as `private` and leave that verdict on screen.
     if (authLoading) return;
 
+    // The detail request resolves before its SKILL.md identity exists. Keep
+    // the readme pending during that normal loading state. Do not log it as an
+    // invalid registry reference.
+    if (!source || !slug) {
+      setState(IDLE);
+      return;
+    }
+
     active.current = true;
     const resolved = resolveReadmeSource(source, slug, visibility, token !== null);
     const ref = `${source ?? "?"}/${slug ?? "?"}`;

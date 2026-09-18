@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { AlertTriangle, ChevronLeft, Search } from "lucide-react";
+import { Button } from "@devfellowship/components";
 import type { Scope } from "@/types";
 import { installCommand } from "@/lib/format";
 import { useSkill } from "@/hooks/useSkill";
 import { useSkillReadme } from "@/hooks/useSkillReadme";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { Button } from "@/components/ui/Button";
 import { MarkdownView } from "@/components/domain/MarkdownView";
 import { SkillDetailHeader } from "@/components/domain/SkillDetailHeader";
 import { InstallPanel } from "@/components/domain/InstallPanel";

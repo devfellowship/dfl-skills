@@ -1,37 +1,10 @@
-@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap");
+@import "@devfellowship/components/styles";
+@import "tailwindcss";
+@source "../node_modules/@devfellowship/components/dist";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-:root {
-  --background: 216 28% 7%;
-  --foreground: 208 35% 93%;
-  --card: 215 21% 11%;
-  --muted: 215 18% 13%;
-  --muted-foreground: 212 13% 70%;
-  --border: 215 15% 16%;
-
-  --primary: 33 90% 55%;
-  --primary-foreground: 0 0% 0%;
-  --ring: 33 90% 55%;
-  --secondary: 215 18% 15%;
-
-  --success: 142 55% 45%;
-  --danger: 0 70% 50%;
-  --teal: 168 60% 45%;
-  --blue: 207 85% 60%;
-
-  --radius: 0.5rem;
-}
-
-* {
-  border-color: hsl(var(--border));
-}
-
-:focus-visible {
-  outline: 2px solid hsl(var(--ring) / 0.6);
-  outline-offset: 2px;
+@theme inline {
+  --font-heading: var(--p-font-display);
+  --animate-fadeUp: fadeUp 0.35s ease both;
 }
 
 html {
@@ -40,16 +13,7 @@ html {
 
 body {
   margin: 0;
-  background: hsl(var(--background));
-  color: hsl(var(--foreground));
-  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-*:focus-visible {
-  outline: 2px solid hsl(var(--ring));
-  outline-offset: 2px;
+  min-width: 320px;
 }
 
 .lo-scroll::-webkit-scrollbar {
@@ -59,7 +23,7 @@ body {
 .lo-scroll::-webkit-scrollbar-thumb {
   background: hsl(215 15% 22%);
   border-radius: 8px;
-  border: 2px solid hsl(var(--background));
+  border: 2px solid var(--s-surface-page);
 }
 .lo-scroll::-webkit-scrollbar-track {
   background: transparent;
@@ -169,5 +133,16 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    transform: translateY(6px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
   }
 }

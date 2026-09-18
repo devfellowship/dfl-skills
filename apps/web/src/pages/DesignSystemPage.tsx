@@ -1,5 +1,4 @@
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
+import { Badge, Button, Card } from "@devfellowship/components";
 
 function GroupLabel({ children }: { children: string }) {
   return (
@@ -10,9 +9,9 @@ function GroupLabel({ children }: { children: string }) {
 }
 
 const Panel = ({ children }: { children: React.ReactNode }) => (
-  <div className="mb-9 flex flex-wrap items-center gap-3 rounded-[13px] border border-border bg-[hsl(215_21%_10.5%)] p-6">
+  <Card className="mb-9 flex flex-wrap items-center gap-3 p-6">
     {children}
-  </div>
+  </Card>
 );
 
 const SURFACES: Array<{ label: string; className: string; dark?: boolean }> = [
@@ -38,20 +37,19 @@ export function DesignSystemPage() {
         <Button>Primary</Button>
         <Button variant="secondary">Secondary</Button>
         <Button variant="ghost">Ghost</Button>
-        <Button variant="danger">Danger</Button>
+        <Button variant="destructive">Danger</Button>
         <Button loading>Loading</Button>
       </Panel>
 
       <GroupLabel>Badges</GroupLabel>
       <Panel>
-        <Badge tone="default">default</Badge>
-        <Badge tone="orange">orange</Badge>
-        <Badge tone="success">success</Badge>
-        <Badge tone="warning">warning</Badge>
-        <Badge tone="danger">danger</Badge>
-        <Badge tone="kind-skill">SKILL</Badge>
-        <Badge tone="kind-mcp">MCP</Badge>
-        <Badge tone="kind-connection">CONNECTION</Badge>
+        <Badge variant="secondary">secondary</Badge>
+        <Badge>brand</Badge>
+        <Badge variant="success">success</Badge>
+        <Badge variant="warning">warning</Badge>
+        <Badge variant="danger">danger</Badge>
+        <Badge variant="info">info</Badge>
+        <Badge variant="outline">outline</Badge>
       </Panel>
 
       <GroupLabel>Surfaces &amp; tokens</GroupLabel>

@@ -1,4 +1,4 @@
-import { cn } from "@/lib/cn";
+import { Button } from "@devfellowship/components";
 
 interface CoreToggleProps {
   value: boolean;
@@ -8,18 +8,15 @@ interface CoreToggleProps {
 
 export function CoreToggle({ value, onChange, count }: CoreToggleProps) {
   return (
-    <button
+    <Button
       type="button"
       aria-pressed={value}
       onClick={() => onChange(!value)}
-      className={cn(
-        "h-[34px] rounded-full border px-3 text-[12.5px] font-medium transition-colors",
-        value
-          ? "border-[hsl(33_90%_55%/.4)] bg-[hsl(33_90%_55%/.14)] font-semibold text-[hsl(33_85%_66%)]"
-          : "border-[hsl(215_15%_18%)] bg-[hsl(215_18%_12%)] text-[hsl(212_12%_66%)] hover:border-[hsl(215_15%_28%)]",
-      )}
+      variant={value ? "default" : "outline"}
+      size="sm"
+      rounded="pill"
     >
       Core ({count})
-    </button>
+    </Button>
   );
 }
