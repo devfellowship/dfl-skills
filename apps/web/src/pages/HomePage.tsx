@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { AlertTriangle, Package, Search } from "lucide-react";
 import { Button } from "@devfellowship/components";
@@ -5,6 +6,8 @@ import { useSkillFilters } from "@/hooks/useSkillFilters";
 import { useFilteredSkills } from "@/hooks/useFilteredSkills";
 import { useFilterFacets } from "@/hooks/useFilterFacets";
 import { useSkills } from "@/hooks/useSkills";
+import { usePacks } from "@/hooks/usePacks";
+import { catalogueCount, filterPacks } from "@/lib/packs";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LeaderboardTabs } from "@/components/domain/LeaderboardTabs";
 import { TopicFilterChips } from "@/components/domain/TopicFilterChips";
@@ -12,6 +15,7 @@ import { KindFilter } from "@/components/domain/KindFilter";
 import { AuthorFilter } from "@/components/domain/AuthorFilter";
 import { CoreToggle } from "@/components/domain/CoreToggle";
 import { SkillCard } from "@/components/domain/SkillCard";
+import { PackCard } from "@/components/domain/PackCard";
 import { SkillCardSkeleton } from "@/components/domain/SkillCardSkeleton";
 import { Hero } from "@/components/domain/Hero";
 
@@ -22,6 +26,14 @@ export function HomePage() {
   const { skills, loading, error, refetch } = useSkills();
   const results = useFilteredSkills({ skills, ...f });
   const facets = useFilterFacets(skills);
+  // Packs are a SEPARATE array: nothing below may count one as a skill.
+  const packs = usePacks();
+  const { query, tab, topics, kind, author, coreOnly } = f;
+  const packResults = useMemo(
+    () => filterPacks({ packs, query, tab, topics, kind, author, coreOnly }),
+    [packs, query, tab, topics, kind, author, coreOnly],
+  );
+  const filtered = results.length !== skills.length || packResults.length !== packs.length;
 
   const hasSkills = skills.length > 0;
   const showKindFilter = facets.kinds.length > 1;
@@ -29,7 +41,7 @@ export function HomePage() {
 
   return (
     <main className="mx-auto max-w-[1200px] px-6 pb-[90px]">
-      <Hero count={skills.length} />
+      <Hero skills={skills.length} packs={packs.length} />
 
       {hasSkills && (
         <>
@@ -49,10 +61,12 @@ export function HomePage() {
             </div>
           </div>
           <div className="mb-[26px] flex items-center gap-3 text-[13px] text-[hsl(212_11%_58%)]">
-            <span>
-              {results.length === skills.length
-                ? `${skills.length} skills`
-                : `${results.length} of ${skills.length} skills`}
+            <span data-testid="catalogue-count">
+              {catalogueCount({
+                skills: skills.length,
+                packs: packs.length,
+                ...(filtered ? { shownSkills: results.length, shownPacks: packResults.length } : {}),
+              })}
             </span>
             {f.active && (
               <Button variant="ghost" size="sm" onClick={f.clear}>
@@ -90,8 +104,11 @@ export function HomePage() {
             </Link>
           }
         />
-      ) : results.length > 0 ? (
+      ) : results.length + packResults.length > 0 ? (
         <div className={GRID}>
+          {packResults.map((pack) => (
+            <PackCard key={`pack:${pack.id}`} pack={pack} />
+          ))}
           {results.map((skill) => (
             <SkillCard key={skill.id} skill={skill} />
           ))}

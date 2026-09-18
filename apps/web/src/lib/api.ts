@@ -1,5 +1,6 @@
-import type { Kind, Skill, Visibility } from "@/types";
+import type { Kind, Pack, Skill, Visibility } from "@/types";
 import { ApiError } from "./api-error";
+import { adaptPack, type ApiPack } from "./packs";
 
 const API_BASE: string =
   (import.meta.env.VITE_API_BASE as string | undefined) ?? "https://skills.devfellowship.com";
@@ -110,6 +111,15 @@ export async function fetchSkill(
 ): Promise<Skill> {
   const data = await getJson<SingleResponse>(skillPath(source, slug), signal, token);
   return adaptSkill(data.skill ?? (data as unknown as ApiSkill));
+}
+
+/**
+ * Every pack the caller may see. An internal pack answers only to a signed-in
+ * member; an anonymous caller gets an empty list, never an error.
+ */
+export async function fetchPacks(signal?: AbortSignal, token?: string | null): Promise<Pack[]> {
+  const data = await getJson<{ packs?: ApiPack[] }>("/api/v1/packs", signal, token);
+  return (data.packs ?? []).map(adaptPack);
 }
 
 /**

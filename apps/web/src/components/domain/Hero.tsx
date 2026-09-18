@@ -1,6 +1,21 @@
 import { CodeBlock } from "@/components/ui/CodeBlock";
 
-export function Hero({ count }: { count: number }) {
+function Stat({ value, label, testId }: { value: number; label: string; testId: string }) {
+  return (
+    <div data-testid={testId}>
+      <div className="font-heading text-[26px] font-bold leading-none text-foreground">{value}</div>
+      <div className="mt-[3px] text-[11px] uppercase tracking-[.05em] text-[hsl(212_10%_52%)]">
+        {label}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Skills and packs are counted apart: a pack is not a skill, and adding it to
+ * the skill number would over-report the catalogue.
+ */
+export function Hero({ skills, packs }: { skills: number; packs: number }) {
   return (
     <section className="animate-fadeUp pb-10 pt-[54px]">
       <div className="mb-5 inline-flex items-center gap-[7px] rounded-full border border-[hsl(33_90%_55%/.22)] bg-[hsl(33_90%_55%/.1)] px-[11px] py-[5px]">
@@ -22,14 +37,10 @@ export function Hero({ count }: { count: number }) {
           command="npx skills add devfellowship/skills"
           className="min-w-[320px] flex-1 rounded-[11px] px-[15px] py-[13px]"
         />
-        <div>
-          <div className="font-heading text-[26px] font-bold leading-none text-foreground">
-            {count}
-          </div>
-          <div className="mt-[3px] text-[11px] uppercase tracking-[.05em] text-[hsl(212_10%_52%)]">
-            Skills
-          </div>
-        </div>
+        <Stat value={skills} label={skills === 1 ? "Skill" : "Skills"} testId="hero-skill-count" />
+        {packs > 0 && (
+          <Stat value={packs} label={packs === 1 ? "Pack" : "Packs"} testId="hero-pack-count" />
+        )}
       </div>
     </section>
   );
