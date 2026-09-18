@@ -17,6 +17,7 @@ import { SkillCard } from "@/components/domain/SkillCard";
 import { PackCard } from "@/components/domain/PackCard";
 import { SkillCardSkeleton } from "@/components/domain/SkillCardSkeleton";
 import { Hero } from "@/components/domain/Hero";
+import { SearchBar } from "@/components/domain/SearchBar";
 
 const GRID = "grid grid-cols-[repeat(auto-fill,minmax(min(330px,100%),1fr))] gap-4";
 
@@ -47,7 +48,7 @@ export function HomePage() {
           {showTabs && <LeaderboardTabs active={f.tab} onChange={f.setTab} />}
           <div className="mb-[18px] flex flex-wrap items-center justify-between gap-[14px]">
             <TopicFilterChips topics={facets.topics} selected={f.topics} onToggle={f.toggleTopic} />
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-1 flex-wrap items-center justify-end gap-2">
               {facets.coreCount > 0 && (
                 <CoreToggle value={f.coreOnly} onChange={f.setCoreOnly} count={facets.coreCount} />
               )}
@@ -57,6 +58,11 @@ export function HomePage() {
               {showKindFilter && (
                 <KindFilter value={f.kind} onChange={f.setKind} available={facets.kinds} />
               )}
+              <SearchBar
+                value={f.query}
+                onChange={f.setQuery}
+                className="w-full min-w-[200px] flex-1 sm:w-auto"
+              />
             </div>
           </div>
           <div className="mb-[26px] flex items-center gap-3 text-[13px] text-[hsl(212_11%_58%)]">
