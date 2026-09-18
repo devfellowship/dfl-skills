@@ -16,7 +16,7 @@ interface HeroProps {
 export function Hero({ skills, packs, aside }: HeroProps) {
   return (
     <section
-      className={`animate-fadeUp pb-10 pt-[54px] ${
+      className={`animate-fadeUp pb-8 pt-10 lg:pt-12 ${
         aside ? "grid grid-cols-1 gap-y-10 lg:grid-cols-[minmax(0,1fr)_minmax(360px,420px)] lg:items-center lg:gap-x-12 xl:grid-cols-[minmax(0,1fr)_minmax(400px,460px)]" : ""
       }`}
     >
