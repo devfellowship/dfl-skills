@@ -16,7 +16,7 @@ test("the web app uses the shared component package with the Tailwind 4 Vite plu
   const viteConfig = await read("vite.config.ts");
   const css = await read("src/index.css");
 
-  assert.match(pkg.dependencies?.["@devfellowship/components"] ?? "", /^\^3\.6\.0$/);
+  assert.match(pkg.dependencies?.["@devfellowship/components"] ?? "", /^\^3\.7\.0$/);
   assert.match(pkg.devDependencies?.tailwindcss ?? "", /^\^4(?:\.|$)/);
   assert.match(pkg.devDependencies?.["@tailwindcss/vite"] ?? "", /^\^4(?:\.|$)/);
   assert.match(viteConfig, /from ["']@tailwindcss\/vite["']/);
@@ -65,9 +65,14 @@ test("one shared package app shell wraps every route", async () => {
   assert.match(shell, /\bAppSidebar\b/);
   assert.match(shell, /\bAppNavbar\b/);
   assert.match(shell, /leftSlot=\{<SidebarTrigger/);
+  assert.match(shell, /endSlot=\{/);
   assert.match(shell, /\/docs/);
-  assert.match(shell, /\/s\//);
-  assert.match(shell, /DFL_CALLBACK_PATH/);
+  // Minimal top bar (2026-09-18): sidebar toggle on the left, actions +
+  // theme toggle on the right — no page title/breadcrumb, no app sub-label,
+  // and no "Design system" nav item (removed separately from the sidebar).
+  assert.doesNotMatch(shell, /appLabel=/);
+  assert.doesNotMatch(shell, /breadcrumbs=/);
+  assert.doesNotMatch(shell, /Design system/);
 });
 
 test("page and domain interactions use shared design-system primitives", async () => {

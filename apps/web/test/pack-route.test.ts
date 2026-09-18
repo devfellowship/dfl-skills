@@ -35,9 +35,15 @@ test("the docs never print the owner/repo/slug form that skills@1.7.0 rejects", 
   assert.match(docs, /npx skills add devfellowship\/skills --skill /);
 });
 
-test("the breadcrumbs know the pack route, so /p/ does not read as the catalogue", async () => {
+// The top bar no longer shows a page title/breadcrumb at all (2026-09-18,
+// minimal-header cleanup) — the sidebar toggle is the only thing on the
+// left. So a pack route reading as "the catalogue" is no longer possible
+// THROUGH a stale "Catalog" label: there is no label on any route to be
+// stale. Assert that directly instead of asserting a "/p/" breadcrumb
+// branch, which this AppShell no longer has.
+test("the top bar carries no page title/breadcrumb, so no route can misread as another", async () => {
   const shell = await read("src/components/domain/AppShell.tsx");
-  assert.match(shell, /\/p\//);
+  assert.doesNotMatch(shell, /breadcrumbs=/);
 });
 
 test("the home grid renders matching packs BEFORE the skills, so a pack sorts above its members", async () => {

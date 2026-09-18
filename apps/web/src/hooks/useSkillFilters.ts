@@ -28,6 +28,7 @@ export function useSkillFilters() {
 
   return {
     query,
+    setQuery,
     tab,
     setTab,
     topics,
