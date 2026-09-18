@@ -44,6 +44,14 @@ function routeChrome(pathname: string): {
     };
   }
 
+  if (pathname.startsWith("/p/")) {
+    const pack = pathname.split("/").filter(Boolean).at(-1) ?? "Pack";
+    return {
+      activeUrl: "/",
+      breadcrumbs: [{ label: "Catalog", href: "/" }, { label: `${decodeURIComponent(pack)} (pack)` }],
+    };
+  }
+
   if (pathname.startsWith("/s/")) {
     const slug = pathname.split("/").filter(Boolean).at(-1) ?? "Skill";
     return {

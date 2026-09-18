@@ -18,6 +18,12 @@ export interface Skill {
   visibility: string;
   author?: string;
   readme?: string;
+  /**
+   * The packs that list this skill — DERIVED at ingestion from the pack
+   * manifests, never authored in the skill. The API caps it at three. Only the
+   * single-skill endpoint carries it; the list endpoint leaves it undefined.
+   */
+  partOf?: PackRef[];
 }
 
 /**
@@ -56,6 +62,13 @@ export interface Pack {
   memberCount: number;
   unpublishedCount: number;
   members: PackMember[];
+}
+
+/** The reverse edge a member page shows: "Part of <pack>". */
+export interface PackRef {
+  source: string;
+  slug: string;
+  name: string;
 }
 
 export interface AgentTarget {

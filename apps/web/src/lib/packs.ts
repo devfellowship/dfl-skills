@@ -1,5 +1,10 @@
-import type { Pack, PackMember, PackMemberStatus, PackRole, SkillFilters } from "@/types";
+import type { Pack, PackMember, PackMemberStatus, PackRef, PackRole, SkillFilters } from "@/types";
 import { authorOf } from "@/lib/format";
+import { ApiError } from "./api-error";
+import { isValidSlug, isValidSource } from "./identifiers";
+
+/** The marketplace name `.claude-plugin/marketplace.json` publishes (plan ADR-2, Path A). */
+const PLUGIN_MARKETPLACE = "devfellowship-skills";
 
 /** One row of `GET /api/v1/packs`, or the `pack` key of the detail endpoint. */
 export interface ApiPackMember {
@@ -62,7 +67,9 @@ export function adaptPack(raw: ApiPack): Pack {
     name: raw.name ?? slug,
     description: raw.description ?? "",
     root: raw.root ?? members.find((m) => m.role === "root")?.slug ?? "",
-    visibility: raw.visibility ?? "public",
+    // With no tier from the server, assume the narrow one (decision 2A): a
+    // wrong "public" would advertise a repo-cloning install for a private repo.
+    visibility: raw.visibility ?? "internal",
     commitSha: raw.commit_sha ?? "",
     updatedAt: raw.updated_at ?? "",
     memberCount: raw.member_count ?? members.length,
@@ -129,4 +136,64 @@ export function filterPacks({ packs, query, tab, topics, kind, author, coreOnly 
   if (tab === "official") list = list.filter((p) => p.source.startsWith("devfellowship/"));
 
   return list.sort((a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id));
+}
+
+/** `part_of` on the single-skill response: `[{ source, pack, name }]`, capped at three by the API. */
+export function adaptPackRefs(raw: unknown): PackRef[] {
+  if (!Array.isArray(raw)) return [];
+  const refs: PackRef[] = [];
+  for (const row of raw) {
+    if (!row || typeof row !== "object") continue;
+    const { source, pack, name } = row as { source?: unknown; pack?: unknown; name?: unknown };
+    if (typeof source !== "string" || typeof pack !== "string") continue;
+    refs.push({ source, slug: pack, name: typeof name === "string" && name ? name : pack });
+  }
+  return refs;
+}
+
+export const PART_OF_LIMIT = 3;
+
+/** One line, not an index. NuGet capped its reverse link at five; npm did not, and its list is unusable. */
+export function partOfForDisplay(refs: PackRef[]): PackRef[] {
+  return refs.slice(0, PART_OF_LIMIT);
+}
+
+export function packApiPath(source: string, slug: string): string {
+  const [owner, repo] = source.split("/");
+  if (!owner || !repo) {
+    throw new ApiError(`Invalid pack source "${source}"`, 404);
+  }
+  return `/api/v1/packs/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/${encodeURIComponent(slug)}`;
+}
+
+export interface PackInstallSummary {
+  /** Members `install_pack` delivers by default — every role but `suggested`. */
+  skills: number;
+  /** Left out unless the reader asks for them, as Debian's `Suggests`. */
+  suggested: number;
+  /** Members the manifest names and the catalogue does not carry. */
+  notPublished: number;
+}
+
+/** "Installs 8 skills · 1 suggested · 0 not published" — shown BEFORE the install button, never a bare button. */
+export function packInstallSummary(pack: Pack): PackInstallSummary {
+  const suggested = pack.members.filter((m) => m.role === "suggested").length;
+  return {
+    skills: pack.members.length - suggested,
+    suggested,
+    notPublished: pack.members.filter((m) => m.status === "not_published").length,
+  };
+}
+
+/**
+ * Path A of the plan: the Claude Code plugin generated from the same manifest.
+ * It clones the source repo, so it only works for a reader with GitHub access
+ * to it. 🚨 Copied into a shell — the identifiers are validated, not trusted.
+ */
+export function pluginInstallCommands(pack: Pack): string[] {
+  if (!isValidSource(pack.source) || !isValidSlug(pack.slug)) return [];
+  return [
+    `claude plugin marketplace add ${pack.source}`,
+    `claude plugin install ${pack.slug}@${PLUGIN_MARKETPLACE}`,
+  ];
 }

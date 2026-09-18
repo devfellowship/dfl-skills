@@ -34,6 +34,8 @@ export function SkillCard({ skill }: SkillCardProps) {
   return (
     <Card
       onClick={() => navigate(href)}
+      data-testid="skill-card"
+      data-slug={skill.slug}
       className="group flex min-h-[178px] cursor-pointer animate-fadeUp flex-col gap-[11px] rounded-[13px] border border-border bg-card p-[18px] transition-all hover:-translate-y-[3px] hover:border-[hsl(215_15%_26%)] hover:shadow-[0_10px_30px_hsl(216_40%_3%/.5)]"
     >
       <div className="flex items-center justify-between gap-2">

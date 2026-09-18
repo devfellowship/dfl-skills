@@ -15,7 +15,7 @@ export function formatDate(value: string): string {
  */
 export function installCommand(source: string, slug: string): string | null {
   if (!isValidSource(source) || !isValidSlug(slug)) return null;
-  return `npx skills add ${source}/${slug}`;
+  return `npx skills add ${source} --skill ${slug}`;
 }
 
 export function authorOf(source: string): string {
