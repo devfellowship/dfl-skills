@@ -122,6 +122,8 @@ test("the home page and the Hero stop counting a pack as a skill", async () => {
   const hero = await readFile(new URL("../src/components/domain/Hero.tsx", import.meta.url), "utf8");
   assert.match(home, /catalogueCount\(/);
   assert.doesNotMatch(home, /`\$\{skills\.length\} skills`/);
-  assert.match(home, /<PackCard /);
+  assert.match(home, /<PackShowcase /);
+  assert.match(home, /<PackSearchResults/);
+  assert.doesNotMatch(home, /PacksBand/);
   assert.match(hero, /packs/);
 });

@@ -91,6 +91,29 @@ export interface PackGraph {
   edges: GraphEdge[];
 }
 
+/** One dot of the pack card's thumbnail graph, in SVG units. No label. */
+export interface MiniGraphNode {
+  slug: string;
+  role: PackRole;
+  published: boolean;
+  x: number;
+  y: number;
+  r: number;
+}
+
+export interface MiniGraph {
+  size: number;
+  root: MiniGraphNode | null;
+  members: MiniGraphNode[];
+}
+
+/** The hero showcase: one pack in the spotlight, a few more listed, the rest on /packs. */
+export interface PackShowcase {
+  featured: Pack | null;
+  list: Pack[];
+  hidden: number;
+}
+
 /** The pack's author (its root's) and every distinct member author. */
 export interface PackAuthors {
   author: string;
