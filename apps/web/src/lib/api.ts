@@ -1,6 +1,6 @@
 import type { Kind, Pack, Skill, Visibility } from "@/types";
 import { ApiError } from "./api-error";
-import { adaptPack, type ApiPack } from "./packs";
+import { adaptPack, adaptPackRefs, packApiPath, type ApiPack, type ApiPackMember } from "./packs";
 
 const API_BASE: string =
   (import.meta.env.VITE_API_BASE as string | undefined) ?? "https://skills.devfellowship.com";
@@ -27,6 +27,14 @@ interface ListResponse {
 
 interface SingleResponse {
   skill?: ApiSkill;
+  /** The derived reverse edge — the packs that list this skill, capped at three. */
+  part_of?: unknown;
+  scope?: string;
+}
+
+interface PackResponse {
+  pack?: ApiPack;
+  members?: ApiPackMember[];
   scope?: string;
 }
 
@@ -110,7 +118,26 @@ export async function fetchSkill(
   token?: string | null,
 ): Promise<Skill> {
   const data = await getJson<SingleResponse>(skillPath(source, slug), signal, token);
-  return adaptSkill(data.skill ?? (data as unknown as ApiSkill));
+  return {
+    ...adaptSkill(data.skill ?? (data as unknown as ApiSkill)),
+    partOf: adaptPackRefs(data.part_of),
+  };
+}
+
+/**
+ * One pack with its members in MANIFEST order. The detail endpoint returns the
+ * members beside the pack, not inside it. 404 for a pack the caller may not
+ * read — an internal pack is a 404 to an anonymous caller (decision 2A).
+ */
+export async function fetchPack(
+  source: string,
+  slug: string,
+  signal?: AbortSignal,
+  token?: string | null,
+): Promise<Pack> {
+  const data = await getJson<PackResponse>(packApiPath(source, slug), signal, token);
+  if (!data.pack) throw new ApiError("Registry returned no pack", 502);
+  return adaptPack({ ...data.pack, members: data.members ?? data.pack.members ?? [] });
 }
 
 /**

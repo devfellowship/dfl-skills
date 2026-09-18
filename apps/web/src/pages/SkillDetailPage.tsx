@@ -15,6 +15,7 @@ import { SkillMetaPanel } from "@/components/domain/SkillMetaPanel";
 import { SkillDetailSkeleton } from "@/components/domain/SkillDetailSkeleton";
 import { SkillReadmeSkeleton } from "@/components/domain/SkillReadmeSkeleton";
 import { ReadmeUnavailable } from "@/components/domain/ReadmeUnavailable";
+import { PartOfPanel } from "@/components/domain/PartOfPanel";
 
 function BackLink() {
   return (
@@ -79,7 +80,9 @@ export function SkillDetailPage() {
               {readmeStatus === "loading" ? (
                 <SkillReadmeSkeleton />
               ) : readmeStatus === "ok" && readme ? (
-                <MarkdownView source={readme} />
+                <div data-testid="skill-readme">
+                  <MarkdownView source={readme} />
+                </div>
               ) : (
                 <ReadmeUnavailable
                   status={readmeStatus === "ok" ? "missing" : readmeStatus}
@@ -109,6 +112,9 @@ export function SkillDetailPage() {
                   onAgentChange={setAgent}
                 />
               )}
+              {/* The pack is offered SECOND: the single-skill install above stays
+                  the primary action for a reader who opened this member. */}
+              <PartOfPanel packs={skill.partOf} />
               <SkillMetaPanel skill={skill} onVisibilityChanged={applyVisibility} />
             </aside>
           </div>

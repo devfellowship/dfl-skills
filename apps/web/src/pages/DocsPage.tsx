@@ -35,7 +35,11 @@ export function DocsPage() {
 
       <SectionTitle>Install a skill</SectionTitle>
       <div className="mb-[34px] flex flex-col gap-2">
-        <CodeBlock command="npx skills add devfellowship/skills/squad-review" size="sm" copyMessage="Copied" />
+        <CodeBlock
+          command="npx skills add devfellowship/skills --skill test-driven-development"
+          size="sm"
+          copyMessage="Copied"
+        />
         <CodeBlock command={'npx skills find "review my PR"'} size="sm" copyMessage="Copied" />
         <CodeBlock command="npx skills update --all" size="sm" copyMessage="Copied" />
       </div>
