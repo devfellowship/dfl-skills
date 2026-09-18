@@ -107,6 +107,13 @@ export interface MiniGraph {
   members: MiniGraphNode[];
 }
 
+/** The hero showcase: one pack in the spotlight, a few more listed, the rest on /packs. */
+export interface PackShowcase {
+  featured: Pack | null;
+  list: Pack[];
+  hidden: number;
+}
+
 /** The pack's author (its root's) and every distinct member author. */
 export interface PackAuthors {
   author: string;

@@ -1,5 +1,7 @@
-/** How many packs the home band shows before "All packs" takes over. */
-export const HOME_PACKS_LIMIT = 4;
+/** How many packs the hero showcase lists beside the featured one before "All packs" takes over. */
+export const SHOWCASE_LIST_LIMIT = 3;
+
+export const SHOWCASE_GRAPH_SIZE = 176;
 
 /** How many member chips a pack card lists before "+N more". */
 export const CARD_MEMBER_CHIPS = 4;

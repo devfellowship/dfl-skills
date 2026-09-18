@@ -1,10 +1,11 @@
-import type { MiniGraph, MiniGraphNode, Pack, PackAuthors, PackRole, Skill } from "@/types";
+import type { MiniGraph, MiniGraphNode, Pack, PackAuthors, PackRole, PackShowcase, Skill } from "@/types";
 import {
   MINI_GRAPH_MEMBER_R,
   MINI_GRAPH_ORBIT,
   MINI_GRAPH_ROOT_R,
   MINI_GRAPH_SIZE,
   MINI_GRAPH_SUGGESTED_R,
+  SHOWCASE_LIST_LIMIT,
 } from "@/consts/pack-home";
 import { skillAuthor } from "./format";
 import { ROLE_ORDER } from "./packs";
@@ -86,6 +87,25 @@ export function packByline(pack: Pack, authors: PackAuthors): string {
   const others = authors.contributors.filter((c) => c !== authors.author).length;
   const skills = `${pack.memberCount} ${pack.memberCount === 1 ? "skill" : "skills"}`;
   return `${skills} · by ${authors.author}${others > 0 ? ` +${others}` : ""}`;
+}
+
+/**
+ * The hero showcase: the pack the reader picked (else the most recently
+ * updated) in the spotlight, the next few by recency in the list under it,
+ * and how many more only the packs page shows. Packs are never sorted by
+ * name here — the showcase is an advert, and the freshest pack leads.
+ */
+export function showcase(packs: Pack[], featuredId: string | null): PackShowcase {
+  const byRecency = [...packs].sort(
+    (a, b) => b.updatedAt.localeCompare(a.updatedAt) || a.name.localeCompare(b.name),
+  );
+  const featured = byRecency.find((p) => p.id === featuredId) ?? byRecency[0] ?? null;
+  const rest = byRecency.filter((p) => p !== featured);
+  return {
+    featured,
+    list: rest.slice(0, SHOWCASE_LIST_LIMIT),
+    hidden: Math.max(0, rest.length - SHOWCASE_LIST_LIMIT),
+  };
 }
 
 /** The grid class: one pack takes the full row, two or more share it. */

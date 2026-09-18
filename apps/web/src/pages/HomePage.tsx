@@ -11,7 +11,8 @@ import { catalogueCount } from "@/lib/packs";
 import { SEARCH_MIN_CHARS } from "@/lib/search";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Hero } from "@/components/domain/Hero";
-import { PacksBand } from "@/components/domain/PacksBand";
+import { PackShowcase } from "@/components/domain/PackShowcase";
+import { PackSearchResults } from "@/components/domain/PackSearchResults";
 import { CatalogueToolbar } from "@/components/domain/CatalogueToolbar";
 import { CatalogueGrid } from "@/components/domain/CatalogueGrid";
 
@@ -39,17 +40,15 @@ export function HomePage() {
 
   return (
     <main className="mx-auto max-w-[1200px] px-6 pb-[90px]">
-      <Hero skills={skills.length} packs={packs.length} />
-
-      {hasSkills && (
-        <PacksBand
-          groups={searchPending ? [] : groups}
-          total={packs.length}
-          skills={skills}
-          loading={packsLoading || searchPending}
-          query={search.active ? search.query : undefined}
-        />
-      )}
+      <Hero
+        skills={skills.length}
+        packs={packs.length}
+        aside={
+          hasSkills && (packsLoading || packs.length > 0) ? (
+            <PackShowcase packs={packs} skills={skills} loading={packsLoading} />
+          ) : undefined
+        }
+      />
 
       <section aria-labelledby="skills-heading">
         {hasSkills && (
@@ -90,6 +89,15 @@ export function HomePage() {
               </div>
             )}
           </>
+        )}
+
+        {search.active && (
+          <PackSearchResults
+            groups={searchPending ? [] : groups}
+            skills={skills}
+            loading={searchPending}
+            query={search.query}
+          />
         )}
 
         <CatalogueGrid

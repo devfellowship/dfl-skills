@@ -48,7 +48,7 @@ test("the top bar carries no page title/breadcrumb, so no route can misread as a
 
 test("the home grid renders matching packs BEFORE the skills, so a pack sorts above its members", async () => {
   const home = await read("src/pages/HomePage.tsx");
-  const packs = home.indexOf("<PackCard ");
-  const skills = home.indexOf("<SkillCard ");
-  assert.ok(packs > 0 && skills > packs, "PackCard must render before SkillCard in the grid");
+  const packs = home.indexOf("<PackSearchResults");
+  const skills = home.indexOf("<CatalogueGrid");
+  assert.ok(packs > 0 && skills > packs, "PackSearchResults must render before CatalogueGrid");
 });
