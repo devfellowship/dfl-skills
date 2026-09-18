@@ -1,5 +1,5 @@
 import type { Skill } from "@/types";
-import { authorOf, githubAvatarUrl } from "@/lib/format";
+import { githubAvatarUrl, skillAuthor } from "@/lib/format";
 import { KindBadge } from "./KindBadge";
 
 interface SkillDetailHeaderProps {
@@ -9,7 +9,7 @@ interface SkillDetailHeaderProps {
 }
 
 export function SkillDetailHeader({ skill, readmeAuthor }: SkillDetailHeaderProps) {
-  const author = skill.author ?? readmeAuthor ?? authorOf(skill.source);
+  const author = skillAuthor(skill.author ?? readmeAuthor, skill.source);
 
   return (
     <div>

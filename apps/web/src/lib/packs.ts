@@ -1,5 +1,5 @@
 import type { CatalogueFacets, Pack, PackAuthors, PackMember, PackMemberStatus, PackRef, PackRole } from "@/types";
-import { authorOf } from "@/lib/format";
+import { skillAuthor } from "@/lib/format";
 import { ApiError } from "./api-error";
 import { isValidSlug, isValidSource } from "./identifiers";
 
@@ -132,7 +132,7 @@ export function packPassesFacets(
 ): boolean {
   if (kind !== "all" && kind !== "skill") return false;
   if (topics.length || coreOnly) return false;
-  if (author && authorOf(p.source) !== author) return false;
+  if (author && skillAuthor(null, p.source) !== author) return false;
   if (tab === "official" && !p.source.startsWith("devfellowship/")) return false;
   return true;
 }
@@ -210,7 +210,7 @@ export function pluginInstallCommands(pack: Pack): string[] {
  */
 export function memberAuthor(m: PackMember): string | null {
   if (m.status !== "in_catalogue") return null;
-  return m.author || authorOf(m.source);
+  return skillAuthor(m.author, m.source);
 }
 
 /**
@@ -226,7 +226,7 @@ export function packAuthors(pack: Pack): PackAuthors {
     if (a && !contributors.includes(a)) contributors.push(a);
   }
   return {
-    author: (root && memberAuthor(root)) || contributors[0] || authorOf(pack.source),
+    author: (root && memberAuthor(root)) || contributors[0] || skillAuthor(null, pack.source),
     contributors,
   };
 }

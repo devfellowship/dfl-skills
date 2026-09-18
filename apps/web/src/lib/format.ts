@@ -1,3 +1,4 @@
+import { OWNER_DEFAULT_AUTHOR } from "@/consts/owner-author";
 import { isValidSlug, isValidSource } from "./identifiers";
 
 export function formatDate(value: string): string {
@@ -20,6 +21,17 @@ export function installCommand(source: string, slug: string): string | null {
 
 export function authorOf(source: string): string {
   return source.split("/")[0] || source;
+}
+
+/**
+ * The author to show: the one the skill names, else the owner's default, else
+ * the owner. A skill that names its org as author names no one.
+ */
+export function skillAuthor(author: string | null | undefined, source: string): string {
+  const owner = authorOf(source);
+  const named = author?.trim();
+  if (named && named !== owner) return named;
+  return OWNER_DEFAULT_AUTHOR[owner] ?? named ?? owner;
 }
 
 export function githubAvatarUrl(handle: string): string {

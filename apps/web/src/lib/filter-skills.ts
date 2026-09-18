@@ -1,5 +1,5 @@
 import type { CatalogueFacets, Pack, Skill, SkillFilters } from "@/types";
-import { authorOf } from "@/lib/format";
+import { skillAuthor } from "@/lib/format";
 import { filterPacks } from "@/lib/packs";
 
 /**
@@ -13,7 +13,7 @@ export function skillPassesFacets(
 ): boolean {
   if (kind !== "all" && s.kind !== kind) return false;
   if (topics.length && !topics.some((t) => s.categories.includes(t))) return false;
-  if (author && (s.author ?? authorOf(s.source)) !== author) return false;
+  if (author && skillAuthor(s.author, s.source) !== author) return false;
   if (coreOnly && !s.tags.includes("core")) return false;
   if (tab === "official" && !s.source.startsWith("devfellowship/")) return false;
   return true;

@@ -1,5 +1,5 @@
 import type { Kind, Skill, SkillFacets } from "@/types";
-import { authorOf } from "@/lib/format";
+import { skillAuthor } from "@/lib/format";
 
 function byCountThenName(counts: Map<string, number>): string[] {
   return [...counts.entries()]
@@ -24,7 +24,7 @@ export function computeFacets(skills: Skill[]): SkillFacets {
     owners.add(s.source.split("/")[0] ?? s.source);
     if (s.tags.includes("core")) coreCount += 1;
     for (const c of s.categories) topicCounts.set(c, (topicCounts.get(c) ?? 0) + 1);
-    const author = s.author ?? authorOf(s.source);
+    const author = skillAuthor(s.author, s.source);
     if (author) authorCounts.set(author, (authorCounts.get(author) ?? 0) + 1);
   }
 

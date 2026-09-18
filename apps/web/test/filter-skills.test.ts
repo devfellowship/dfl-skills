@@ -87,9 +87,12 @@ test("facets are ordered by count so the busiest topic leads the chip row", () =
   assert.deepEqual(facets.owners, ["devfellowship", "acme"]);
 });
 
-test("a skill with no frontmatter author falls back to the repo owner", () => {
-  const facets = computeFacets([skill({ slug: "orphan", source: "devfellowship/skills" })]);
-  assert.deepEqual(facets.authors, ["devfellowship"]);
+test("a skill with no frontmatter author falls back to the owner's default author, else the owner", () => {
+  const facets = computeFacets([
+    skill({ slug: "orphan", source: "devfellowship/skills" }),
+    skill({ slug: "stray", source: "someone/skills" }),
+  ]);
+  assert.deepEqual(facets.authors.sort(), ["someone", "taigfs"]);
 });
 
 // ---------------------------------------------------------------------------
