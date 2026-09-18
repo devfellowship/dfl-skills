@@ -3,7 +3,7 @@ import { Copy } from "lucide-react";
 import { toast } from "sonner";
 import { Button, Card } from "@devfellowship/components";
 import type { Skill } from "@/types";
-import { authorOf, formatDate, githubAvatarUrl, installCommand } from "@/lib/format";
+import { formatDate, githubAvatarUrl, installCommand, skillAuthor } from "@/lib/format";
 import { KindBadge } from "./KindBadge";
 import { VisibilityBadge } from "./VisibilityBadge";
 
@@ -15,7 +15,7 @@ export function SkillCard({ skill }: SkillCardProps) {
   const navigate = useNavigate();
 
   const href = `/s/${skill.source}/${skill.slug}`;
-  const author = skill.author ?? authorOf(skill.source);
+  const author = skillAuthor(skill.author, skill.source);
   // Categories, not tags: they are what the topic chips filter on, so a chip on
   // a card is always something the catalogue can actually narrow by.
   const chips = skill.categories;
