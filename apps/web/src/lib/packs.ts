@@ -1,4 +1,4 @@
-import type { Pack, PackMember, PackMemberStatus, PackRef, PackRole, SkillFilters } from "@/types";
+import type { CatalogueFacets, Pack, PackMember, PackMemberStatus, PackRef, PackRole } from "@/types";
 import { authorOf } from "@/lib/format";
 import { ApiError } from "./api-error";
 import { isValidSlug, isValidSource } from "./identifiers";
@@ -114,28 +114,30 @@ export function catalogueCount({ skills, packs, shownSkills, shownPacks }: Catal
   return `${skillPart} · ${packPart}`;
 }
 
-export type PackFilters = Omit<SkillFilters, "skills"> & { packs: Pack[] };
-
-function haystack(p: Pack): string {
-  return `${p.name} ${p.slug} ${p.description} ${p.source} ${p.members.map((m) => m.slug).join(" ")}`.toLowerCase();
-}
+export type PackFilters = CatalogueFacets & { packs: Pack[] };
 
 /**
- * The home filters, applied to packs. A pack has no categories and no `core`
- * tag, so a topic or core filter hides it. It is a set of skills, so the kind
- * filter keeps it only for "all" and "skill".
+ * The home facets, applied to one pack. A pack has no categories and no
+ * `core` tag, so a topic or core filter hides it. It is a set of skills, so
+ * the kind filter keeps it only for "all" and "skill". There is no free-text
+ * match: the query is a server search (plan ADR-4).
  */
-export function filterPacks({ packs, query, tab, topics, kind, author, coreOnly }: PackFilters): Pack[] {
-  const q = query.trim().toLowerCase();
-  let list = packs.slice();
+export function packPassesFacets(
+  p: Pack,
+  { tab, topics, kind, author, coreOnly }: CatalogueFacets,
+): boolean {
+  if (kind !== "all" && kind !== "skill") return false;
+  if (topics.length || coreOnly) return false;
+  if (author && authorOf(p.source) !== author) return false;
+  if (tab === "official" && !p.source.startsWith("devfellowship/")) return false;
+  return true;
+}
 
-  if (q) list = list.filter((p) => haystack(p).includes(q));
-  if (kind !== "all" && kind !== "skill") list = [];
-  if (topics.length || coreOnly) list = [];
-  if (author) list = list.filter((p) => authorOf(p.source) === author);
-  if (tab === "official") list = list.filter((p) => p.source.startsWith("devfellowship/"));
-
-  return list.sort((a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id));
+/** The browse state (no query): the facets, sorted by name. */
+export function filterPacks({ packs, ...facets }: PackFilters): Pack[] {
+  return packs
+    .filter((p) => packPassesFacets(p, facets))
+    .sort((a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id));
 }
 
 /** `part_of` on the single-skill response: `[{ source, pack, name }]`, capped at three by the API. */

@@ -1,12 +1,15 @@
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { AlertTriangle, Package, Search } from "lucide-react";
 import { Button } from "@devfellowship/components";
 import { useSkillFilters } from "@/hooks/useSkillFilters";
+import { useCatalogueSearch } from "@/hooks/useCatalogueSearch";
 import { useFilteredSkills } from "@/hooks/useFilteredSkills";
 import { useFilterFacets } from "@/hooks/useFilterFacets";
 import { useSkills } from "@/hooks/useSkills";
 import { usePacks } from "@/hooks/usePacks";
 import { catalogueCount } from "@/lib/packs";
+import { SEARCH_MIN_CHARS } from "@/lib/search";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LeaderboardTabs } from "@/components/domain/LeaderboardTabs";
 import { TopicFilterChips } from "@/components/domain/TopicFilterChips";
@@ -27,7 +30,15 @@ export function HomePage() {
   const facets = useFilterFacets(skills);
   // Packs are a SEPARATE array: nothing below may count one as a skill.
   const packs = usePacks();
-  const { groups, skills: looseSkills } = useFilteredSkills({ skills, packs, ...f });
+  // The query is a SERVER search (plan ADR-4): debounced, packs included,
+  // visibility-filtered by the caller's token. No query = the browse grid.
+  const search = useCatalogueSearch(f.query);
+  useQueryInUrl(search.query);
+  const { groups, skills: looseSkills } = useFilteredSkills(
+    { skills, packs, search: search.results, ...f },
+    search.active,
+  );
+  const searchPending = search.active && !search.results && !search.error;
   // An absorbed member is still a matching skill — it moved into its pack's
   // card, it did not stop matching. A member in two packs counts once.
   const shownSkills =
@@ -73,6 +84,11 @@ export function HomePage() {
                 ...(filtered ? { shownSkills, shownPacks: groups.length } : {}),
               })}
             </span>
+            {search.tooShort && (
+              <span data-testid="search-too-short">
+                Type {SEARCH_MIN_CHARS} or more characters to search
+              </span>
+            )}
             {f.active && (
               <Button variant="ghost" size="sm" onClick={f.clear}>
                 Clear filters
@@ -82,7 +98,7 @@ export function HomePage() {
         </>
       )}
 
-      {loading ? (
+      {loading || searchPending ? (
         <div className={GRID}>
           {Array.from({ length: 8 }, (_, i) => (
             <SkillCardSkeleton key={i} />
@@ -94,6 +110,13 @@ export function HomePage() {
           title="Couldn't reach the registry"
           description="The registry didn't respond. Check your connection and try again."
           action={<Button onClick={refetch}>Retry</Button>}
+        />
+      ) : search.active && search.error ? (
+        <EmptyState
+          icon={<AlertTriangle className="h-6 w-6" strokeWidth={1.8} />}
+          title="Search failed"
+          description="The registry search didn't respond. Try again, or clear the search to browse the catalogue."
+          action={<Button onClick={search.retry}>Retry</Button>}
         />
       ) : !hasSkills ? (
         <EmptyState
@@ -129,4 +152,26 @@ export function HomePage() {
       )}
     </main>
   );
+}
+
+/**
+ * Keeps `?q=` in the address bar in step with the search, so a search is a
+ * link: `/?q=reels` opens the same grid. It replaces the history entry, so a
+ * typed query does not add one Back step per keystroke.
+ */
+function useQueryInUrl(query: string) {
+  const [params, setParams] = useSearchParams();
+  const current = params.get("q") ?? "";
+  useEffect(() => {
+    if (current === query) return;
+    setParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (query) next.set("q", query);
+        else next.delete("q");
+        return next;
+      },
+      { replace: true },
+    );
+  }, [query, current, setParams]);
 }
