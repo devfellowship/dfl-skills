@@ -68,7 +68,9 @@ export function PackCard({ pack, skills, absorbed = [] }: PackCardProps) {
             {pack.description}
           </p>
         </div>
-        <PackMiniGraph pack={pack} className="hidden sm:block" />
+        <div className="hidden shrink-0 rounded-[14px] border border-[hsl(215_15%_16%)] bg-[hsl(215_21%_9%/.7)] p-2 sm:block">
+          <PackMiniGraph pack={pack} size={132} />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:items-end">
