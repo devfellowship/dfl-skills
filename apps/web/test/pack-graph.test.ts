@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { adaptPack } from "../src/lib/packs.ts";
+import { adaptPack, memberAuthor, packAuthors, roleCounts } from "../src/lib/packs.ts";
 import { graphLabel, packGraph } from "../src/lib/pack-graph.ts";
 
 const SOURCE = "devfellowship/internal-skills";
@@ -61,11 +61,11 @@ test("neighbouring members alternate between an outer and an inner ring", () => 
   assert.ok(dist[0] > dist[1] && dist[2] > dist[1] && dist[2] > dist[3]);
 });
 
-test("the author travels to the node, and a missing one is null, not the owner", () => {
+test("the node author matches the table: SKILL.md author, else the owner, none when unpublished", () => {
   const g = packGraph(PACK);
   const by = (slug: string) => g.nodes.find((n) => n.slug === slug)!;
   assert.equal(by("brand-voice").author, "taigfs");
-  assert.equal(by("vision-llm-judge").author, null);
+  assert.equal(by("vision-llm-judge").author, "devfellowship");
   assert.equal(by("launch-campaign").author, null);
   assert.equal(by("launch-campaign").published, false);
 });
@@ -78,4 +78,31 @@ test("a pack with no members draws nothing", () => {
 test("a long slug is cut with an ellipsis, a short one is left alone", () => {
   assert.equal(graphLabel("image-fetch"), "image-fetch");
   assert.equal(graphLabel("short-form-visual-director"), "short-form-visual…");
+});
+
+test("the pack author is its root's, contributors are distinct member authors in reading order", () => {
+  const pack = adaptPack({
+    source: SOURCE,
+    pack: "p",
+    root: "a",
+    members: [
+      member("a", "root", 0, { author: "taigfs" }),
+      member("b", "required", 1, { author: "samuelstefano" }),
+      member("c", "optional", 2, { author: "taigfs" }),
+      member("d", "optional", 3, { author: null }),
+      member("e", "suggested", 4, { status: "not_published", author: "ghost" }),
+    ],
+  });
+  assert.deepEqual(packAuthors(pack), {
+    author: "taigfs",
+    contributors: ["taigfs", "samuelstefano", "devfellowship"],
+  });
+  assert.equal(memberAuthor(pack.members[3]), "devfellowship");
+  assert.equal(memberAuthor(pack.members[4]), null);
+  assert.deepEqual(roleCounts(pack), [
+    { role: "root", count: 1 },
+    { role: "required", count: 1 },
+    { role: "optional", count: 2 },
+    { role: "suggested", count: 1 },
+  ]);
 });

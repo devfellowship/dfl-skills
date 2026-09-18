@@ -1,4 +1,5 @@
 import type { GraphNode, Pack, PackGraph } from "@/types";
+import { memberAuthor } from "./packs";
 
 const LABEL_MAX = 18;
 
@@ -28,7 +29,7 @@ export function packGraph(pack: Pack, width = 320, height = 280): PackGraph {
       slug: root.slug,
       label: graphLabel(root.slug),
       role: "root",
-      author: root.author ?? null,
+      author: memberAuthor(root),
       published: root.status === "in_catalogue",
       x: cx,
       y: cy,
@@ -45,7 +46,7 @@ export function packGraph(pack: Pack, width = 320, height = 280): PackGraph {
       slug: m.slug,
       label: graphLabel(m.slug),
       role: m.role,
-      author: m.author ?? null,
+      author: memberAuthor(m),
       published: m.status === "in_catalogue",
       x: round(cx + Math.cos(angle) * rx * ring),
       y: round(cy + Math.sin(angle) * ry * ring),

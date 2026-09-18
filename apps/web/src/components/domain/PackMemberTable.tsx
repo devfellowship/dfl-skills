@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import { Card } from "@devfellowship/components";
 import type { Pack } from "@/types";
 import { isValidSlug, isValidSource } from "@/lib/identifiers";
+import { memberAuthor } from "@/lib/packs";
+import { AuthorAvatar } from "./AuthorAvatar";
 import { PackRoleBadge } from "./PackRoleBadge";
 
 interface PackMemberTableProps {
@@ -17,8 +19,9 @@ interface PackMemberTableProps {
 export function PackMemberTable({ pack }: PackMemberTableProps) {
   return (
     <Card className="overflow-hidden p-0">
-      <div className="hidden grid-cols-[minmax(0,220px)_96px_minmax(0,1fr)_120px] gap-4 border-b border-[hsl(215_15%_14%)] px-[18px] py-[10px] text-[11px] font-bold uppercase tracking-[.07em] text-muted-foreground md:grid">
+      <div className="hidden grid-cols-[minmax(0,240px)_120px_88px_minmax(0,1fr)_104px] gap-4 border-b border-[hsl(215_15%_14%)] px-[18px] py-[10px] text-[11px] font-bold uppercase tracking-[.07em] text-muted-foreground md:grid">
         <span>Skill</span>
+        <span>Author</span>
         <span>Role</span>
         <span>Description</span>
         <span className="text-right">Status</span>
@@ -27,13 +30,14 @@ export function PackMemberTable({ pack }: PackMemberTableProps) {
         {pack.members.map((m) => {
           const published = m.status === "in_catalogue";
           const linkable = published && isValidSource(m.source) && isValidSlug(m.slug);
+          const author = memberAuthor(m);
           return (
             <li
               key={`${m.source}/${m.slug}`}
               data-testid="pack-member"
               data-slug={m.slug}
               data-status={m.status}
-              className="grid grid-cols-1 gap-2 border-b border-[hsl(215_15%_14%)] px-[18px] py-[14px] last:border-b-0 md:grid-cols-[minmax(0,220px)_96px_minmax(0,1fr)_120px] md:items-start md:gap-4"
+              className="grid grid-cols-1 gap-2 border-b border-[hsl(215_15%_14%)] px-[18px] py-[14px] last:border-b-0 md:grid-cols-[minmax(0,240px)_120px_88px_minmax(0,1fr)_104px] md:items-start md:gap-4"
             >
               <div className="flex min-w-0 items-center justify-between gap-2 md:block">
                 {linkable ? (
@@ -51,6 +55,16 @@ export function PackMemberTable({ pack }: PackMemberTableProps) {
                 <span className="md:hidden">
                   <PackRoleBadge role={m.role} />
                 </span>
+              </div>
+              <div data-testid="pack-member-author" className="flex min-w-0 items-center gap-[6px] text-[12.5px] text-[hsl(212_12%_64%)]">
+                {author ? (
+                  <>
+                    <AuthorAvatar handle={author} />
+                    <span className="truncate">{author}</span>
+                  </>
+                ) : (
+                  <span className="text-[hsl(212_9%_40%)]">—</span>
+                )}
               </div>
               <div className="hidden md:block">
                 <PackRoleBadge role={m.role} />

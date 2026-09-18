@@ -91,6 +91,12 @@ export interface PackGraph {
   edges: GraphEdge[];
 }
 
+/** The pack's author (its root's) and every distinct member author. */
+export interface PackAuthors {
+  author: string;
+  contributors: string[];
+}
+
 /** The reverse edge a member page shows: "Part of <pack>". */
 export interface PackRef {
   source: string;

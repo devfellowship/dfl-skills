@@ -1,4 +1,4 @@
-import type { CatalogueFacets, Pack, PackMember, PackMemberStatus, PackRef, PackRole } from "@/types";
+import type { CatalogueFacets, Pack, PackAuthors, PackMember, PackMemberStatus, PackRef, PackRole } from "@/types";
 import { authorOf } from "@/lib/format";
 import { ApiError } from "./api-error";
 import { isValidSlug, isValidSource } from "./identifiers";
@@ -32,7 +32,9 @@ export interface ApiPack {
   members?: ApiPackMember[];
 }
 
-const ROLES: ReadonlySet<string> = new Set<PackRole>(["root", "required", "optional", "suggested"]);
+export const ROLE_ORDER: readonly PackRole[] = ["root", "required", "optional", "suggested"];
+
+const ROLES: ReadonlySet<string> = new Set<PackRole>(ROLE_ORDER);
 
 function toRole(raw: string | undefined): PackRole {
   return raw && ROLES.has(raw) ? (raw as PackRole) : "suggested";
@@ -200,4 +202,39 @@ export function pluginInstallCommands(pack: Pack): string[] {
     `claude plugin marketplace add ${pack.source}`,
     `claude plugin install ${pack.slug}@${PLUGIN_MARKETPLACE}`,
   ];
+}
+
+/**
+ * Who a member is by, as the home cards say it: the SKILL.md author, else the
+ * repo owner. A member the catalogue does not carry has no author to show.
+ */
+export function memberAuthor(m: PackMember): string | null {
+  if (m.status !== "in_catalogue") return null;
+  return m.author || authorOf(m.source);
+}
+
+/**
+ * A pack has no author field of its own: the root carries the behaviour, so
+ * its author is the pack's. Contributors are every distinct member author, in
+ * reading order.
+ */
+export function packAuthors(pack: Pack): PackAuthors {
+  const root = pack.members.find((m) => m.slug === pack.root);
+  const contributors: string[] = [];
+  for (const m of pack.members) {
+    const a = memberAuthor(m);
+    if (a && !contributors.includes(a)) contributors.push(a);
+  }
+  return {
+    author: (root && memberAuthor(root)) || contributors[0] || authorOf(pack.source),
+    contributors,
+  };
+}
+
+/** How many members hold each role, roles with none left out. */
+export function roleCounts(pack: Pack): Array<{ role: PackRole; count: number }> {
+  return ROLE_ORDER.map((role) => ({
+    role,
+    count: pack.members.filter((m) => m.role === role).length,
+  })).filter((r) => r.count > 0);
 }
