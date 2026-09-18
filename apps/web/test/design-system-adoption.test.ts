@@ -66,7 +66,6 @@ test("one shared package app shell wraps every route", async () => {
   assert.match(shell, /\bAppNavbar\b/);
   assert.match(shell, /leftSlot=\{<SidebarTrigger/);
   assert.match(shell, /\/docs/);
-  assert.match(shell, /\/ds/);
   assert.match(shell, /\/s\//);
   assert.match(shell, /DFL_CALLBACK_PATH/);
 });

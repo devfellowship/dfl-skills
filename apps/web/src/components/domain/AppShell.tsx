@@ -1,6 +1,6 @@
 import { useMemo, type ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { BookOpen, Github, Library, Palette, Zap } from "lucide-react";
+import { BookOpen, Github, Library, Zap } from "lucide-react";
 import {
   AppNavbar,
   AppSidebar,
@@ -22,7 +22,6 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { title: "Catalog", url: "/", icon: Library, exact: true },
       { title: "Documentation", url: "/docs", icon: BookOpen, exact: true },
-      { title: "Design system", url: "/ds", icon: Palette, exact: true },
     ],
   },
 ];
@@ -35,13 +34,6 @@ function routeChrome(pathname: string): {
     return {
       activeUrl: "/docs",
       breadcrumbs: [{ label: "Catalog", href: "/" }, { label: "Documentation" }],
-    };
-  }
-
-  if (pathname === "/ds") {
-    return {
-      activeUrl: "/ds",
-      breadcrumbs: [{ label: "Catalog", href: "/" }, { label: "Design system" }],
     };
   }
 

@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { CodeBlock } from "@/components/ui/CodeBlock";
 
@@ -97,12 +96,6 @@ export function DocsPage() {
           <Plus className="h-[15px] w-[15px]" strokeWidth={2.2} />
           Open a PR
         </a>
-        <Link
-          to="/ds"
-          className="inline-flex h-[38px] items-center justify-center rounded-lg border border-[hsl(215_15%_19%)] px-4 text-[13.5px] font-semibold text-foreground/85 transition-colors hover:border-[hsl(215_15%_28%)] hover:bg-[hsl(215_18%_13%)]"
-        >
-          View design system →
-        </Link>
       </div>
     </main>
   );
