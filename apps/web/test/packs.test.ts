@@ -110,7 +110,10 @@ test("the PackCard links to /p/, carries the testid, and shows member slugs as t
   const src = await readFile(new URL("../src/components/domain/PackCard.tsx", import.meta.url), "utf8");
   assert.match(src, /data-testid="pack-card"/);
   assert.match(src, /packHref\(/);
+  // The card itself routes to the PACK. The only skill links on it are the
+  // members it absorbed for a query (ADR-7), and those go through skillHref().
   assert.doesNotMatch(src, /\/s\//);
+  assert.match(src, /const href = packHref\(pack\)/);
   // format.ts builds the avatar from the OWNER, identical for every DFL skill.
   assert.doesNotMatch(src, /githubAvatarUrl/);
 });

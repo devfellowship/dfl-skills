@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { AlertTriangle, Package, Search } from "lucide-react";
 import { Button } from "@devfellowship/components";
@@ -7,7 +6,7 @@ import { useFilteredSkills } from "@/hooks/useFilteredSkills";
 import { useFilterFacets } from "@/hooks/useFilterFacets";
 import { useSkills } from "@/hooks/useSkills";
 import { usePacks } from "@/hooks/usePacks";
-import { catalogueCount, filterPacks } from "@/lib/packs";
+import { catalogueCount } from "@/lib/packs";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LeaderboardTabs } from "@/components/domain/LeaderboardTabs";
 import { TopicFilterChips } from "@/components/domain/TopicFilterChips";
@@ -24,16 +23,16 @@ const GRID = "grid grid-cols-[repeat(auto-fill,minmax(min(330px,100%),1fr))] gap
 export function HomePage() {
   const f = useSkillFilters();
   const { skills, loading, error, refetch } = useSkills();
-  const results = useFilteredSkills({ skills, ...f });
   const facets = useFilterFacets(skills);
   // Packs are a SEPARATE array: nothing below may count one as a skill.
   const packs = usePacks();
-  const { query, tab, topics, kind, author, coreOnly } = f;
-  const packResults = useMemo(
-    () => filterPacks({ packs, query, tab, topics, kind, author, coreOnly }),
-    [packs, query, tab, topics, kind, author, coreOnly],
-  );
-  const filtered = results.length !== skills.length || packResults.length !== packs.length;
+  const { groups, skills: looseSkills } = useFilteredSkills({ skills, packs, ...f });
+  // An absorbed member is still a matching skill — it moved into its pack's
+  // card, it did not stop matching. A member in two packs counts once.
+  const shownSkills =
+    looseSkills.length +
+    new Set(groups.flatMap((g) => g.absorbed.map((s) => s.id))).size;
+  const filtered = shownSkills !== skills.length || groups.length !== packs.length;
 
   const hasSkills = skills.length > 0;
   const showKindFilter = facets.kinds.length > 1;
@@ -65,7 +64,7 @@ export function HomePage() {
               {catalogueCount({
                 skills: skills.length,
                 packs: packs.length,
-                ...(filtered ? { shownSkills: results.length, shownPacks: packResults.length } : {}),
+                ...(filtered ? { shownSkills, shownPacks: groups.length } : {}),
               })}
             </span>
             {f.active && (
@@ -104,12 +103,13 @@ export function HomePage() {
             </Link>
           }
         />
-      ) : results.length + packResults.length > 0 ? (
+      ) : looseSkills.length + groups.length > 0 ? (
         <div className={GRID}>
-          {packResults.map((pack) => (
-            <PackCard key={`pack:${pack.id}`} pack={pack} />
+          {/* Packs first: for one query a pack sorts above its own members. */}
+          {groups.map(({ pack, absorbed }) => (
+            <PackCard key={`pack:${pack.id}`} pack={pack} absorbed={absorbed} />
           ))}
-          {results.map((skill) => (
+          {looseSkills.map((skill) => (
             <SkillCard key={skill.id} skill={skill} />
           ))}
         </div>
