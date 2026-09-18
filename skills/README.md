@@ -1,16 +1,21 @@
-# Skills do time DFL para Claude Code
+# DFL team skills
 
-Espelho, em git, das skills (`SKILL.md`) que o time usa no dia a dia em projetos DFL. Cada subpasta é
-independente e pode ser copiada direto para `~/.claude/skills/<nome>/` ou `.claude/skills/<nome>/` num
-projeto específico.
+These are the `SKILL.md` skills that the DevFellowship team uses every day on DFL projects.
+Each folder is independent. Copy a folder into `~/.claude/skills/<name>/`, or into
+`.claude/skills/<name>/` in one project.
 
-| Skill | O que cobre |
+The skill content is in Portuguese.
+
+| Skill | What it covers |
 |---|---|
-| [`dfl/`](dfl/SKILL.md) | Code standards — componentização, nomenclatura e estrutura de arquivos para qualquer projeto frontend DFL. |
-| [`dfl-plans/`](dfl-plans/SKILL.md) | Uso do DFL Plans MCP — criar/ler planos técnicos, gerar questions de execução. |
-| [`dfl-mcp-engineering/`](dfl-mcp-engineering/SKILL.md) | Uso do pacote `dfl-mcp-engineering` (diagrams, spec-builder, task-assigner, documents) — login, conexão no Claude Code, matriz de capacidades, fluxos completos. |
-| [`dfl-mcp-engineering/spec-builder/`](dfl-mcp-engineering/spec-builder/README.md) | Conduzir um spec run do AI Spec Builder — rodada de comentários, disciplina de pontos, auditoria de cobertura, pacotes de escopo e taxonomia de itens (6 skills). |
-| [`esteira-dfl/`](esteira-dfl/SKILL.md) | Gera a esteira técnica completa (sprints/etapas/tasks/pontuação) a partir de um spec/orçamento aprovado pelo comercial. |
+| [`dfl/`](dfl/SKILL.md) | Code standards — components, naming and file structure for DFL frontend projects. |
+| [`dfl-plans/`](dfl-plans/SKILL.md) | How to use the DFL Plans MCP — create and read technical plans, and post execution questions. |
+| [`dfl-mcp-engineering/`](dfl-mcp-engineering/SKILL.md) | How to use the `dfl-mcp-engineering` package (diagrams, spec-builder, task-assigner, documents) — login, Claude Code connection, capability matrix and end-to-end flows. |
+| [`dfl-mcp-engineering/spec-builder/`](dfl-mcp-engineering/spec-builder/README.md) | How to run an AI Spec Builder spec run — comment rounds, point discipline, coverage audit, scope packages and item taxonomy (6 skills). |
+| [`esteira-dfl/`](esteira-dfl/SKILL.md) | Generates the full technical pipeline (sprints, stages, tasks, points) from an approved project spec or quote. |
 
-Essas skills não são a fonte de verdade de nada — quando o comportamento real do sistema divergir do que
-está escrito aqui, o sistema manda. Atualize o arquivo correspondente quando achar uma divergência.
+These skills are not the source of truth. When the real system behaves differently from a skill,
+the system is correct. Update the skill file when you find a difference.
+
+The public registry at [skills.devfellowship.com](https://skills.devfellowship.com) indexes
+[`devfellowship/skills`](https://github.com/devfellowship/skills), not this folder.

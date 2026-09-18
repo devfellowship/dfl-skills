@@ -15,10 +15,12 @@ shell out to `npx skills ...`.
 
 ## Install
 
+The package is not published to npm yet. Build it from this repository:
+
 ```bash
-npm i -g @devfellowship/skills
-# or run ad-hoc:
-npx @devfellowship/skills --help
+bun install
+bun run build
+node packages/cli/dist/cli.js --help
 ```
 
 ## Commands
@@ -108,11 +110,13 @@ The wrapper just makes that the default.
 
 ## Development
 
+From the repository root:
+
 ```bash
-npm install
-npm run typecheck   # tsc --noEmit, strict, no any
-npm run build       # emits dist/
-npm test            # atomic ~/.claude.json merge tested against temp fixtures only
+bun install
+bun run typecheck   # tsc --noEmit, strict, no any
+bun run build       # emits packages/cli/dist/
+bun run test        # atomic ~/.claude.json merge tested against temp fixtures only
 ```
 
 Tests never touch the real `~/.claude.json` or `~/.dfl-mcp` — they operate on
