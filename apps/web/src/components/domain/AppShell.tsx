@@ -66,7 +66,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       appName="DFL Skills"
       activeUrl={activeUrl}
       onNavigate={navigate}
-      logo={<Zap className="h-4 w-4 fill-current text-[var(--s-ink-inverse)]" />}
+      logo="/favicon.svg"
     >
       <AppNavbar
         theme="dark"
