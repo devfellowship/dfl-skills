@@ -1,7 +1,9 @@
+import { Link } from "react-router-dom";
 import { Card } from "@devfellowship/components";
 import type { Pack } from "@/types";
 import { formatDate } from "@/lib/format";
 import { packAuthors, roleCounts } from "@/lib/packs";
+import { maintainerHref } from "@/lib/maintainer";
 import { AuthorAvatar } from "./AuthorAvatar";
 
 /** The pack at a glance: who made it, who wrote its members, what it holds. */
@@ -14,10 +16,15 @@ export function PackSummaryPanel({ pack }: { pack: Pack }) {
       <h2 className="mb-3 text-[11px] font-bold uppercase tracking-[.07em] text-muted-foreground">About this pack</h2>
 
       <div className="flex items-center gap-[10px]" data-testid="pack-author">
-        <AuthorAvatar handle={author} size={32} />
+        <AuthorAvatar handle={author} size={32} linked />
         <div className="min-w-0">
           <div className="text-[11px] text-[hsl(212_10%_52%)]">Created by</div>
-          <div className="truncate text-[14px] font-semibold text-foreground">{author}</div>
+          <Link
+            to={maintainerHref(author)}
+            className="block truncate text-[14px] font-semibold text-foreground hover:text-[hsl(33_82%_66%)] hover:underline"
+          >
+            {author}
+          </Link>
         </div>
       </div>
 
@@ -29,8 +36,10 @@ export function PackSummaryPanel({ pack }: { pack: Pack }) {
           <div className="flex flex-wrap gap-x-3 gap-y-[6px]">
             {contributors.map((c) => (
               <span key={c} className="flex items-center gap-[6px] text-[12.5px] text-[hsl(212_13%_70%)]">
-                <AuthorAvatar handle={c} size={18} />
-                {c}
+                <AuthorAvatar handle={c} size={18} linked />
+                <Link to={maintainerHref(c)} className="hover:text-[hsl(33_82%_66%)] hover:underline">
+                  {c}
+                </Link>
               </span>
             ))}
           </div>

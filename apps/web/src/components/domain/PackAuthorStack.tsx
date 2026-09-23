@@ -20,6 +20,7 @@ export function PackAuthorStack({ authors, size = 22 }: PackAuthorStackProps) {
           key={h}
           handle={h}
           size={size}
+          linked
           className={`ring-2 ring-[var(--color-card)] ${i > 0 ? "-ml-[7px]" : ""}`}
         />
       ))}

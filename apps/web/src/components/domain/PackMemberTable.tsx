@@ -4,6 +4,7 @@ import type { Pack } from "@/types";
 import { isValidSlug, isValidSource } from "@/lib/identifiers";
 import { memberAuthor } from "@/lib/packs";
 import { formatDayMonthYear } from "@/lib/format";
+import { maintainerHref } from "@/lib/maintainer";
 import { AuthorAvatar } from "./AuthorAvatar";
 import { PackRoleBadge } from "./PackRoleBadge";
 import { GRID_COLS } from "@/consts/pack-member-table";
@@ -59,10 +60,13 @@ export function PackMemberTable({ pack }: PackMemberTableProps) {
               </div>
               <div data-testid="pack-member-author" className="flex min-w-0 items-center gap-[6px] text-[12.5px] text-[hsl(212_12%_64%)]">
                 {author ? (
-                  <>
+                  <Link
+                    to={maintainerHref(author)}
+                    className="flex min-w-0 items-center gap-[6px] hover:text-foreground/90 hover:underline"
+                  >
                     <AuthorAvatar handle={author} />
                     <span className="truncate">{author}</span>
-                  </>
+                  </Link>
                 ) : (
                   <span className="text-[hsl(212_9%_40%)]">—</span>
                 )}

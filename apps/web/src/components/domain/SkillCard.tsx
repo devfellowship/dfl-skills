@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Button, Card } from "@devfellowship/components";
 import type { Skill } from "@/types";
 import { formatDate, githubAvatarUrl, installCommand, skillAuthor } from "@/lib/format";
+import { maintainerHref } from "@/lib/maintainer";
 import { KindBadge } from "./KindBadge";
 import { VisibilityBadge } from "./VisibilityBadge";
 
@@ -60,19 +61,23 @@ export function SkillCard({ skill }: SkillCardProps) {
           {skill.name}
         </Link>
         <div className="mt-[5px] flex items-center gap-[6px]">
-          <img
-            src={githubAvatarUrl(author)}
-            alt=""
-            loading="lazy"
-            className="h-[16px] w-[16px] shrink-0 rounded-full border border-[hsl(215_15%_18%)] bg-[hsl(215_18%_12%)]"
-            onError={(e) => {
-              e.currentTarget.style.visibility = "hidden";
-            }}
-          />
-          <span className="text-xs text-[hsl(212_12%_64%)]">
-            {author}
-            <span className="text-[hsl(212_10%_42%)]"> · {skill.source}</span>
-          </span>
+          <Link
+            to={maintainerHref(author)}
+            onClick={(e) => e.stopPropagation()}
+            className="flex items-center gap-[6px] outline-none hover:underline focus-visible:underline"
+          >
+            <img
+              src={githubAvatarUrl(author)}
+              alt=""
+              loading="lazy"
+              className="h-[16px] w-[16px] shrink-0 rounded-full border border-[hsl(215_15%_18%)] bg-[hsl(215_18%_12%)]"
+              onError={(e) => {
+                e.currentTarget.style.visibility = "hidden";
+              }}
+            />
+            <span className="text-xs text-[hsl(212_12%_64%)]">{author}</span>
+          </Link>
+          <span className="text-xs text-[hsl(212_10%_42%)]"> · {skill.source}</span>
         </div>
       </div>
 
