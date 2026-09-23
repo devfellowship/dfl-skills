@@ -8,6 +8,25 @@ export function formatDate(value: string): string {
   return date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
 }
 
+const SHORT_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] as const;
+
+/**
+ * `23 Sep, 2026` — day without a leading zero, short month, comma, year. The
+ * month names are fixed here on purpose: `toLocaleDateString("en-GB")` gives no
+ * comma, and newer ICU spells September "Sept". A missing or unparseable value
+ * is a dash, never the render time. `utc` is for tests; the page uses the
+ * reader's own calendar day, like `formatDate`.
+ */
+export function formatDayMonthYear(value: string | null | undefined, opts: { utc?: boolean } = {}): string {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  const day = opts.utc ? date.getUTCDate() : date.getDate();
+  const month = opts.utc ? date.getUTCMonth() : date.getMonth();
+  const year = opts.utc ? date.getUTCFullYear() : date.getFullYear();
+  return `${day} ${SHORT_MONTHS[month]}, ${year}`;
+}
+
 /**
  * 🚨 This string is copied straight into somebody's shell, so a registry row
  * carrying `;` or a backtick would run whatever follows on their machine. The

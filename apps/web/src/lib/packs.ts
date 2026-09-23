@@ -16,6 +16,7 @@ export interface ApiPackMember {
   name?: string | null;
   description?: string | null;
   author?: string | null;
+  updated_at?: string | null;
 }
 
 export interface ApiPack {
@@ -55,6 +56,7 @@ function adaptMember(raw: ApiPackMember, packSource: string, index: number): Pac
     name: raw.name,
     description: raw.description,
     author: raw.author ?? null,
+    updatedAt: raw.updated_at ?? null,
   };
 }
 

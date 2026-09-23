@@ -48,6 +48,11 @@ export interface PackMember {
   description?: string | null;
   /** GitHub handle of whoever wrote the member. Detail endpoint only, null when unknown. */
   author?: string | null;
+  /**
+   * When the member's own registry row last changed. Detail endpoint only, null
+   * for a member the caller cannot resolve. Never the pack's date.
+   */
+  updatedAt?: string | null;
 }
 
 export interface Pack {

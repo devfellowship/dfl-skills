@@ -3,6 +3,7 @@ import { Card } from "@devfellowship/components";
 import type { Pack } from "@/types";
 import { isValidSlug, isValidSource } from "@/lib/identifiers";
 import { memberAuthor } from "@/lib/packs";
+import { formatDayMonthYear } from "@/lib/format";
 import { AuthorAvatar } from "./AuthorAvatar";
 import { PackRoleBadge } from "./PackRoleBadge";
 
@@ -19,11 +20,12 @@ interface PackMemberTableProps {
 export function PackMemberTable({ pack }: PackMemberTableProps) {
   return (
     <Card className="overflow-hidden p-0">
-      <div className="hidden grid-cols-[minmax(0,270px)_130px_96px_minmax(0,1fr)] gap-4 border-b border-[hsl(215_15%_14%)] px-[18px] py-[10px] text-[11px] font-bold uppercase tracking-[.07em] text-muted-foreground md:grid">
+      <div className="hidden grid-cols-[minmax(0,240px)_130px_96px_minmax(0,1fr)_112px] gap-4 border-b border-[hsl(215_15%_14%)] px-[18px] py-[10px] text-[11px] font-bold uppercase tracking-[.07em] text-muted-foreground md:grid">
         <span>Skill</span>
         <span>Author</span>
         <span>Role</span>
         <span>Description</span>
+        <span>Updated at</span>
       </div>
       <ol className="m-0 list-none p-0" aria-label={`${pack.members.length} skills in ${pack.name}`}>
         {pack.members.map((m) => {
@@ -36,7 +38,7 @@ export function PackMemberTable({ pack }: PackMemberTableProps) {
               data-testid="pack-member"
               data-slug={m.slug}
               data-status={m.status}
-              className="grid grid-cols-1 gap-2 border-b border-[hsl(215_15%_14%)] px-[18px] py-[14px] last:border-b-0 md:grid-cols-[minmax(0,270px)_130px_96px_minmax(0,1fr)] md:items-start md:gap-4"
+              className="grid grid-cols-1 gap-2 border-b border-[hsl(215_15%_14%)] px-[18px] py-[14px] last:border-b-0 md:grid-cols-[minmax(0,240px)_130px_96px_minmax(0,1fr)_112px] md:items-start md:gap-4"
             >
               <div className="flex min-w-0 items-center justify-between gap-2 md:block">
                 {linkable ? (
@@ -71,6 +73,17 @@ export function PackMemberTable({ pack }: PackMemberTableProps) {
               <p className="clamp2 m-0 text-[13px] leading-[1.5] text-[hsl(212_12%_64%)]">
                 {m.description || (published ? "" : "Named by the pack, but not in the catalogue yet.")}
               </p>
+              <div className="text-[12.5px] text-[hsl(212_12%_64%)] md:whitespace-nowrap">
+                <span className="text-[hsl(212_9%_40%)] md:hidden">Updated at </span>
+                <time
+                  data-testid="pack-member-updated"
+                  data-filled={m.updatedAt ? "true" : "false"}
+                  dateTime={m.updatedAt ?? undefined}
+                  className={m.updatedAt ? undefined : "text-[hsl(212_9%_40%)]"}
+                >
+                  {formatDayMonthYear(m.updatedAt)}
+                </time>
+              </div>
             </li>
           );
         })}
