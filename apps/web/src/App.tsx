@@ -8,6 +8,7 @@ import { HomePage } from "@/pages/HomePage";
 import { SkillDetailPage } from "@/pages/SkillDetailPage";
 import { PackDetailPage } from "@/pages/PackDetailPage";
 import { PacksPage } from "@/pages/PacksPage";
+import { MaintainerProfilePage } from "@/pages/MaintainerProfilePage";
 import { DocsPage } from "@/pages/DocsPage";
 import { AuthCallbackPage } from "@/pages/AuthCallbackPage";
 import { DFL_CALLBACK_PATH } from "@/lib/dfl-federation";
@@ -25,6 +26,7 @@ export function App() {
                 catch-all, which renders the HOME page for any unknown path. */}
             <Route path="/p/:owner/:repo/:pack" element={<PackDetailPage />} />
             <Route path="/packs" element={<PacksPage />} />
+            <Route path="/u/:handle" element={<MaintainerProfilePage />} />
             <Route path="/docs" element={<DocsPage />} />
             <Route path={DFL_CALLBACK_PATH} element={<AuthCallbackPage />} />
             <Route path="*" element={<HomePage />} />

@@ -4,6 +4,7 @@ import { AlertTriangle, ChevronLeft, Search } from "lucide-react";
 import { Button } from "@devfellowship/components";
 import type { Scope } from "@/types";
 import { installCommand } from "@/lib/format";
+import { skillOwner, skillProposeUrl } from "@/lib/maintainer";
 import { useSkill } from "@/hooks/useSkill";
 import { useSkillReadme } from "@/hooks/useSkillReadme";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -12,6 +13,7 @@ import { SkillDetailHeader } from "@/components/domain/SkillDetailHeader";
 import { InstallPanel } from "@/components/domain/InstallPanel";
 import { CopyPromptPanel } from "@/components/domain/CopyPromptPanel";
 import { SkillMetaPanel } from "@/components/domain/SkillMetaPanel";
+import { MaintainerPanel } from "@/components/domain/MaintainerPanel";
 import { SkillDetailSkeleton } from "@/components/domain/SkillDetailSkeleton";
 import { SkillReadmeSkeleton } from "@/components/domain/SkillReadmeSkeleton";
 import { ReadmeUnavailable } from "@/components/domain/ReadmeUnavailable";
@@ -116,6 +118,11 @@ export function SkillDetailPage() {
                   the primary action for a reader who opened this member. */}
               <PartOfPanel packs={skill.partOf} />
               <SkillMetaPanel skill={skill} onVisibilityChanged={applyVisibility} />
+              <MaintainerPanel
+                owner={skillOwner(skill)}
+                kind="skill"
+                proposeUrl={skillProposeUrl(skill.source, skill.slug)}
+              />
             </aside>
           </div>
         </div>

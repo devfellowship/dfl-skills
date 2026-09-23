@@ -1,5 +1,7 @@
+import { Link } from "react-router-dom";
 import type { Skill } from "@/types";
 import { githubAvatarUrl, skillAuthor } from "@/lib/format";
+import { maintainerHref } from "@/lib/maintainer";
 import { KindBadge } from "./KindBadge";
 
 interface SkillDetailHeaderProps {
@@ -20,7 +22,10 @@ export function SkillDetailHeader({ skill, readmeAuthor }: SkillDetailHeaderProp
             {skill.name}
           </h1>
           <div className="mt-[7px] flex flex-wrap items-center gap-x-[10px] gap-y-1 text-[13px]">
-            <span className="flex items-center gap-[6px] font-medium text-[hsl(212_13%_70%)]">
+            <Link
+              to={maintainerHref(author)}
+              className="flex items-center gap-[6px] font-medium text-[hsl(212_13%_70%)] hover:text-[hsl(33_82%_66%)] hover:underline"
+            >
               <img
                 src={githubAvatarUrl(author)}
                 alt=""
@@ -30,7 +35,7 @@ export function SkillDetailHeader({ skill, readmeAuthor }: SkillDetailHeaderProp
                 }}
               />
               {author}
-            </span>
+            </Link>
             <span className="font-semibold text-[hsl(33_80%_60%)]">
               {skill.source}/{skill.slug}
             </span>

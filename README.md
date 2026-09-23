@@ -49,6 +49,7 @@ Every skill page on the site also has a **Copy install prompt** button and a **D
 - **Skill pages** — the rendered `SKILL.md`, metadata, and a ready-to-copy install command.
 - **Agent-ready install** — copy a prompt that tells your agent to install the skill through the DFL MCP server.
 - **Public and internal skills** — public skills are open to everyone. Internal skills show after you sign in with a DevFellowship account.
+- **Maintainer pages and ownership** — every skill and pack is owned by its `author:` GitHub handle (or the DFL core team), shown on a profile page at `/u/<handle>` and enforced by GitHub code-owner review.
 - **Companion CLI** — search the registry, and install `kind: mcp` and `kind: connection` skills that the stock CLI does not handle.
 
 ## Tech stack

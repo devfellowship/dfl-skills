@@ -87,10 +87,12 @@ export function DocsPage() {
       <SectionTitle>Publish a skill</SectionTitle>
       <p className="m-0 mb-[18px] text-[15px] leading-[1.7] text-[hsl(212_13%_68%)]">
         Open a pull request adding <InlineCode>skills/&lt;name&gt;/SKILL.md</InlineCode> to{" "}
-        <InlineCode>devfellowship/skills</InlineCode>. Once merged, the registry indexes it and it
-        appears here.
+        <InlineCode>devfellowship/skills</InlineCode>. Set <InlineCode>author:</InlineCode> in the
+        frontmatter to your GitHub handle, and run{" "}
+        <InlineCode>bun scripts/codeowners.ts --write</InlineCode> in the same PR. Once merged, the registry indexes it and it appears
+        here.
       </p>
-      <div className="flex flex-wrap gap-3">
+      <div className="mb-[34px] flex flex-wrap gap-3">
         <a
           href={REPO_URL}
           target="_blank"
@@ -101,6 +103,30 @@ export function DocsPage() {
           Open a PR
         </a>
       </div>
+
+      <SectionTitle>Ownership and review</SectionTitle>
+      <p className="m-0 mb-[14px] text-[15px] leading-[1.7] text-[hsl(212_13%_68%)]">
+        Every skill and pack has one owner: its <InlineCode>author:</InlineCode> GitHub handle. A
+        pack's owner is its root skill's author. No <InlineCode>author:</InlineCode> means the DFL
+        core team owns it.
+      </p>
+      <p className="m-0 mb-[14px] text-[15px] leading-[1.7] text-[hsl(212_13%_68%)]">
+        A change to a skill or pack merges only with its owner's approval, or a core maintainer's.
+        GitHub enforces this with code-owner review, from a{" "}
+        <InlineCode>CODEOWNERS</InlineCode> file generated from every <InlineCode>author:</InlineCode>{" "}
+        field. Editing that file by hand gains nothing: core owns it, and CI checks it against the
+        generator.
+      </p>
+      <p className="m-0 mb-[14px] text-[15px] leading-[1.7] text-[hsl(212_13%_68%)]">
+        A new skill or pack needs core approval, which checks that{" "}
+        <InlineCode>author:</InlineCode> is you. Changing <InlineCode>author:</InlineCode> itself
+        needs the current owner's approval — GitHub reads owners from the target branch, not from
+        your PR, so the PR that renames the owner still needs the old one.
+      </p>
+      <p className="m-0 mb-[34px] text-[15px] leading-[1.7] text-[hsl(212_13%_68%)]">
+        Every maintainer has a page listing what they own, at{" "}
+        <InlineCode>skills.devfellowship.com/u/&lt;handle&gt;</InlineCode>.
+      </p>
     </main>
   );
 }

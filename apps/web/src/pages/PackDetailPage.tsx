@@ -4,12 +4,14 @@ import { AlertTriangle, ChevronLeft, Layers, Search } from "lucide-react";
 import { Badge, Button } from "@devfellowship/components";
 import type { Scope } from "@/types";
 import { usePack } from "@/hooks/usePack";
+import { packOwner, packProposeUrl } from "@/lib/maintainer";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { SkillDetailSkeleton } from "@/components/domain/SkillDetailSkeleton";
 import { PackMemberTable } from "@/components/domain/PackMemberTable";
 import { InstallPackPanel } from "@/components/domain/InstallPackPanel";
 import { PackGraph } from "@/components/domain/PackGraph";
 import { PackSummaryPanel } from "@/components/domain/PackSummaryPanel";
+import { MaintainerPanel } from "@/components/domain/MaintainerPanel";
 import { VisibilityBadge } from "@/components/domain/VisibilityBadge";
 
 function BackLink() {
@@ -94,6 +96,11 @@ export function PackDetailPage() {
             <aside className="flex flex-col gap-[14px] lg:sticky lg:top-20">
               <PackSummaryPanel pack={pack} />
               <PackGraph pack={pack} />
+              <MaintainerPanel
+                owner={packOwner(pack)}
+                kind="pack"
+                proposeUrl={packProposeUrl(pack.source, pack.slug)}
+              />
               <InstallPackPanel pack={pack} scope={scope} onScopeChange={setScope} />
             </aside>
           </div>
