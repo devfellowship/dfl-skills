@@ -13,6 +13,7 @@ import { PackGraph } from "@/components/domain/PackGraph";
 import { PackSummaryPanel } from "@/components/domain/PackSummaryPanel";
 import { MaintainerPanel } from "@/components/domain/MaintainerPanel";
 import { VisibilityBadge } from "@/components/domain/VisibilityBadge";
+import { SignInPrompt } from "@/components/domain/SignInPrompt";
 
 function BackLink() {
   return (
@@ -46,14 +47,14 @@ export function PackDetailPage() {
         <EmptyState
           icon={<Search className="h-6 w-6" strokeWidth={1.8} />}
           title="Pack not found"
-          description="We couldn't find that pack. It may have been renamed, or you may need to sign in with DFL to see it."
+          description="We couldn't find that pack. It may have been renamed, or you may need to sign in with GitHub to see it."
           action={
-            <Link
-              to="/"
-              className="inline-flex h-[38px] items-center justify-center rounded-lg bg-primary px-4 text-[13.5px] font-bold text-primary-foreground transition-colors hover:bg-[hsl(33_92%_60%)]"
-            >
-              Back to registry
-            </Link>
+            <div className="flex flex-wrap justify-center gap-2">
+              <SignInPrompt />
+              <Button asChild variant="outline">
+                <Link to="/">Back to registry</Link>
+              </Button>
+            </div>
           }
         />
       ) : error || !pack ? (

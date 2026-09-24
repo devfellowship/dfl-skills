@@ -1,10 +1,10 @@
 import { useMemo } from "react";
-import { useParams } from "react-router-dom";
-import { AlertTriangle, ExternalLink, User } from "lucide-react";
+import { Link, useParams } from "react-router-dom";
+import { AlertTriangle, User } from "lucide-react";
 import { Button } from "@devfellowship/components";
 import { useSkills } from "@/hooks/useSkills";
 import { usePacks } from "@/hooks/usePacks";
-import { githubAvatarUrl } from "@/lib/format";
+import { useAuth } from "@/hooks/useAuth";
 import { isCoreHandle, maintainerLabel, packsByMaintainer, skillsByMaintainer } from "@/lib/maintainer";
 import { packsGridClass } from "@/lib/pack-home";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -13,6 +13,7 @@ import { SkillCardSkeleton } from "@/components/domain/SkillCardSkeleton";
 import { PackCard } from "@/components/domain/PackCard";
 import { PackCardSkeleton } from "@/components/domain/PackCardSkeleton";
 import { BackToRegistryLink } from "@/components/domain/BackToRegistryLink";
+import { MaintainerProfileHeader } from "@/components/domain/MaintainerProfileHeader";
 
 const SKILL_GRID = "grid grid-cols-[repeat(auto-fill,minmax(min(330px,100%),1fr))] gap-4";
 
@@ -26,6 +27,8 @@ export function MaintainerProfilePage() {
   const loading = skillsLoading || packsLoading;
   const core = isCoreHandle(handle);
   const label = maintainerLabel(handle);
+  const { profile } = useAuth();
+  const self = profile && !core && profile.handle.toLowerCase() === handle.trim().toLowerCase() ? profile : null;
 
   const ownedSkills = useMemo(() => skillsByMaintainer(skills, handle), [skills, handle]);
   const ownedPacks = useMemo(() => packsByMaintainer(packs, skills, handle), [packs, skills, handle]);
@@ -35,30 +38,13 @@ export function MaintainerProfilePage() {
     <main className="mx-auto max-w-[1200px] px-6 pb-[90px] pt-6">
       <BackToRegistryLink />
 
-      <div className="mb-8 flex items-center gap-[14px]">
-        <img
-          src={githubAvatarUrl(core ? "devfellowship" : handle)}
-          alt=""
-          className="h-[52px] w-[52px] rounded-full border border-[hsl(215_15%_18%)] bg-[hsl(215_18%_12%)]"
-          onError={(e) => {
-            e.currentTarget.style.visibility = "hidden";
-          }}
-        />
-        <div>
-          <h1 className="m-0 font-mono text-[24px] font-semibold tracking-[-.01em] text-foreground">{label}</h1>
-          {!core && (
-            <a
-              href={`https://github.com/${encodeURIComponent(handle)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-1 flex items-center gap-1 text-[13px] font-medium text-[hsl(33_82%_62%)] hover:underline"
-            >
-              @{handle}
-              <ExternalLink className="h-3 w-3" />
-            </a>
-          )}
-        </div>
-      </div>
+      <MaintainerProfileHeader
+        handle={handle}
+        label={label}
+        core={core}
+        self={self}
+        counts={loading || error ? null : { packs: ownedPacks.length, skills: ownedSkills.length }}
+      />
 
       {loading ? (
         <div className="flex flex-col gap-8">
@@ -80,11 +66,24 @@ export function MaintainerProfilePage() {
           action={<Button onClick={refetch}>Retry</Button>}
         />
       ) : empty ? (
-        <EmptyState
-          icon={<User className="h-6 w-6" strokeWidth={1.8} />}
-          title={`${label} owns nothing here yet`}
-          description="No skill or pack in this registry is owned by this maintainer."
-        />
+        self ? (
+          <EmptyState
+            icon={<User className="h-6 w-6" strokeWidth={1.8} />}
+            title="Nothing published yet"
+            description="Skills and packs you author show up here. Set author: to your GitHub handle and open a pull request."
+            action={
+              <Button asChild>
+                <Link to="/docs">How to publish</Link>
+              </Button>
+            }
+          />
+        ) : (
+          <EmptyState
+            icon={<User className="h-6 w-6" strokeWidth={1.8} />}
+            title="Nothing published yet"
+            description={`No skill or pack you can see here is maintained by ${core ? "the core team" : `@${handle}`}.`}
+          />
+        )
       ) : (
         <div className="flex flex-col gap-8">
           {ownedPacks.length > 0 && (

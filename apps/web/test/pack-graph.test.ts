@@ -102,7 +102,7 @@ test("the node author matches the table: SKILL.md author, else the owner, none w
   const g = packGraph(PACK);
   const by = (slug: string) => g.nodes.find((n) => n.slug === slug)!;
   assert.equal(by("brand-voice").author, "taigfs");
-  assert.equal(by("vision-llm-judge").author, "taigfs");
+  assert.equal(by("vision-llm-judge").author, "devfellowship");
   assert.equal(by("launch-campaign").author, null);
   assert.equal(by("launch-campaign").published, false);
 });
@@ -132,9 +132,9 @@ test("the pack author is its root's, contributors are distinct member authors in
   });
   assert.deepEqual(packAuthors(pack), {
     author: "taigfs",
-    contributors: ["taigfs", "samuelstefano"],
+    contributors: ["taigfs", "samuelstefano", "devfellowship"],
   });
-  assert.equal(memberAuthor(pack.members[3]), "taigfs");
+  assert.equal(memberAuthor(pack.members[3]), "devfellowship");
   assert.equal(memberAuthor(pack.members[4]), null);
   assert.deepEqual(roleCounts(pack), [
     { role: "root", count: 1 },

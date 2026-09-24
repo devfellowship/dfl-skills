@@ -56,12 +56,24 @@ export function DocsPage() {
         className="mb-[34px]"
       />
 
+      <SectionTitle>Your account</SectionTitle>
+      <p className="m-0 mb-[14px] text-[15px] leading-[1.7] text-[hsl(212_13%_68%)]">
+        There is one way in: <strong className="font-semibold text-foreground/90">Continue with
+        GitHub</strong>. The same button signs you in and signs you up. Your photo, name and email
+        come from GitHub, and your profile is your maintainer page at{" "}
+        <InlineCode>/u/&lt;your-handle&gt;</InlineCode> — the one that lists what you publish here.
+      </p>
+      <p className="m-0 mb-[34px] text-[15px] leading-[1.7] text-[hsl(212_13%_68%)]">
+        If your GitHub email is the one on your DevFellowship account, the two are joined and you
+        keep your access. Signed in to another DFL app without GitHub? The top bar asks you to{" "}
+        <strong className="font-semibold text-foreground/90">Connect GitHub</strong> once.
+      </p>
+
       <SectionTitle>Internal skills</SectionTitle>
       <p className="m-0 mb-[14px] text-[15px] leading-[1.7] text-[hsl(212_13%_68%)]">
         Skills marked <InlineCode>internal</InlineCode> live in the private repository{" "}
-        <InlineCode>devfellowship/internal-skills</InlineCode> and stay hidden until you use{" "}
-        <strong className="font-semibold text-foreground/90">Sign in with DFL</strong>. A
-        DevFellowship account is all it takes to browse them — no GitHub access required.
+        <InlineCode>devfellowship/internal-skills</InlineCode> and show up once you sign in with a
+        DevFellowship member account. You don't need access to that repository.
       </p>
       <p className="m-0 mb-[14px] text-[15px] leading-[1.7] text-[hsl(212_13%_68%)]">
         If a skill is listed for you, you can read it. Every internal skill hands you its full
@@ -77,7 +89,7 @@ export function DocsPage() {
         agent to call <InlineCode>install_skill</InlineCode> on the DFL Forge MCP server at{" "}
         <InlineCode>https://skills.mcp.devfellowship.com/mcp</InlineCode>, which returns the file
         and the path to write it to. It authenticates with your DevFellowship account, so an
-        internal skill installs without GitHub access.
+        internal skill installs without access to its repository.
       </p>
       <p className="m-0 mb-[34px] text-[15px] leading-[1.7] text-[hsl(212_13%_68%)]">
         The CLI clones the source repository instead, so installing an internal skill through{" "}

@@ -7,6 +7,7 @@ import { PackCard } from "@/components/domain/PackCard";
 import { PackCardSkeleton } from "@/components/domain/PackCardSkeleton";
 import { packsGridClass } from "@/lib/pack-home";
 import { PacksPageHeader } from "@/components/domain/PacksPageHeader";
+import { SignInPrompt } from "@/components/domain/SignInPrompt";
 
 /** Every pack the caller can see, on its own page at /packs. */
 export function PacksPage() {
@@ -35,7 +36,8 @@ export function PacksPage() {
         <EmptyState
           icon={<Layers className="h-6 w-6" strokeWidth={1.8} />}
           title="No packs to show"
-          description="No pack is visible to you yet. Internal packs appear once you sign in with DFL; public ones once they are published."
+          description="No pack is visible to you yet. Internal packs appear once you sign in with GitHub; public ones once they are published."
+          action={<SignInPrompt />}
         />
       ) : (
         <div className={packsGridClass(sorted.length)}>

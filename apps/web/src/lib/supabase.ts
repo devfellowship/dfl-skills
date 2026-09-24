@@ -29,6 +29,9 @@ export const supabase: SupabaseClient | null =
           storage: window.sessionStorage,
           persistSession: true,
           autoRefreshToken: true,
+          // GitHub sends back a one-time code, exchanged by the callback page
+          // for a session. Nothing token-bearing ever sits in the URL.
+          flowType: "pkce",
           detectSessionInUrl: false,
         },
       })
