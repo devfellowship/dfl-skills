@@ -126,6 +126,15 @@ export async function fetchPacks(signal?: AbortSignal, token?: string | null): P
 }
 
 /**
+ * The tier the registry resolved for this token: `public` for an anonymous or
+ * non-member caller, a wider one for a DFL member. Read off the smallest list.
+ */
+export async function fetchScope(signal?: AbortSignal, token?: string | null): Promise<string | null> {
+  const data = await getJson<{ scope?: string }>("/api/v1/packs", signal, token);
+  return data.scope ?? null;
+}
+
+/**
  * The verbatim SKILL.md. The registry index stores no body, so this is a
  * separate round trip — gated on the server by `visibility` alone: whoever can
  * resolve the row may read it.

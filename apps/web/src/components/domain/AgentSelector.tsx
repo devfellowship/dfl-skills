@@ -22,7 +22,7 @@ export function AgentSelector({ value, onChange }: AgentSelectorProps) {
       onValueChange={(next) => {
         if (next) onChange(next);
       }}
-      className="flex flex-wrap justify-start"
+      className="flex flex-wrap justify-start gap-1"
       aria-label="Target agent"
     >
       {AGENTS.map((agent) => (

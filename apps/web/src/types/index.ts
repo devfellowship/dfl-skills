@@ -167,3 +167,11 @@ export interface CatalogueFacets {
 export interface SkillFilters extends CatalogueFacets {
   skills: Skill[];
 }
+
+/** Who the visitor is on GitHub. Every field comes from the GitHub identity. */
+export interface GitHubProfile {
+  handle: string;
+  name: string;
+  email: string | null;
+  avatarUrl: string | null;
+}

@@ -12,7 +12,7 @@ const store = new Map<string, string>();
   },
 };
 
-const { clearDflToken, emailOf, isUsableToken, readDflToken, storeDflToken } = await import(
+const { clearDflToken, isUsableToken, readDflToken, storeDflToken } = await import(
   "../src/lib/dfl-token.ts"
 );
 
@@ -47,9 +47,4 @@ test("only a usable token survives a round trip through storage", () => {
 
   clearDflToken();
   assert.equal(readDflToken(ISS), null);
-});
-
-test("emailOf reads the claim the nav renders", () => {
-  assert.equal(emailOf(jwt({ iss: ISS, exp: hour, email: "s@dfl.com" })), "s@dfl.com");
-  assert.equal(emailOf(jwt({ iss: ISS, exp: hour })), null);
 });

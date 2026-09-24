@@ -1,4 +1,3 @@
-import { OWNER_DEFAULT_AUTHOR } from "@/consts/owner-author";
 import { isValidSlug, isValidSource } from "./identifiers";
 
 export function formatDate(value: string): string {
@@ -43,14 +42,14 @@ export function authorOf(source: string): string {
 }
 
 /**
- * The author to show: the one the skill names, else the owner's default, else
- * the owner. A skill that names its org as author names no one.
+ * The author to show: the one the skill names, else the repository owner. It
+ * is the same person the generated CODEOWNERS asks for approval, so a byline
+ * and the Maintainer panel never disagree: an unattributed DFL skill is the
+ * core team's, and it reads "devfellowship".
  */
 export function skillAuthor(author: string | null | undefined, source: string): string {
-  const owner = authorOf(source);
   const named = author?.trim();
-  if (named && named !== owner) return named;
-  return OWNER_DEFAULT_AUTHOR[owner] ?? named ?? owner;
+  return named || authorOf(source);
 }
 
 export function githubAvatarUrl(handle: string): string {
