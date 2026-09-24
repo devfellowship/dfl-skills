@@ -26,7 +26,12 @@ export function AgentSelector({ value, onChange }: AgentSelectorProps) {
       aria-label="Target agent"
     >
       {AGENTS.map((agent) => (
-        <ToggleGroupItem key={agent.id} value={agent.id} aria-label={agent.label}>
+        <ToggleGroupItem
+          key={agent.id}
+          value={agent.id}
+          aria-label={agent.label}
+          className="flex-none px-3"
+        >
           {agent.label}
         </ToggleGroupItem>
       ))}
