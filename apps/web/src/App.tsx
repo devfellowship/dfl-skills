@@ -10,8 +10,8 @@ import { PackDetailPage } from "@/pages/PackDetailPage";
 import { PacksPage } from "@/pages/PacksPage";
 import { MaintainerProfilePage } from "@/pages/MaintainerProfilePage";
 import { DocsPage } from "@/pages/DocsPage";
-import { SignInCallbackPage } from "@/pages/SignInCallbackPage";
-import { SIGN_IN_CALLBACK_PATH } from "@/lib/github-auth";
+import { GitHubCallbackPage } from "@/pages/GitHubCallbackPage";
+import { GITHUB_CALLBACK_PATH } from "@/lib/github-auth";
 
 export function App() {
   return (
@@ -28,7 +28,7 @@ export function App() {
             <Route path="/packs" element={<PacksPage />} />
             <Route path="/u/:handle" element={<MaintainerProfilePage />} />
             <Route path="/docs" element={<DocsPage />} />
-            <Route path={SIGN_IN_CALLBACK_PATH} element={<SignInCallbackPage />} />
+            <Route path={GITHUB_CALLBACK_PATH} element={<GitHubCallbackPage />} />
             <Route path="*" element={<HomePage />} />
           </Routes>
         </AppShell>

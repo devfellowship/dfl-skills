@@ -4,6 +4,7 @@ import { Github, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@devfellowship/components";
 import { useAuth } from "@/hooks/useAuth";
+import { GitHubLinkError } from "@/lib/github-auth";
 
 interface GitHubSignInButtonProps {
   /** "Continue with GitHub" signs in and signs up; "Connect GitHub" links an existing account. */
@@ -25,9 +26,13 @@ export function GitHubSignInButton({
 
   const onClick = () => {
     setLeaving(true);
-    signInWithGitHub(`${location.pathname}${location.search}`).catch(() => {
+    signInWithGitHub(`${location.pathname}${location.search}`).catch((err: unknown) => {
       setLeaving(false);
-      toast.error("Couldn't reach GitHub. Try again in a moment.");
+      toast.error(
+        err instanceof GitHubLinkError
+          ? "Couldn't connect GitHub to this account. Sign out, then continue with GitHub."
+          : "Couldn't reach GitHub. Try again in a moment.",
+      );
     });
   };
 

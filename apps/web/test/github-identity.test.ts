@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { federateUrl, githubProfileOf, safeNext } from "../src/lib/github-identity.ts";
+import { githubProfileOf, safeNext } from "../src/lib/github-identity.ts";
 
 test("safeNext keeps same-site paths", () => {
   assert.equal(safeNext("/s/devfellowship/internal-skills/dfl-code-style"), "/s/devfellowship/internal-skills/dfl-code-style");
@@ -55,16 +55,4 @@ test("githubProfileOf is null for an account with no GitHub identity", () => {
   assert.equal(githubProfileOf({ email: "a@b.example", identities: [{ provider: "email", identity_data: {} }] } as never), null);
   assert.equal(githubProfileOf({ email: "a@b.example" } as never), null);
   assert.equal(githubProfileOf(null), null);
-});
-
-test("federateUrl sends GitHub back through learn, to this site's callback", () => {
-  const url = new URL(federateUrl("https://skills.devfellowship.com", "/u/octocat?tab=packs"));
-  assert.equal(url.origin + url.pathname, "https://learn.devfellowship.com/auth/federate");
-  assert.equal(url.searchParams.get("return"), "https://skills.devfellowship.com/auth/dfl/callback");
-  assert.equal(url.searchParams.get("next"), "/u/octocat?tab=packs");
-});
-
-test("federateUrl never carries an off-site next", () => {
-  const url = new URL(federateUrl("https://skills.devfellowship.com", "//evil.example"));
-  assert.equal(url.searchParams.get("next"), "/");
 });

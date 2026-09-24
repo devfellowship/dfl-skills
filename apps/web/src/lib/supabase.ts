@@ -29,10 +29,9 @@ export const supabase: SupabaseClient | null =
           storage: window.sessionStorage,
           persistSession: true,
           autoRefreshToken: true,
-          // Implicit, not PKCE: GitHub returns to learn (see github-auth.ts),
-          // and a code could only be exchanged by the tab holding the verifier
-          // — this one. Learn adopts the implicit session and forwards it here.
-          flowType: "implicit",
+          // GitHub sends back a one-time code, exchanged by the callback page
+          // for a session. No token ever sits in a URL, here or anywhere else.
+          flowType: "pkce",
           detectSessionInUrl: false,
         },
       })
