@@ -6,10 +6,12 @@ import { githubProfileOf } from "@/lib/github-identity";
 import { clearDflToken, readDflToken, storeDflToken } from "@/lib/dfl-token";
 import { adoptSharedSession, clearSharedSession, sharedAccessToken } from "@/lib/shared-session";
 import { AuthContext, type AuthState } from "@/hooks/authContext";
+import { fetchScope } from "@/lib/api";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [scope, setScope] = useState<string | null>(null);
   const [loading, setLoading] = useState(authConfigured);
   const mounted = useRef(true);
 
@@ -47,6 +49,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  useEffect(() => {
+    setScope(null);
+    if (!token) return;
+    const controller = new AbortController();
+    fetchScope(controller.signal, token)
+      .then(setScope)
+      .catch(() => {
+        // Unknown membership renders no notice, which is the quiet side.
+      });
+    return () => controller.abort();
+  }, [token]);
+
   const signOut = useCallback(async () => {
     // Without dropping the shared cookie the next load would adopt it right
     // back, and signing out would look broken.
@@ -54,21 +68,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     clearDflToken();
     setToken(null);
     setUser(null);
+    setScope(null);
     await supabase?.auth.signOut();
   }, []);
 
   const value = useMemo<AuthState>(() => {
     const profile = token ? githubProfileOf(user) : null;
+    // Only a user Auth actually returned can prove there is no GitHub identity.
+    // A revoked session yields no user at all, and that is a sign-in, not a link.
+    const needsGitHub = Boolean(token && user) && !profile;
     return {
       token,
       profile,
-      needsGitHub: Boolean(token) && !profile,
+      needsGitHub,
+      member: token && scope ? scope !== "public" : null,
       loading,
       configured: authConfigured,
-      signInWithGitHub: startGitHubSignIn,
+      signInWithGitHub: (next: string) => startGitHubSignIn(next, { link: needsGitHub }),
       signOut,
     };
-  }, [token, user, loading, signOut]);
+  }, [token, user, scope, loading, signOut]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

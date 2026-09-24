@@ -15,12 +15,20 @@ export interface AuthState {
    * an account that has no GitHub identity yet (see `needsGitHub`).
    */
   profile: GitHubProfile | null;
-  /** Signed in, but the account has no GitHub identity. The UI asks for one. */
+  /** Signed in, and Auth confirmed the account has no GitHub identity. The UI asks to link one. */
   needsGitHub: boolean;
+  /**
+   * Whether the registry treats this account as a DFL member (internal tier).
+   * `null` until known, and while signed out.
+   */
+  member: boolean | null;
   /** True until the initial session lookup settles, so the nav doesn't flash. */
   loading: boolean;
   configured: boolean;
-  /** Leaves the page for GitHub. Signs in and signs up; there is no password form here. */
+  /**
+   * Leaves the page for GitHub. Signs in and signs up; there is no password
+   * form here. While `needsGitHub`, it links GitHub to the current account.
+   */
   signInWithGitHub: (next: string) => Promise<void>;
   signOut: () => Promise<void>;
 }

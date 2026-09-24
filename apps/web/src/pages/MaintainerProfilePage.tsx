@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
-import { AlertTriangle, User } from "lucide-react";
+import { AlertTriangle, Info, User } from "lucide-react";
 import { Button } from "@devfellowship/components";
 import { useSkills } from "@/hooks/useSkills";
 import { usePacks } from "@/hooks/usePacks";
@@ -27,7 +27,7 @@ export function MaintainerProfilePage() {
   const loading = skillsLoading || packsLoading;
   const core = isCoreHandle(handle);
   const label = maintainerLabel(handle);
-  const { profile } = useAuth();
+  const { profile, member } = useAuth();
   const self = profile && !core && profile.handle.toLowerCase() === handle.trim().toLowerCase() ? profile : null;
 
   const ownedSkills = useMemo(() => skillsByMaintainer(skills, handle), [skills, handle]);
@@ -45,6 +45,17 @@ export function MaintainerProfilePage() {
         self={self}
         counts={loading || error ? null : { packs: ownedPacks.length, skills: ownedSkills.length }}
       />
+
+      {self && member === false && (
+        <div className="mb-8 flex items-start gap-3 rounded-[11px] border border-dashed border-[hsl(33_90%_55%/.35)] bg-[hsl(33_90%_55%/.06)] px-4 py-3 text-[13px] leading-[1.6] text-[hsl(212_12%_70%)]">
+          <Info className="mt-[3px] h-4 w-4 shrink-0 text-[hsl(33_85%_64%)]" />
+          <p className="m-0">
+            This GitHub account isn't linked to a DevFellowship membership, so internal skills stay
+            hidden. Members: sign out and sign in with the GitHub account whose verified email is on
+            your DevFellowship account.
+          </p>
+        </div>
+      )}
 
       {loading ? (
         <div className="flex flex-col gap-8">

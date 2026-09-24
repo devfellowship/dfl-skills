@@ -37,3 +37,21 @@ export function githubProfileOf(user: Pick<User, "identities" | "email"> | null 
     avatarUrl: text(data.avatar_url),
   };
 }
+
+export const SIGN_IN_CALLBACK_PATH = "/auth/dfl/callback";
+
+/**
+ * GitHub sends the browser back to learn, not here. The shared DFL auth
+ * project only redirects to origins on its allow-list, and this site's origin
+ * is not on it; learn's federation handoff is, and it already forwards a fresh
+ * session to any *.devfellowship.com callback. So: GitHub → learn (which
+ * adopts the session and shares it with every DFL app) → this site's callback.
+ */
+const FEDERATE_URL = "https://learn.devfellowship.com/auth/federate";
+
+export function federateUrl(origin: string, next: string): string {
+  const url = new URL(FEDERATE_URL);
+  url.searchParams.set("return", `${origin}${SIGN_IN_CALLBACK_PATH}`);
+  url.searchParams.set("next", safeNext(next));
+  return url.toString();
+}

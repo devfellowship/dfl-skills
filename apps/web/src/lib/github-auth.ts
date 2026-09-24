@@ -1,57 +1,28 @@
-import { safeNext } from "./github-identity";
+import { federateUrl } from "./github-identity";
 import { supabase } from "./supabase";
 
-export const GITHUB_CALLBACK_PATH = "/auth/github/callback";
-
-const NEXT_KEY = "dfl-skills-sign-in-next";
+export { SIGN_IN_CALLBACK_PATH } from "./github-identity";
 
 /**
  * Leaves the page for GitHub. The same button signs in and signs up: a GitHub
  * account DFL has not seen becomes a DFL account, and one whose verified email
- * matches an existing DFL account is linked to it. `next` is kept in this tab's
- * storage rather than in the redirect URL, which must match the auth
- * allow-list exactly.
+ * matches an existing DFL account is joined to it.
  */
-export async function startGitHubSignIn(next: string): Promise<void> {
+export async function startGitHubSignIn(next: string, opts: { link?: boolean } = {}): Promise<void> {
   if (!supabase) return;
-  window.sessionStorage.setItem(NEXT_KEY, safeNext(next));
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: "github",
-    options: {
-      redirectTo: `${window.location.origin}${GITHUB_CALLBACK_PATH}`,
-      scopes: "read:user user:email",
-    },
-  });
-  if (error) throw error;
-}
-
-/** Where to go after the callback. */
-export function readSignInNext(): string {
-  return safeNext(window.sessionStorage.getItem(NEXT_KEY));
-}
-
-export function clearSignInNext(): void {
-  window.sessionStorage.removeItem(NEXT_KEY);
-}
-
-/**
- * A code is single-use, and StrictMode runs effects twice. Keeping one exchange
- * per code makes the second run await the first instead of spending the code
- * again and reporting a failure that did not happen. Resolves to an error
- * message, or `null` once the session is in place.
- */
-const exchanges = new Map<string, Promise<string | null>>();
-
-export function exchangeSignInCode(search: string): Promise<string | null> {
-  const params = new URLSearchParams(search);
-  const code = params.get("code");
-  if (!code || !supabase) {
-    return Promise.resolve(params.get("error_description") ?? "GitHub did not send a sign-in code back.");
+  const options = { redirectTo: federateUrl(window.location.origin, next), scopes: "read:user user:email" };
+  // Signed in without GitHub: attach GitHub to THIS account. A plain sign-in
+  // would switch to whichever account owns the GitHub email — a different,
+  // non-member one when the emails differ. Linking needs a live session and
+  // manual linking enabled on the project; without either, fall back to the
+  // sign-in, which still joins accounts whose verified emails match.
+  if (opts.link) {
+    const { data } = await supabase.auth.getSession();
+    if (data.session) {
+      const { error } = await supabase.auth.linkIdentity({ provider: "github", options });
+      if (!error) return;
+    }
   }
-  const client = supabase;
-  const pending =
-    exchanges.get(code) ??
-    client.auth.exchangeCodeForSession(code).then(({ error }) => (error ? error.message : null));
-  exchanges.set(code, pending);
-  return pending;
+  const { error } = await supabase.auth.signInWithOAuth({ provider: "github", options });
+  if (error) throw error;
 }
