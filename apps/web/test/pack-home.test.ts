@@ -75,6 +75,6 @@ test("roleShares and packByline read the members, not the pack", () => {
     [["root", 1], ["required", 1], ["optional", 1]],
   );
   const authors = packContributors(p, []);
-  assert.equal(authors.author, "taigfs");
-  assert.equal(packByline(p, authors), "3 skills · by taigfs");
+  assert.equal(authors.author, "devfellowship");
+  assert.equal(packByline(p, authors), "3 skills · by devfellowship");
 });

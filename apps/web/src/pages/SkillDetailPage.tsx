@@ -18,6 +18,7 @@ import { SkillDetailSkeleton } from "@/components/domain/SkillDetailSkeleton";
 import { SkillReadmeSkeleton } from "@/components/domain/SkillReadmeSkeleton";
 import { ReadmeUnavailable } from "@/components/domain/ReadmeUnavailable";
 import { PartOfPanel } from "@/components/domain/PartOfPanel";
+import { SignInPrompt } from "@/components/domain/SignInPrompt";
 
 function BackLink() {
   return (
@@ -56,14 +57,14 @@ export function SkillDetailPage() {
         <EmptyState
           icon={<Search className="h-6 w-6" strokeWidth={1.8} />}
           title="Skill not found"
-          description="We couldn't find that skill in the registry. It may have been renamed or removed."
+          description="We couldn't find that skill. It may have been renamed or removed, or you may need to sign in with GitHub to see it."
           action={
-            <Link
-              to="/"
-              className="inline-flex h-[38px] items-center justify-center rounded-lg bg-primary px-4 text-[13.5px] font-bold text-primary-foreground transition-colors hover:bg-[hsl(33_92%_60%)]"
-            >
-              Back to registry
-            </Link>
+            <div className="flex flex-wrap justify-center gap-2">
+              <SignInPrompt />
+              <Button asChild variant="outline">
+                <Link to="/">Back to registry</Link>
+              </Button>
+            </div>
           }
         />
       ) : error || !skill ? (

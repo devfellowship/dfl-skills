@@ -5,12 +5,12 @@ export function dflIssuer(): string {
   return `${import.meta.env.VITE_SUPABASE_URL as string}/auth/v1`;
 }
 
-function decode(token: string): { iss?: string; exp?: number; email?: string } | null {
+function decode(token: string): { iss?: string; exp?: number } | null {
   const payload = token.split(".")[1];
   if (!payload) return null;
   try {
     const json = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
-    return JSON.parse(json) as { iss?: string; exp?: number; email?: string };
+    return JSON.parse(json) as { iss?: string; exp?: number };
   } catch {
     return null;
   }
@@ -30,10 +30,6 @@ export function isUsableToken(
   const claims = decode(token);
   if (!claims?.exp || claims.exp * 1000 <= Date.now()) return false;
   return Boolean(issuer) && claims.iss === issuer;
-}
-
-export function emailOf(token: string): string | null {
-  return decode(token)?.email ?? null;
 }
 
 export function storeDflToken(token: string, issuer: string = dflIssuer()): void {

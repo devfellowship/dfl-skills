@@ -1,5 +1,6 @@
 import { ArrowUpRight, FileWarning, Lock, Unplug } from "lucide-react";
 import { skillMdGithubUrl, type ReadmeStatus } from "@/lib/readme";
+import { SignInPrompt } from "./SignInPrompt";
 
 interface ReadmeUnavailableProps {
   status: Exclude<ReadmeStatus, "loading" | "ok">;
@@ -20,7 +21,7 @@ export function ReadmeUnavailable({ status, source, slug, detail }: ReadmeUnavai
     private: {
       icon: <Lock className="h-[18px] w-[18px]" strokeWidth={1.9} />,
       title: "Sign in to read this skill",
-      body: `${source} is a private DFL registry. Sign in with your DevFellowship account and the SKILL.md will be rendered here — the site reads it through the registry API, so your browser never needs access to the repo.`,
+      body: `${source} is a private DFL registry. Sign in with GitHub and, if your account is a DFL member, the SKILL.md renders here — the site reads it through the registry API, so your browser never needs access to the repo.`,
       tone: "text-[hsl(33_82%_62%)]",
     },
     missing: {
@@ -49,6 +50,12 @@ export function ReadmeUnavailable({ status, source, slug, detail }: ReadmeUnavai
       <p className="mt-3 max-w-[520px] text-[13.5px] leading-[1.65] text-[hsl(212_11%_58%)]">
         {copy.body}
       </p>
+
+      {status === "private" && (
+        <div className="mt-4">
+          <SignInPrompt size="sm" />
+        </div>
+      )}
 
       {githubUrl && (
         <a

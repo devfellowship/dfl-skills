@@ -3,6 +3,7 @@ import { Button, Card, ToggleGroup, ToggleGroupItem } from "@devfellowship/compo
 import type { Scope } from "@/types";
 import { copyToClipboard } from "@/lib/clipboard";
 import { buildSkillPrompt, skillDirectory } from "@/lib/prompt";
+import { SignInPrompt } from "./SignInPrompt";
 import { DownloadSkillButton } from "./DownloadSkillButton";
 
 interface CopyPromptPanelProps {
@@ -43,7 +44,10 @@ export function CopyPromptPanel({
       {needsSignIn ? (
         <div className="mb-[18px] flex items-start gap-2 rounded-lg border border-dashed border-[hsl(215_15%_18%)] px-3 py-[10px] text-[12.5px] leading-[1.55] text-[hsl(212_11%_58%)]">
           <Lock className="mt-[2px] h-[14px] w-[14px] shrink-0 text-[hsl(33_82%_62%)]" />
-          Sign in with your DevFellowship account to copy this one.
+          <div className="flex flex-col items-start gap-2">
+            Sign in with GitHub to copy this one.
+            <SignInPrompt size="sm" />
+          </div>
         </div>
       ) : (
         <div className="mb-[18px] flex flex-col gap-2">
@@ -68,11 +72,11 @@ export function CopyPromptPanel({
         onValueChange={(value) => {
           if (value) onScopeChange(value as Scope);
         }}
-        className="grid grid-cols-1 sm:grid-cols-2"
+        className="grid grid-cols-2 gap-1"
         aria-label="Installation scope"
       >
-        <ToggleGroupItem value="global">Global (~/.claude/skills)</ToggleGroupItem>
-        <ToggleGroupItem value="project">Project (./.claude/skills)</ToggleGroupItem>
+        <ToggleGroupItem value="global" title="~/.claude/skills">Global</ToggleGroupItem>
+        <ToggleGroupItem value="project" title="./.claude/skills">Project</ToggleGroupItem>
       </ToggleGroup>
     </Card>
   );
