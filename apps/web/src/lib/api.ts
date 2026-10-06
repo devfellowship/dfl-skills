@@ -4,8 +4,12 @@ import { searchApiPath, splitSearchRows, type SearchResults } from "./search";
 import { ApiError } from "./api-error";
 import { adaptPack, adaptPackRefs, packApiPath, type ApiPack, type ApiPackMember } from "./packs";
 
+import { createPluginClient } from "./plugins";
+
 const API_BASE: string =
   (import.meta.env.VITE_API_BASE as string | undefined) ?? "https://skills.devfellowship.com";
+
+export const pluginClient = createPluginClient(API_BASE);
 
 interface ListResponse {
   skills?: ApiSkill[];

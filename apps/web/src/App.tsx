@@ -7,6 +7,8 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import { HomePage } from "@/pages/HomePage";
 import { SkillDetailPage } from "@/pages/SkillDetailPage";
 import { PackDetailPage } from "@/pages/PackDetailPage";
+import { PluginsPage } from "@/pages/PluginsPage";
+import { PluginDetailPage } from "@/pages/PluginDetailPage";
 import { PacksPage } from "@/pages/PacksPage";
 import { MaintainerProfilePage } from "@/pages/MaintainerProfilePage";
 import { DocsPage } from "@/pages/DocsPage";
@@ -25,6 +27,8 @@ export function App() {
             {/* A pack is its own entity (plan ADR-6). It must stay above the
                 catch-all, which renders the HOME page for any unknown path. */}
             <Route path="/p/:owner/:repo/:pack" element={<PackDetailPage />} />
+            <Route path="/plugins" element={<PluginsPage />} />
+            <Route path="/plugins/:owner/:repo/:plugin" element={<PluginDetailPage />} />
             <Route path="/packs" element={<PacksPage />} />
             <Route path="/u/:handle" element={<MaintainerProfilePage />} />
             <Route path="/docs" element={<DocsPage />} />
