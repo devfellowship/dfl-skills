@@ -1,3 +1,4 @@
+import { ReleaseContextNotice } from "@/components/domain/ReleaseContextNotice";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { AlertTriangle, ChevronLeft, Layers, Search } from "lucide-react";
@@ -39,6 +40,7 @@ export function PackDetailPage() {
   return (
     <main className="mx-auto max-w-[1200px] px-6 pb-[90px] pt-6" data-testid="pack-page">
       <BackLink />
+      <ReleaseContextNotice />
 
       {loading ? (
         <SkillDetailSkeleton />
