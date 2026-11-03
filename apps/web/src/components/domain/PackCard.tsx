@@ -7,6 +7,7 @@ import { CARD_MEMBER_CHIPS } from "@/consts/pack-home";
 import { formatDate } from "@/lib/format";
 import { packHref } from "@/lib/packs";
 import { packByline, packContributors } from "@/lib/pack-home";
+import { packUpdatedAt } from "@/lib/pack-sort";
 import { VisibilityBadge } from "./VisibilityBadge";
 import { PackMiniGraph } from "./PackMiniGraph";
 import { PackRoleBar } from "./PackRoleBar";
@@ -31,6 +32,7 @@ export function PackCard({ pack, skills, absorbed = [] }: PackCardProps) {
   const navigate = useNavigate();
   const href = packHref(pack);
   const authors = useMemo(() => packContributors(pack, skills), [pack, skills]);
+  const updatedAt = useMemo(() => packUpdatedAt(pack, skills), [pack, skills]);
   const shown = pack.members.slice(0, CARD_MEMBER_CHIPS);
   const more = pack.memberCount - shown.length;
 
@@ -52,7 +54,13 @@ export function PackCard({ pack, skills, absorbed = [] }: PackCardProps) {
               PACK
             </Badge>
             {pack.visibility !== "public" && <VisibilityBadge visibility={pack.visibility} />}
-            <span className="ml-auto text-[11px] text-[hsl(212_10%_52%)] sm:ml-0">{formatDate(pack.updatedAt)}</span>
+            <span
+              data-testid="pack-updated"
+              data-updated-at={updatedAt}
+              className="ml-auto text-[11px] text-[hsl(212_10%_52%)] sm:ml-0"
+            >
+              Updated {formatDate(updatedAt)}
+            </span>
           </div>
           <Link
             to={href}
